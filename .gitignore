@@ -1,0 +1,13 @@
+.DS_Store
+.claude/
+shots/
+sim/
+Docklet App.dc.html
+
+# Android: local machine config, signing key and build output
+android/local.properties
+android/debug.keystore
+android/build/
+android/.gradle/
+android/.idea/
+android/app/src/main/assets/www/
