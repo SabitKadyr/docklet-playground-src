@@ -12,6 +12,8 @@ It is not a release build of the app.
 - Open "Tweak Docklet" to change motion, speed, dock shape, tabs, haptics and the Pill press style live.
 - Pass any export to the build to try an older version: `python3 build.py "Tabbar App.dc.html"`.
 
+What changed in each version: [CHANGELOG.md](CHANGELOG.md).
+
 ## Files
 
 | Path | What it is |

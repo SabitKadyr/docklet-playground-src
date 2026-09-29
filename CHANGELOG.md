@@ -1,0 +1,30 @@
+# Changelog
+
+Changes after v0.2. Downloads are on the [releases page](https://github.com/SabitKadyr/docklet-playground-src/releases).
+
+## Docklet Playground
+
+### v0.5
+- **No first-run onboarding.** The 4 coach marks (Your apps live here, Tap to search or scan, Swipe up for all apps, the hide gesture) no longer appear. In the Tweak panel, "Replay onboarding" is now "Show tips again" and only brings back the small in-context tips.
+- **Fix:** moving your finger back down during the swipe up that opens the app launcher no longer turns it into a close gesture.
+
+### v0.4
+- **Grabber on the open dock.** The expanded dock and the app launcher show a small handle at the top.
+- **Swipe down to close follows your finger.** Closing the expanded dock or the launcher tracks the finger, like opening does. On release it snaps open or shut depending on where it would end up.
+
+### v0.3
+- **Edge swipes on the dock no longer trigger Android's system Back.** The prototype tells the app where the dock and its hidden edge are, and the app keeps the system Back gesture out of that area. A hidden dock can be pulled back in starting right at the screen edge.
+- **Back never closes the app.** Back and the Back gesture close one layer at a time: menu, search, the expanded Pill, the app launcher, a card, a chat or mini app, then the Tweak panel. With nothing open, Back brings a hidden dock back. The Home gesture still leaves the app.
+
+## Docklet Recorder
+
+### v0.5
+- Uses the Playground v0.5 prototype: no first-run onboarding, and the swipe-up fix.
+
+### v0.4
+- Uses the Playground v0.4 prototype: grabber on the open dock, and swipe down to close follows the finger.
+
+### v0.3
+- Uses the Playground v0.3 prototype.
+- Edge swipes on the dock no longer trigger Android's system Back, so gestures that start at the screen edge are recorded instead of closing the app.
+- Back never closes the app. It closes the prototype's layers one at a time, and with nothing open it brings a hidden dock back.
