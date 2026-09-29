@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,7 +32,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -221,6 +228,41 @@ public class MainActivity extends Activity {
 
     /** Page-to-app calls. Every method runs on a WebView background thread. */
     private final class NativeBridge {
+        /**
+         * The page reports where the dock can be dragged, as a JSON array of {x, y, w, h} in CSS
+         * px of the viewport. The system Back gesture is switched off inside those rects, so an
+         * edge swipe there reaches the dock. Android honours at most 200 dp per screen edge,
+         * counted from the bottom, which covers the dock.
+         */
+        @JavascriptInterface
+        public void setGestureZones(String json) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                return;
+            }
+            final List<Rect> rects = new ArrayList<>();
+            try {
+                float d = getResources().getDisplayMetrics().density;
+                JSONArray a = new JSONArray(json == null ? "[]" : json);
+                for (int i = 0; i < a.length() && i < 8; i++) {
+                    JSONObject o = a.getJSONObject(i);
+                    int x = Math.round((float) o.getDouble("x") * d);
+                    int y = Math.round((float) o.getDouble("y") * d);
+                    int w = Math.round((float) o.getDouble("w") * d);
+                    int h = Math.round((float) o.getDouble("h") * d);
+                    if (w > 0 && h > 0) {
+                        rects.add(new Rect(x, y, x + w, y + h));
+                    }
+                }
+            } catch (JSONException e) {
+                return;
+            }
+            runOnUiThread(() -> {
+                if (webView != null) {
+                    webView.setSystemGestureExclusionRects(rects);
+                }
+            });
+        }
+
         @JavascriptInterface
         public boolean save(String name, String mime, String base64) {
             String safe = name == null ? "" : name.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
@@ -295,12 +337,24 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * Back never closes the app: the page decides what it closes (menu, search, launcher, ...).
+     * Real history entries are walked with goBack(). Chromium skips entries a page pushed without
+     * a user gesture (the page's load-time "guard" entry), so canGoBack() can be false while the
+     * page still wants Back; then a popstate is dispatched to it directly. Home still leaves.
+     */
     @Override
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
+        if (webView == null) {
+            super.onBackPressed();
+        } else if (webView.canGoBack()) {
             webView.goBack();
         } else {
-            super.onBackPressed();
+            // Every frame, so the recorder's embedded prototype gets it too.
+            webView.evaluateJavascript(
+                    "[window].concat(Array.prototype.slice.call(window.frames)).forEach(function (w) {"
+                            + " try { w.dispatchEvent(new w.PopStateEvent('popstate', { state: w.history.state })); }"
+                            + " catch (e) {} })", null);
         }
     }
 

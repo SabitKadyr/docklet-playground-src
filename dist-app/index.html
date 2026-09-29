@@ -1270,6 +1270,8 @@ this.setState({camOn:on});
 }
 componentDidUpdate(pp,psArg){
 const st=this.state;
+if(window.__dockletProbe)try{window.__dockletProbe(st)}catch(e){}
+this.syncBack();if(this._zq)this._zq();
 const ps=psArg||this.__prevState||{};
 this.__prevState=st;
 this.driveGlass();
@@ -1330,6 +1332,12 @@ if(this.state.appsOpen&&!this.state.expanded)this.setState({appsIn:true});
 else this.setState({appsIn:false});
 }
 componentDidMount(){
+window.__dockletState=()=>this.state;
+this._bk={d:0,skip:0};
+try{history.replaceState({dock:"root"},"");history.pushState({dock:"guard"},"");}catch(e){}
+window.addEventListener("popstate",()=>this.onBack());
+this._zq=()=>{if(!window.DockletNative||this._zr)return;this._zr=requestAnimationFrame(()=>{this._zr=0;this.sendZones();});};
+window.addEventListener("pointermove",this._zq,true);window.addEventListener("pointerup",()=>setTimeout(this._zq,400),true);window.addEventListener("resize",this._zq);
 {const sn=this.seenGet();this._tipHides=sn.dockTip?9:0;
 this.setState({dockTipSeen:!!sn.dockTip,launchTipSeen:!!sn.launchTip,tipSeen:!!sn.slotTip});
 if(!sn.ob)this.obT=setTimeout(()=>this.setState({ob:1}),700);}
@@ -1870,6 +1878,31 @@ if((this._tipHides=(this._tipHides||0)+1)<=2&&!s.dockTipSeen)patch.dockTipOpen=t
 this.haptic("light");
 this.setState(patch);
 }
+layers(){const s=this.state;return[(s.menuFor!=null||s.dockMenu)&&"menu",s.inputMode&&"input",s.expanded&&"pill",s.appsOpen&&"apps",s.cardOpen&&"card",s.chatOpen!=null&&"chat",s.appFg&&s.activeApp&&"app",s.screen==="controls"&&"tweak"].filter(Boolean);}
+syncBack(){const B=this._bk;if(!B)return;const n=this.layers().length;
+while(B.d<n){B.d++;try{history.pushState({dock:"layer",n:B.d},"");}catch(e){}}
+if(B.d>n){const k=B.d-n;B.d=n;B.skip++;try{history.go(-k);}catch(e){B.skip--;}}}
+onBack(){const B=this._bk;if(!B)return;if(B.skip>0){B.skip--;return;}
+if(B.d>0)B.d--;else try{history.pushState({dock:"guard"},"");}catch(e){}
+const s=this.state,top=this.layers()[0];
+if(!top){if(s.gate!=="none"||s.barRetract!=="none")this.restoreDock();return;}
+({menu:()=>this.setState({menuFor:null,dockMenu:false}),
+input:()=>this.setState({inputMode:false}),
+pill:()=>this.collapseDock(),apps:()=>this.collapseDock(),
+card:()=>{clearTimeout(this.cardT);this.setState({cardOpen:null,cardClosing:s.cardOpen,cashDetails:false});this.cardT=setTimeout(()=>this.setState({cardClosing:null}),300);},
+chat:()=>{clearTimeout(this.chatT);this.setState({chatOpen:null,chatClosing:true,chatKb:false});this.restoreDock();this.chatT=setTimeout(()=>this.setState({chatClosing:false}),320);},
+app:()=>this.leaveApp(),
+tweak:()=>{clearTimeout(this.tweakT);this.setState({screen:"chats",tweakFade:true});this.tweakT=setTimeout(()=>this.setState({tweakFade:false}),460);}})[top]();}
+sendZones(){const N=window.DockletNative;if(!N||!N.setGestureZones)return;
+const s=this.state,g=(this.glassRimRef&&this.glassRimRef.current)||(this.dockRef&&this.dockRef.current);let Z=[];
+if(g&&!s.cardOpen){const r=g.getBoundingClientRect(),vw=innerWidth,vh=innerHeight,bh=Math.min(r.height,s.barHeight*(s.scale||1)),hid=s.gate!=="none"||s.barRetract!=="none";
+if(!hid){Z=[{x:r.left-24,y:r.bottom-bh-24,w:r.width+48,h:bh+48}];this._zs=Z[0];}
+else{const L=Math.max(0,r.left),Rr=Math.min(vw,r.right),right=r.left+r.width / 2>vw / 2;let x=L,w=Rr-L;
+if(w<48){x=right?vw-48:0;w=48;}
+const b=Math.min(vh,Math.max(r.bottom,this._zs?this._zs.y+this._zs.h:r.bottom));
+Z=[{x,y:b-bh-48,w,h:bh+48}];if(this._zs)Z.push(this._zs);}
+Z=Z.map((z)=>{const x=Math.max(0,z.x),y=Math.max(0,z.y);return{x:Math.round(x),y:Math.round(y),w:Math.round(Math.min(vw,z.x+z.w)-x),h:Math.round(Math.min(vh,z.y+z.h)-y)};}).filter((z)=>z.w>0&&z.h>0);}
+const j=JSON.stringify(Z);if(j===this._zj)return;this._zj=j;try{N.setGestureZones(j);}catch(e){}}
 restoreDock(){
 this.setState({gate:"none",barRetract:"none",pillRetract:"none"});
 }
