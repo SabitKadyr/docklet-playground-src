@@ -2,15 +2,21 @@ package com.docklet.app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -18,9 +24,13 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,6 +120,11 @@ public class MainActivity extends Activity {
                 handleWebPermission(request);
             }
         });
+
+        // WebView ignores <a download href="blob:...">, and navigator.share is missing, so a page
+        // that exports files (the gesture recorder) hands them to DockletNative.save instead; the
+        // build injects the shim that routes blob downloads here.
+        webView.addJavascriptInterface(new NativeBridge(), "DockletNative");
 
         setContentView(webView);
 
@@ -202,6 +217,66 @@ public class MainActivity extends Activity {
         String ext = path.substring(dot + 1).toLowerCase();
         String mime = MIME_TYPES.get(ext);
         return mime != null ? mime : "application/octet-stream";
+    }
+
+    /** Page-to-app calls. Every method runs on a WebView background thread. */
+    private final class NativeBridge {
+        @JavascriptInterface
+        public boolean save(String name, String mime, String base64) {
+            String safe = name == null ? "" : name.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+            if (safe.isEmpty()) {
+                safe = "export";
+            }
+            String type = mime == null || mime.isEmpty() ? "application/octet-stream" : mime;
+            String folder = getApplicationInfo().loadLabel(getPackageManager()).toString();
+            try {
+                byte[] data = Base64.decode(base64, Base64.DEFAULT);
+                String where = writeDownload(folder, safe, type, data);
+                toast("Saved " + safe + " to " + where);
+                return true;
+            } catch (Exception e) {
+                toast("Could not save " + safe + ": " + e.getMessage());
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Downloads/<app label>/<name>. API 29+ goes through MediaStore and needs no permission;
+     * older releases fall back to the app's own external files dir, also permission-free.
+     */
+    private String writeDownload(String folder, String name, String mime, byte[] data) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentResolver cr = getContentResolver();
+            ContentValues v = new ContentValues();
+            v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+            v.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+            v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/" + folder);
+            Uri uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+            if (uri == null) {
+                throw new IOException("MediaStore refused the file");
+            }
+            try (OutputStream out = cr.openOutputStream(uri)) {
+                if (out == null) {
+                    throw new IOException("no output stream");
+                }
+                out.write(data);
+            }
+            return "Downloads/" + folder;
+        }
+        File dir = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), folder);
+        if (!dir.isDirectory() && !dir.mkdirs()) {
+            throw new IOException("cannot create " + dir);
+        }
+        File f = new File(dir, name);
+        try (OutputStream out = new FileOutputStream(f)) {
+            out.write(data);
+        }
+        return dir.getAbsolutePath();
+    }
+
+    private void toast(final String text) {
+        runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
     }
 
     /** Draw behind the system bars - the design already reserves room for them. */

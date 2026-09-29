@@ -70,13 +70,12 @@ if ("serviceWorker" in navigator) {
 '''
 
 
-def main():
-    src_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, DEFAULT_SRC)
-    if not os.path.exists(src_path):
-        raise SystemExit("missing source: " + src_path)
-    print("source      : " + os.path.basename(src_path))
-    src = open(src_path, encoding="utf-8").read()
+def process_page(src, head_extra=HEAD_EXTRA):
+    """Turn one Claude Design export into an offline page (the APK variant, no service worker).
 
+    Returns (html, number_of_inlined_assets). Shared by main() and build_recorder.py, so every
+    page the gesture recorder embeds gets exactly the same treatment as the playground itself.
+    """
     inlined = 0
     for path in sorted(set(re.findall(r"assets/[A-Za-z0-9._/-]+", src))):
         # A bare folder is the export building a URL at runtime ("./assets/settings/" + icon);
@@ -114,12 +113,12 @@ def main():
         raise SystemExit("support.js script tag not found - did the export format change?")
 
     src = src.replace(tag, RESOURCES + tag, 1)
-    src = src.replace("</head>", HEAD_EXTRA + "</head>", 1)
+    if head_extra:
+        src = src.replace("</head>", head_extra + "</head>", 1)
+    return src, inlined
 
-    web = src.replace("</head>", SW_REGISTER + "</head>", 1)
 
-    os.makedirs(OUT, exist_ok=True)
-    open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(web)
+def patched_runtime():
     # dc-runtime maps lowercased DOM attributes back to React event props via EVENT_MAP.
     # "onpointerdowncapture" is missing there, so the fallback yields "onPointerdowncapture",
     # which React ignores: every on*Capture handler in the export silently never fires
@@ -131,9 +130,22 @@ def main():
                '? EVENT_MAP[key.slice(0, -7)] + "Capture" : "on" + key[2].toUpperCase() + key.slice(3));')
     if fallback not in runtime:
         raise SystemExit("support.js event-name fallback not found - runtime changed, re-check Capture handlers")
-    runtime = runtime.replace(fallback, capture, 1)
     print("support.js: on*Capture event mapping patched")
-    open(os.path.join(OUT, "support.js"), "w", encoding="utf-8").write(runtime)
+    return runtime.replace(fallback, capture, 1)
+
+
+def main():
+    src_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, DEFAULT_SRC)
+    if not os.path.exists(src_path):
+        raise SystemExit("missing source: " + src_path)
+    print("source      : " + os.path.basename(src_path))
+    src, inlined = process_page(open(src_path, encoding="utf-8").read())
+
+    web = src.replace("</head>", SW_REGISTER + "</head>", 1)
+
+    os.makedirs(OUT, exist_ok=True)
+    open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(web)
+    open(os.path.join(OUT, "support.js"), "w", encoding="utf-8").write(patched_runtime())
     for name in VENDOR:
         shutil.copy(os.path.join(ROOT, "vendor", name), os.path.join(OUT, name))
     for folder in SHIPPED_DIRS:

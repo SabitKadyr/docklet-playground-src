@@ -11,3 +11,7 @@ android/build/
 android/.gradle/
 android/.idea/
 android/app/src/main/assets/www/
+
+# Recorder build output (build_recorder.py)
+recorder-app/
+android/build-recorder/

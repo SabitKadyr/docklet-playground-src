@@ -22,6 +22,8 @@ It is not a release build of the app.
 | `build.py` | Builds `dist-app/` and syncs the Android payload |
 | `dist-app/` | Web build, open `index.html` over https |
 | `android/` | Minimal WebView wrapper that ships the prototype inside an APK |
+| `BoBw Gesture Recorder.dc.html` | Gesture recorder that loads the prototype pages and records touches |
+| `build_recorder.py` | Builds the recorder as a separate app, Docklet Recorder |
 
 ## Build
 
@@ -35,6 +37,20 @@ bash android/make_apk.sh
 
 The APK lands in `android/build/docklet-playground.apk`. The script creates a local debug signing key on
 first run. See `android/README.md` for details.
+
+## Gesture recorder
+
+Docklet Recorder is a separate app (`com.docklet.recorder`) that installs next to the playground.
+It loads any prototype page from its list, records every touch while you use it, and recognises the
+gesture. Each take exports as JSON, CSV or a PNG of the traces into `Download/Docklet Recorder` on the phone.
+
+```bash
+python3 build_recorder.py
+```
+
+The APK lands in `android/build-recorder/docklet-recorder.apk`. The PNG shows the traces on a black
+background: the page screenshot needs a library the recorder loads from the internet, and the app
+has no network access.
 
 ## Known limitation
 

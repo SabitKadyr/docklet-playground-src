@@ -22,9 +22,17 @@ PLATFORM="$(ls -1d "$SDK"/platforms/*/ 2>/dev/null | sort -V | tail -1)"
 ANDROID_JAR="$PLATFORM/android.jar"
 
 SRC="$HERE/app/src/main"
-OUT="$HERE/build"
 KEYSTORE="$HERE/debug.keystore"
-APK="$OUT/docklet-playground.apk"
+# Overridable so one wrapper builds several apps (see ../build_recorder.py). The defaults build
+# the playground exactly as before.
+#   APP_ID     applicationId; a different one installs side by side with the playground
+#   APP_LABEL  launcher name; unset keeps @string/app_name
+#   ASSET_BASE directory holding assets/www to ship
+#   OUT        build dir - it is wiped on every run, so give each app its own
+#   APK_NAME   output file name inside OUT
+OUT="${OUT:-$HERE/build}"
+ASSET_BASE="${ASSET_BASE:-$SRC}"
+APK="$OUT/${APK_NAME:-docklet-playground.apk}"
 
 echo "build-tools : $BT"
 echo "platform    : $PLATFORM"
@@ -38,9 +46,16 @@ mkdir -p "$OUT/res" "$OUT/classes" "$OUT/dex" "$OUT/gen"
 #    build paths work off the same source manifest.
 PKG="$(sed -n 's/.*namespace *= *"\([^"]*\)".*/\1/p' "$HERE/app/build.gradle.kts")"
 [ -n "$PKG" ] || { echo "could not read namespace from app/build.gradle.kts" >&2; exit 1; }
-echo "package     : $PKG"
-sed "s|<manifest |<manifest package=\"$PKG\" |" \
-  "$SRC/AndroidManifest.xml" > "$OUT/AndroidManifest.xml"
+APP_ID="${APP_ID:-$PKG}"
+echo "package     : $APP_ID"
+# The Java classes stay in $PKG whatever APP_ID is, so the activity name is made fully
+# qualified; the label is swapped for a literal when APP_LABEL is set.
+MANIFEST_SED=(-e "s|<manifest |<manifest package=\"$APP_ID\" |"
+              -e "s|android:name=\"\\.MainActivity\"|android:name=\"$PKG.MainActivity\"|")
+if [ -n "${APP_LABEL:-}" ]; then
+  MANIFEST_SED+=(-e "s|android:label=\"@string/app_name\"|android:label=\"$APP_LABEL\"|")
+fi
+sed "${MANIFEST_SED[@]}" "$SRC/AndroidManifest.xml" > "$OUT/AndroidManifest.xml"
 
 # 1. compile resources
 "$BT/aapt2" compile --dir "$SRC/res" -o "$OUT/res/compiled.zip"
@@ -77,7 +92,7 @@ find "$SRC/java" "$OUT/gen" -name '*.java' -print0 \
 # 5. add classes.dex and assets into the APK
 cp "$OUT/base.apk" "$OUT/unsigned.apk"
 (cd "$OUT/dex" && "$JAVA_HOME/bin/jar" uf "$OUT/unsigned.apk" classes.dex)
-(cd "$SRC" && "$JAVA_HOME/bin/jar" uf "$OUT/unsigned.apk" assets)
+(cd "$ASSET_BASE" && "$JAVA_HOME/bin/jar" uf "$OUT/unsigned.apk" assets)
 
 # 6. align
 "$BT/zipalign" -p -f 4 "$OUT/unsigned.apk" "$OUT/aligned.apk"
