@@ -1338,7 +1338,7 @@ this._zq=()=>{if(!window.DockletNative||this._zr)return;this._zr=requestAnimatio
 window.addEventListener("pointermove",this._zq,true);window.addEventListener("pointerup",()=>setTimeout(this._zq,400),true);window.addEventListener("resize",this._zq);
 {const sn=this.seenGet();this._tipHides=sn.dockTip?9:0;
 this.setState({dockTipSeen:!!sn.dockTip,launchTipSeen:!!sn.launchTip,tipSeen:!!sn.slotTip});
-if(!sn.ob)this.obT=setTimeout(()=>this.setState({ob:1}),700);}
+}
 this._hitFix=(e)=>{
 const t=e.target,scr=t&&t.closest?t.closest("[data-screen]"):null;
 if(!scr||t.closest('[style*="cursor: pointer"],[style*="cursor: grab"],input,textarea,[data-nopress]')||this.state.screen==="controls"||this.state.expanded||this.state.inputMode||this.state.appsOpen||(this.dockRef.current&&this.dockRef.current.contains(t)))return;
@@ -1866,7 +1866,7 @@ seenGet(){try{return JSON.parse(window.localStorage.getItem("docklet.seen")||"{}
 seenSet(k,v){const o=this.seenGet();o[k]=v;try{window.localStorage.setItem("docklet.seen",JSON.stringify(o));}catch(e){}}
 toast(text,undo){clearTimeout(this.toastT);this._undo=undo||null;this.setState({toast:{text,undo:!!undo}});this.toastT=setTimeout(()=>this.setState({toast:null}),3600);}
 obDone(){this.setState({ob:0});this.seenSet("ob",1);}
-replayOb(){try{window.localStorage.removeItem("docklet.seen");}catch(e){}this._tipHides=0;this.setState({dockTipSeen:false,launchTipSeen:false,tipSeen:false,screen:"chats",ob:1});}
+replayOb(){try{window.localStorage.removeItem("docklet.seen");}catch(e){}this._tipHides=0;this.setState({dockTipSeen:false,launchTipSeen:false,tipSeen:false,screen:"chats",ob:0});}
 tipRestore(){const st=this.state,slide=st.barRetract!=="none",sd=slide?st.barRetract:st.gate;if(sd&&sd!=="none")this.hideSettle(slide?"slide":st.mode,sd,1,0,0);}
 autoHide(){
 const s=this.state;
@@ -3663,7 +3663,7 @@ arc:"Swipe the dock "+sd+". It curves up and away along the edge. To bring it ba
 slide:"Swipe the dock "+sd+" to tuck it into the edge. To bring it back, drag the edge in or tap it.",
 })[s.mode]||"")(s.leftHanded?"left":"right")},
 ].filter(Boolean)},
-{title:"Help",items:[{btn:()=>this.replayOb(),btnLabel:"Replay onboarding"}]},
+{title:"Help",items:[{btn:()=>this.replayOb(),btnLabel:"Show tips again"}]},
 ].reduce((acc,g)=>{
 acc[g.title]=(g.items||[]).filter(Boolean);
 return acc;
