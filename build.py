@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build dist-app/ (APK input) from a Docklet HTML export.
 
-Source defaults to 'Tabbar App.dc.html'; pass another export as argv[1].
+Source defaults to 'Best of Both Worlds.dc.html'; pass another export as argv[1].
 
 Inlines every assets/* reference as a data URI so the shipped page has no
 local asset dependencies. support.js is copied, NOT inlined: the runtime locates
@@ -11,7 +11,7 @@ source contains that literal, so inlining makes the scan swallow the runtime.
 import base64, mimetypes, os, re, shutil, sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_SRC = "Tabbar App.dc.html"
+DEFAULT_SRC = "Best of Both Worlds.dc.html"
 OUT = os.path.join(ROOT, "dist-app")
 ANDROID_ASSETS = os.path.join(ROOT, "android", "app", "src", "main", "assets", "www")
 

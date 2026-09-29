@@ -10,12 +10,14 @@ It is not a release build of the app.
 - Tap the centre Pill to open search with a live camera.
 - Hide the dock with one of four gestures: Slide, Reverse Park, Boom Gate or Pivot Turn.
 - Open "Tweak Docklet" to change motion, speed, dock shape, tabs, haptics and the Pill press style live.
+- Pass any export to the build to try an older version: `python3 build.py "Tabbar App.dc.html"`.
 
 ## Files
 
 | Path | What it is |
 |---|---|
-| `Tabbar App.dc.html` | Prototype source, exported from Claude Design |
+| `Best of Both Worlds.dc.html` | Current prototype source, exported from Claude Design. `build.py` uses it by default |
+| `Tabbar App.dc.html`, `Tabbar Improved.dc.html`, `Tabbar Improved Better.dc.html` | Earlier exports, kept for comparison |
 | `support.js`, `assets/`, `vendor/` | Runtime, icons and images, bundled React 18.3.1 |
 | `build.py` | Builds `dist-app/` and syncs the Android payload |
 | `dist-app/` | Web build, open `index.html` over https |

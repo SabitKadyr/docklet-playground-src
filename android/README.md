@@ -62,7 +62,7 @@ python3 ../build.py    # rebuilds dist-app/ and syncs assets/www/
 ./make_apk.sh
 ```
 
-`build.py` defaults to `../Tabbar App.dc.html`; pass another export as its
+`build.py` defaults to `../Best of Both Worlds.dc.html`; pass another export as its
 first argument to build from that one instead.
 
 ## Signing
