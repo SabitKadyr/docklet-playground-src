@@ -26,6 +26,7 @@ What changed in each version: [CHANGELOG.md](CHANGELOG.md).
 | `android/` | Minimal WebView wrapper that ships the prototype inside an APK |
 | `BoBw Gesture Recorder.dc.html` | Gesture recorder that loads Best of Both Worlds and records touches |
 | `build_recorder.py` | Builds the recorder as a separate app, Docklet Recorder |
+| `RECORDER.md` | Tester guide: how to record gestures and send the logs |
 
 ## Build
 
@@ -45,6 +46,10 @@ first run. See `android/README.md` for details.
 Docklet Recorder is a separate app (`com.docklet.recorder`) that installs next to the playground.
 It loads the Best of Both Worlds prototype, records every touch while you use it, and recognises the
 gesture. Tap the record button to start and again to stop. Each take exports as JSON, CSV or a PNG of the traces into `Download/Docklet Recorder` on the phone.
+
+**Testers:** step-by-step guide to recording gestures and sending logs in [RECORDER.md](RECORDER.md).
+
+To build it:
 
 ```bash
 python3 build_recorder.py
