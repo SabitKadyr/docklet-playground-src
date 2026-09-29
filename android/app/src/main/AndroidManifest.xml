@@ -3,7 +3,7 @@
     android:versionCode="1"
     android:versionName="1.0">
 
-    <!-- versionCode/versionName live here so make_apk.sh (raw aapt2, no Gradle)
+    <!-- Placeholders: make_apk.sh and app/build.gradle.kts both set the real values from ../versions.json.
          produces a properly versioned APK. Gradle's defaultConfig overrides
          these with the same values when building through Android Studio. -->
 

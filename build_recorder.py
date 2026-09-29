@@ -81,7 +81,7 @@ def main():
     for folder in build.SHIPPED_DIRS:
         shutil.copytree(os.path.join(ROOT, folder), os.path.join(STAGE, folder))
 
-    env = dict(os.environ, APP_ID=APP_ID, APP_LABEL=APP_LABEL, ASSET_BASE=STAGE_BASE,
+    env = dict(os.environ, APP_ID=APP_ID, APP_LABEL=APP_LABEL, ASSET_BASE=STAGE_BASE, VERSION_KEY="recorder",
                OUT=APK_OUT, APK_NAME=APK_NAME)
     subprocess.run(["bash", os.path.join(ROOT, "android", "make_apk.sh")], env=env, check=True)
     if missing:

@@ -44,8 +44,9 @@ first run. See `android/README.md` for details.
 ## Gesture recorder
 
 Docklet Recorder is a separate app (`com.docklet.recorder`) that installs next to the playground.
-It loads the Best of Both Worlds prototype, records every touch while you use it, and recognises the
-gesture. Tap the record button to start and again to stop. Each take exports as JSON, CSV or a PNG of the traces into `Download/Docklet Recorder` on the phone.
+It loads the Best of Both Worlds prototype and records how you use it. In Session mode (the default) one
+recording covers many gestures and logs what each one changed in the prototype. In Take mode each
+recording is one gesture with a snapshot and replay. Each take exports as JSON, CSV or a PNG of the traces into `Download/Docklet Recorder` on the phone.
 
 **Testers:** step-by-step guide to recording gestures and sending logs in [RECORDER.md](RECORDER.md).
 
@@ -58,6 +59,12 @@ python3 build_recorder.py
 The APK lands in `android/build-recorder/docklet-recorder.apk`. The PNG shows the traces on a black
 background: the page screenshot needs a library the recorder loads from the internet, and the app
 has no network access.
+
+## Versions
+
+Both apps take their version from `versions.json` (`"playground"` and `"recorder"`, as `major.minor.patch`).
+`make_apk.sh` and the Android Studio build read it, and the versionCode is `major*10000 + minor*100 + patch`.
+Bump the number there before a release. Release tags are `vX.Y` for the playground and `recorder-vX.Y` for the recorder.
 
 ## Known limitation
 

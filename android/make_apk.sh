@@ -48,10 +48,22 @@ PKG="$(sed -n 's/.*namespace *= *"\([^"]*\)".*/\1/p' "$HERE/app/build.gradle.kts
 [ -n "$PKG" ] || { echo "could not read namespace from app/build.gradle.kts" >&2; exit 1; }
 APP_ID="${APP_ID:-$PKG}"
 echo "package     : $APP_ID"
+# Version comes from ../versions.json (key VERSION_KEY, default "playground") unless VERSION_NAME
+# is given. versionCode = major*10000 + minor*100 + patch, so every release installs as an update.
+VERSION_KEY="${VERSION_KEY:-playground}"
+if [ -z "${VERSION_NAME:-}" ]; then
+  VERSION_NAME="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' \
+    "$HERE/../versions.json" "$VERSION_KEY")"
+fi
+IFS=. read -r VMAJ VMIN VPAT <<< "$VERSION_NAME"
+VERSION_CODE="${VERSION_CODE:-$(( 10#${VMAJ:-0} * 10000 + 10#${VMIN:-0} * 100 + 10#${VPAT:-0} ))}"
+echo "version     : $VERSION_NAME ($VERSION_CODE)"
 # The Java classes stay in $PKG whatever APP_ID is, so the activity name is made fully
 # qualified; the label is swapped for a literal when APP_LABEL is set.
 MANIFEST_SED=(-e "s|<manifest |<manifest package=\"$APP_ID\" |"
-              -e "s|android:name=\"\\.MainActivity\"|android:name=\"$PKG.MainActivity\"|")
+              -e "s|android:name=\"\\.MainActivity\"|android:name=\"$PKG.MainActivity\"|"
+              -e "s|android:versionCode=\"[0-9]*\"|android:versionCode=\"$VERSION_CODE\"|"
+              -e "s|android:versionName=\"[^\"]*\"|android:versionName=\"$VERSION_NAME\"|")
 if [ -n "${APP_LABEL:-}" ]; then
   MANIFEST_SED+=(-e "s|android:label=\"@string/app_name\"|android:label=\"$APP_LABEL\"|")
 fi

@@ -1,6 +1,6 @@
 # Changelog
 
-Changes after v0.2. Downloads are on the [releases page](https://github.com/SabitKadyr/docklet-playground-src/releases).
+Changes after v0.2. App versions come from `versions.json`. Downloads are on the [releases page](https://github.com/SabitKadyr/docklet-playground-src/releases).
 
 ## Docklet Playground
 
@@ -17,6 +17,11 @@ Changes after v0.2. Downloads are on the [releases page](https://github.com/Sabi
 - **Back never closes the app.** Back and the Back gesture close one layer at a time: menu, search, the expanded Pill, the app launcher, a card, a chat or mini app, then the Tweak panel. With nothing open, Back brings a hidden dock back. The Home gesture still leaves the app.
 
 ## Docklet Recorder
+
+### v0.6
+- **Session recording, now the default.** Tap the red dot once and use the prototype normally, for as long as you like, then tap Stop. There's no red border or finger trail while recording. The result is one "Session" in Takes: how many gestures of each kind you made, what each gesture changed in the prototype (for example the dock hiding or the launcher opening), and which gestures did nothing.
+- **Take mode is still there.** Switch to it in the recorder settings, under Recording, to record one gesture per take with a snapshot and replay, as before.
+- **Proper version numbers.** The app now reports version 0.6.0 (code 600) instead of 1.0, and installs as an update over older builds.
 
 ### v0.5
 - Uses the Playground v0.5 prototype: no first-run onboarding, and the swipe-up fix.

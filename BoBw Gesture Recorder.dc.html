@@ -28,14 +28,14 @@ select { font-family: inherit; }
 <sc-if value="{{ scrimOn }}" hint-placeholder-val="{{ false }}">
 <div style="position:absolute;inset:0;z-index:4;background:rgba(5,5,6,0.6);pointer-events:auto"></div>
 </sc-if>
-<sc-if value="{{ rec }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ recBorder }}" hint-placeholder-val="{{ false }}">
 <div style="position:absolute;inset:0;z-index:20;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 3px #ff3b30"></div>
 </sc-if>
 
 <sc-if value="{{ collapsed }}" hint-placeholder-val="{{ true }}">
 <div onClick="{{ onExpand }}" style="{{ miniStyle }}" style-active="opacity:0.75" title="Gesture recorder">
 <div style="{{ miniDot }}"></div>
-<sc-if value="{{ rec }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Geist Mono', monospace;font-size:12px;font-weight:500;color:#ffffff;font-variant-numeric:tabular-nums">{{ elapsed }}</span></sc-if>
+<sc-if value="{{ miniTime }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Geist Mono', monospace;font-size:12px;font-weight:500;color:#ffffff;font-variant-numeric:tabular-nums">{{ elapsed }}</span></sc-if>
 </div>
 </sc-if>
 <sc-if value="{{ expanded }}" hint-placeholder-val="{{ false }}">
@@ -63,12 +63,18 @@ select { font-family: inherit; }
 </sc-if>
 
 <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}">
-<div style="position:absolute;z-index:31;top:112px;left:50%;transform:translateX(-50%);padding:10px 16px;border-radius:18px;background:rgba(20,20,24,0.92);box-shadow:inset 0 0 0 0.5px rgba(255,255,255,0.12);font-size:13px;color:#d4d4da;animation:gtIn 220ms ease-out both">Saving take…</div>
+<div style="position:absolute;z-index:31;top:112px;left:50%;transform:translateX(-50%);padding:10px 16px;border-radius:18px;background:rgba(20,20,24,0.92);box-shadow:inset 0 0 0 0.5px rgba(255,255,255,0.12);font-size:13px;color:#d4d4da;animation:gtIn 220ms ease-out both">Building report…</div>
 </sc-if>
 
 <sc-if value="{{ settingsOpen }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ onToggleSettings }}" style="position:absolute;inset:0;z-index:32;pointer-events:auto"></div>
 <div style="position:absolute;z-index:33;top:112px;left:50%;transform:translateX(-50%);pointer-events:auto;width:min(320px, calc(100% - 16px));box-sizing:border-box;padding:8px;border-radius:22px;background:#141418;box-shadow:inset 0 0 0 0.5px rgba(255,255,255,0.12), 0 20px 50px rgba(0,0,0,0.55);display:flex;flex-direction:column;animation:gtIn 200ms ease-out both">
+<div style="min-height:48px;display:flex;align-items:center;gap:12px;padding:6px 10px">
+<div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:500">Recording</span><span style="font-size:12px;color:#9a9aa3;text-wrap:pretty">{{ modeHint }}</span></div>
+<div style="display:flex;gap:2px;padding:2px;border-radius:12px;background:rgba(255,255,255,0.06)">
+<sc-for list="{{ recModes }}" as="rm" hint-placeholder-count="2"><div onClick="{{ rm.tap }}" style="{{ rm.style }}">{{ rm.label }}</div></sc-for>
+</div>
+</div>
 <div onClick="{{ onSnap }}" style="min-height:48px;display:flex;align-items:center;gap:12px;padding:0 10px;border-radius:14px;cursor:pointer" style-active="background:rgba(255,255,255,0.05)">
 <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:500">Capture screen</span><span style="font-size:12px;color:#9a9aa3">Use the page as the snapshot background</span></div>
 <div style="{{ snapTrack }}"><div style="{{ snapKnob }}"></div></div>
@@ -150,6 +156,9 @@ select { font-family: inherit; }
 <svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
 </div>
 </div>
+<sc-if value="{{ det.overview }}" hint-placeholder-val="{{ false }}">
+<div style="margin:8px 4px 0"><div style="{{ det.overviewStyle }}"></div></div>
+</sc-if>
 <div style="margin:8px 4px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,0.04);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px">
 <sc-for list="{{ det.device }}" as="d" hint-placeholder-count="4">
 <div style="display:flex;flex-direction:column;min-width:0"><span style="font-size:11px;color:#9a9aa3">{{ d.k }}</span><span style="font-family:'Geist Mono', monospace;font-size:12px;color:#e4e4e8;word-break:break-word">{{ d.v }}</span></div>
@@ -166,14 +175,25 @@ select { font-family: inherit; }
 <div style="display:flex;justify-content:space-between;gap:8px;min-width:0;border-bottom:0.5px solid rgba(255,255,255,0.06);padding:3px 0"><span style="font-size:12px;color:#9a9aa3">{{ r.k }}</span><span style="font-family:'Geist Mono', monospace;font-size:12px;color:#f4f4f5;text-align:right">{{ r.v }}</span></div>
 </sc-for>
 </div>
+<sc-if value="{{ f.curve }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex;flex-direction:column;gap:4px">
 <span style="font-size:11px;color:#9a9aa3">Speed over time · peak {{ f.peak }}</span>
 <svg viewBox="0 0 200 48" preserveAspectRatio="none" style="width:100%;height:56px;display:block;background:rgba(255,255,255,0.03);border-radius:8px">
 <polyline points="{{ f.curve }}" fill="none" stroke="{{ f.color }}" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
 </svg>
 </div>
+</sc-if>
 </div>
 </sc-for>
+<div style="margin:8px 4px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+<sc-for list="{{ det.gallery }}" as="g" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+<div style="{{ g.img }}"></div>
+<span style="font-size:11px;line-height:14px;font-weight:600;color:#f4f4f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.title }}</span>
+<span style="{{ g.infoStyle }}">{{ g.info }}</span>
+</div>
+</sc-for>
+</div>
 </div>
 </sc-if>
 
@@ -380,9 +400,23 @@ function download(blob, name) {
   setTimeout(() => URL.revokeObjectURL(u), 4000);
 }
 
+const CONTEXT = ["mode", "gate", "barRetract", "hidden", "expanded", "inputMode", "appsOpen", "active", "activeApp", "appFg", "hotApp", "slotApp", "screen", "chatOpen", "anchored", "gatePeek", "slidePeek", "leftHanded", "pillShape", "query"];
+const SKIP = { dragX: 1, dragY: 1, scale: 1 };
+const med = (a) => { if (!a.length) return 0; const b = a.slice().sort((x, y) => x - y), m = b.length >> 1; return r1(b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2); };
+const prim = (v) => v === null || ["string", "number", "boolean"].indexOf(typeof v) > -1;
+const norm = (v) => (typeof v === "number" ? Math.round(v * 100) / 100 : v);
+function describe(el) {
+  if (!el || !el.closest) return null;
+  const c = el.closest('[style*="cursor: pointer"],[style*="cursor: grab"],input,textarea') || el;
+  let label = (c.getAttribute && (c.getAttribute("title") || c.getAttribute("aria-label") || c.getAttribute("placeholder"))) || (c.innerText || "").trim().replace(/\s+/g, " ");
+  label = (label || "").slice(0, 40);
+  if (!label) { const u = c.querySelector && c.querySelector("use"); if (u) label = "icon " + (u.getAttribute("href") || ""); }
+  return { tag: c.tagName.toLowerCase(), label: label || null, clickable: c !== el || !!(c.style && /pointer|grab/.test(c.style.cursor)) };
+}
+
 class Component extends DCLogic {
   state = { page: PAGES[0][1], rec: false, t: 0, fingers: 0, takes: [], drawer: false, settings: false, snap: true, trail: true, busy: false,
-    details: null, replay: null, compare: null, sel: {}, open: false, anchor: null, scr: null, pressure: true, speedDots: true };
+    details: null, replay: null, compare: null, sel: {}, open: false, anchor: null, scr: null, pressure: true, speedDots: true, recMode: "session", recKind: null };
   constructor(props) {
     super(props);
     ["frameRef", "canvasRef", "trackRef", "fillRef", "timeRef"].forEach((k) => { this[k] = React.createRef(); });
@@ -448,7 +482,10 @@ class Component extends DCLogic {
     this.w = w;
     const on = (e) => this.onPtr(e), types = ["pointerdown", "pointermove", "pointerup", "pointercancel"];
     types.forEach((t) => w.addEventListener(t, on, { capture: true, passive: true }));
-    this.off = () => types.forEach((t) => { try { w.removeEventListener(t, on, true); } catch (e) {} });
+    const onErr = (ev) => { if (this.S) this.S.events.push({ t: r1(w.performance.now() - this.S.t0), type: "error", message: String((ev && ev.message) || ev) }); };
+    w.addEventListener("error", onErr);
+    w.__dockletProbe = (st) => this.onProbe(st);
+    this.off = () => { types.forEach((t) => { try { w.removeEventListener(t, on, true); } catch (e) {} }); try { w.removeEventListener("error", onErr); if (w.__dockletProbe) w.__dockletProbe = null; } catch (e) {} };
     try {
       if (!w.htmlToImage && !w.document.getElementById("__gt_hti")) {
         const s = w.document.createElement("script"); s.id = "__gt_hti"; s.src = HTI; w.document.head.appendChild(s);
@@ -460,7 +497,151 @@ class Component extends DCLogic {
     if (last && last.t === t && last.x === r1(e.clientX) && last.y === r1(e.clientY)) return;
     st.pts.push({ x: r1(e.clientX), y: r1(e.clientY), t, p: +(e.pressure || 0).toFixed(3), w: r1(e.width || 1), h: r1(e.height || 1) });
   }
+  // ---------- session ----------
+  appState() { try { return this.w && this.w.__dockletState ? this.w.__dockletState() : null; } catch (e) { return null; } }
+  primSnap(st) { const o = {}; if (st) Object.keys(st).forEach((k) => { if (!SKIP[k] && prim(st[k])) o[k] = norm(st[k]); }); return o; }
+  ctxSnap() { const S = this.S, o = {}; CONTEXT.forEach((k) => { if (k in S.last) o[k] = S.last[k]; }); return o; }
+  toPhone(e) {
+    const sc = this.state.scr; if (!sc) return { x: r1(e.clientX), y: r1(e.clientY) };
+    return { x: r1((e.clientX - sc.l) / sc.k), y: r1((e.clientY - sc.t) / sc.k) };
+  }
+  startSession() {
+    this.attach(); const w = this.w; if (!w) return;
+    const st = this.appState(), snap = this.primSnap(st);
+    this.S = { t0: w.performance.now(), at: new Date(), events: [], gestures: [], cur: null, active: new Map(), last: Object.assign({}, snap), config: snap, rate: {}, noisy: {}, n: 0 };
+    this.clear();
+    this.setState({ rec: true, recKind: "session", t: 0, fingers: 0, drawer: false, settings: false, replay: null, compare: null, open: true });
+    clearInterval(this.tick);
+    this.tick = setInterval(() => { if (this.S && this.w) this.setState({ t: this.w.performance.now() - this.S.t0 }); }, 500);
+  }
+  onProbe(st) {
+    const S = this.S; if (!S || !this.w) return;
+    const t = r1(this.w.performance.now() - S.t0);
+    Object.keys(st).forEach((k) => {
+      if (SKIP[k] || S.noisy[k] || !prim(st[k])) return;
+      const v = norm(st[k]); if (S.last[k] === v) return;
+      const r = S.rate[k] || (S.rate[k] = []); r.push(t); while (r.length && t - r[0] > 1000) r.shift();
+      if (r.length > 25) { S.noisy[k] = true; S.events.push({ t, type: "noisy", key: k }); return; }
+      S.events.push({ t, type: "state", key: k, from: S.last[k] === undefined ? null : S.last[k], to: v, g: S.cur ? S.cur.id : null });
+      S.last[k] = v;
+    });
+  }
+  sessPtr(e) {
+    const S = this.S, w = this.w, t = r1(e.timeStamp - S.t0), id = e.pointerId;
+    const pt = (ev) => { const p = this.toPhone(ev); return { x: p.x, y: p.y, t: r1(ev.timeStamp - S.t0), p: +(ev.pressure || 0).toFixed(3), w: r1(ev.width || 1), h: r1(ev.height || 1) }; };
+    if (e.type === "pointerdown") {
+      if (S.cur && S.cur.tUp != null) { if (t - S.cur.tUp < 280) clearTimeout(this.finT); else { clearTimeout(this.finT); this.finalize(); } }
+      if (!S.cur) { S.n += 1; S.cur = { id: S.n, t0: t, strokes: [], maxF: 0, before: this.ctxSnap(), target: describe(e.target), tUp: null }; }
+      const st = { pid: id, input: e.pointerType || "touch", pts: [pt(e)] };
+      S.active.set(id, st); S.cur.strokes.push(st); S.cur.maxF = Math.max(S.cur.maxF, S.active.size); S.cur.tUp = null;
+      this.setState({ fingers: S.active.size });
+      return;
+    }
+    const st = S.active.get(id); if (!st) return;
+    if (e.type === "pointermove") { const L = e.getCoalescedEvents ? e.getCoalescedEvents() : []; (L && L.length ? L : [e]).forEach((ev) => { const p = pt(ev), l = st.pts[st.pts.length - 1]; if (!l || l.t !== p.t || l.x !== p.x || l.y !== p.y) st.pts.push(p); }); return; }
+    st.pts.push(pt(e)); if (e.type === "pointercancel") st.cancelled = true;
+    S.active.delete(id); this.setState({ fingers: S.active.size });
+    if (!S.active.size && S.cur) { S.cur.tUp = t; clearTimeout(this.finT); this.finT = setTimeout(() => this.finalize(), 700); }
+  }
+  finalize() {
+    const S = this.S, g = S && S.cur; if (!g) return;
+    S.cur = null;
+    const tEnd = r1(this.w.performance.now() - S.t0);
+    g.strokes.forEach((s) => { s.m = metrics(s.pts); });
+    g.kind = classify(g.strokes, g.maxF);
+    g.t1 = g.tUp != null ? g.tUp : tEnd;
+    const ch = S.events.filter((ev) => ev.type === "state" && ev.t >= g.t0 && ev.t <= tEnd);
+    const eff = {};
+    ch.forEach((ev) => { if (!eff[ev.key]) eff[ev.key] = { from: ev.from, to: ev.to }; else eff[ev.key].to = ev.to; });
+    Object.keys(eff).forEach((k) => { if (eff[k].from === eff[k].to) delete eff[k]; });
+    g.after = this.ctxSnap(); g.effect = eff; g.changes = ch.map((ev) => ({ dt: r1(ev.t - g.t0), key: ev.key, from: ev.from, to: ev.to }));
+    g.noEffect = Object.keys(eff).length === 0;
+    delete g.tUp;
+    S.gestures.push(g);
+  }
+  async stopSession() {
+    const S = this.S; if (!S) return;
+    clearTimeout(this.finT); this.finalize();
+    clearInterval(this.tick);
+    const total = r1(this.w.performance.now() - S.t0);
+    this.S = null;
+    this.n += 1;
+    const G = S.gestures, byKind = {}, effects = {};
+    G.forEach((g) => {
+      const k = g.kind, b = byKind[k] || (byKind[k] = { count: 0, noEffect: 0, peak: [], dur: [], len: [] });
+      b.count++; if (g.noEffect) b.noEffect++;
+      const m0 = g.strokes[0] && g.strokes[0].m; if (m0) { b.peak.push(m0.peak); b.dur.push(m0.dur); b.len.push(m0.len); }
+      Object.keys(g.effect).forEach((key) => { const e = g.effect[key], lab = key + ": " + e.from + " → " + e.to; effects[lab] = (effects[lab] || 0) + 1; });
+    });
+    Object.keys(byKind).forEach((k) => { const b = byKind[k]; byKind[k] = { count: b.count, noEffect: b.noEffect, medianPeakPxS: med(b.peak), medianDurationMs: med(b.dur), medianPathPx: med(b.len) }; });
+    const noEff = G.filter((g) => g.noEffect && !/^tap$|^Tap$/.test(g.kind)).length;
+    const sess = { type: "session", id: Date.now() + "_s" + this.n, name: "Session " + pad(this.n), at: S.at, dur: total, page: this.state.page, device: this.device(), scr: this.state.scr,
+      config: S.config, configEnd: this.primSnap(this.appState()), events: S.events, gestures: G, byKind, effects, noisy: Object.keys(S.noisy),
+      gesture: G.length + (G.length === 1 ? " gesture" : " gestures") + " · " + (total / 60000).toFixed(1) + " min",
+      summary: Object.keys(effects).length + " kinds of state change · " + noEff + " non-tap gestures with no effect · " + S.events.filter((e) => e.type === "error").length + " errors",
+      strokes: [], maxF: Math.max(0, ...G.map((g) => g.maxF)), W: window.innerWidth, H: window.innerHeight, png: null, url: null };
+    this.setState({ rec: false, recKind: null, fingers: 0, busy: true });
+    try { await this.sessionImages(sess); } catch (e) {}
+    this.setState((s) => ({ busy: false, takes: [sess].concat(s.takes) }));
+  }
+  async sessionImages(sess) {
+    const sc = sess.scr, BW = sc ? sc.bw : sess.W, BH = sc ? sc.bh : sess.H, s = 2, G = sess.gestures;
+    const opt = { pressure: this.state.pressure, speed: this.state.speedDots };
+    const all = { strokes: [] }, cols = [];
+    G.forEach((g, gi) => g.strokes.forEach((st) => { all.strokes.push(st); cols.push(COL[gi % COL.length]); }));
+    const c = document.createElement("canvas"); c.width = BW * s; c.height = (BH + HH) * s;
+    const x = c.getContext("2d"); x.scale(s, s);
+    x.fillStyle = "#050506"; x.fillRect(0, 0, BW, BH + HH);
+    const img = await this.grab(sess.W, sess.H, Math.min(2, window.devicePixelRatio || 1));
+    if (img && sc) { try { const k = img.width / sess.W; x.drawImage(img, sc.l * k, sc.t * k, sc.w * k, sc.h * k, 0, HH, BW, BH); } catch (e) {} }
+    x.save(); x.beginPath(); x.rect(0, HH, BW, BH); x.clip(); x.translate(0, HH);
+    x.fillStyle = "rgba(0,0,0,0.42)"; x.fillRect(0, 0, BW, BH);
+    paint(x, all, Object.assign({ color: (i) => cols[i], lw: 3, starts: true, arrows: true, W: BW, H: BH }, opt));
+    if (G.length <= 30) G.forEach((g, gi) => { const p = g.strokes[0] && g.strokes[0].pts[0]; if (p) tag(x, "#" + g.id + " " + g.kind + (g.noEffect ? " · no effect" : ""), p.x, p.y, COL[gi % COL.length], BW, BH, 0, 0); });
+    x.restore();
+    x.fillStyle = "#111114"; x.fillRect(0, 0, BW, HH); x.fillStyle = "rgba(255,255,255,0.1)"; x.fillRect(0, HH - 1, BW, 1);
+    x.font = "700 18px Geist, -apple-system, sans-serif"; x.fillStyle = "#f4f4f5"; x.fillText(sess.name, 14, 28);
+    const nw = x.measureText(sess.name).width;
+    x.font = "600 14px Geist, -apple-system, sans-serif"; x.fillStyle = "#ffd166"; x.fillText(sess.gesture, 14 + nw + 10, 28);
+    x.font = "500 11px 'Geist Mono', ui-monospace, monospace"; x.fillStyle = "#a1a1a9";
+    const ne = G.filter((g) => g.noEffect).length;
+    x.fillText(ne + " without effect · mode " + sess.config.mode + " · " + sess.at.toLocaleTimeString(), 14, 50);
+    if (opt.pressure && BW >= 300) pressureLegend(x, BW - 92, 60, 78);
+    sess.png = await new Promise((r) => c.toBlob((b) => r(b), "image/png"));
+    sess.url = sess.png ? URL.createObjectURL(sess.png) : null;
+    // one small image per gesture for the report
+    const ts = 0.34, tw = Math.round(BW * ts), th = Math.round(BH * ts);
+    sess.thumbs = G.slice(0, 120).map((g, gi) => {
+      const t = document.createElement("canvas"); t.width = tw * 2; t.height = th * 2;
+      const y = t.getContext("2d"); y.scale(2 * ts, 2 * ts);
+      y.fillStyle = "#0b0b0e"; y.fillRect(0, 0, BW, BH);
+      y.strokeStyle = "rgba(255,255,255,0.06)"; y.lineWidth = 1 / ts; y.strokeRect(0, 0, BW, BH);
+      paint(y, { strokes: g.strokes }, Object.assign({ color: () => COL[gi % COL.length], lw: 4, starts: true, arrows: true, W: BW, H: BH }, opt));
+      return t.toDataURL("image/jpeg", 0.82);
+    });
+  }
+  sessionJSON(t) {
+    return {
+      schema: "docklet-session/1",
+      readme: "Coordinates and distances are in phone-screen px (402×874 design space), times in ms from session start, speeds in px/s. gestures[].effect is the net state change caused within the gesture plus 700 ms after release; noEffect=true means nothing in the app state changed. before/after hold the context keys. events[] is the full state-change log (numbers rounded to 0.01; keys changing >25×/s are listed in noisyKeys and stop being logged).",
+      name: t.name, recordedAt: t.at.toISOString(), page: t.page, durationMs: t.dur, device: t.device, phoneRect: t.scr,
+      config: t.config, configEnd: t.configEnd, noisyKeys: t.noisy,
+      summary: { gestureCount: t.gestures.length, byKind: t.byKind, effects: t.effects },
+      gestures: t.gestures.map((g) => ({ id: g.id, t0: g.t0, t1: g.t1, kind: g.kind, fingers: g.maxF, target: g.target, before: g.before, after: g.after, effect: g.effect, noEffect: g.noEffect, changes: g.changes,
+        strokes: g.strokes.map((s, i) => ({ finger: i + 1, input: s.input, cancelled: !!s.cancelled, type: s.m.type, durationMs: s.m.dur, pathLengthPx: s.m.len, distancePx: s.m.disp, angleDeg: s.m.ang, direction: s.m.dir,
+          avgSpeedPxS: s.m.avg, peakSpeedPxS: s.m.peak, speedCurvePxS: s.m.curve, avgPressure: s.m.avgP, maxPressure: s.m.maxP, avgTouchSizePx: s.m.size, start: s.m.start, end: s.m.end, points: s.pts })) })),
+      events: t.events,
+    };
+  }
+  sessionCSV(t) {
+    const q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+    const rows = ["gesture,t0_ms,t1_ms,kind,fingers,target,mode,gate,barRetract,expanded,appsOpen,path_px,distance_px,direction,peak_px_s,avg_px_s,duration_ms,no_effect,effect"];
+    t.gestures.forEach((g) => { const m = (g.strokes[0] && g.strokes[0].m) || {}, b = g.before || {};
+      rows.push([g.id, g.t0, g.t1, q(g.kind), g.maxF, q(g.target && g.target.label), q(b.mode), q(b.gate), q(b.barRetract), q(b.expanded), q(b.appsOpen), m.len, m.disp, m.dir, m.peak, m.avg, m.dur, g.noEffect, q(Object.keys(g.effect).map((k) => k + ":" + g.effect[k].from + ">" + g.effect[k].to).join(" "))].join(",")); });
+    return rows.join("\n");
+  }
   onPtr(e) {
+    if (this.S) { this.sessPtr(e); return; }
     const R = this.R; if (!R) return;
     const id = e.pointerId;
     if (e.type === "pointerdown") {
@@ -550,6 +731,7 @@ class Component extends DCLogic {
     return new Promise((r) => c.toBlob((b) => r(b), "image/png"));
   }
   json(t) {
+    if (t.type === "session") return this.sessionJSON(t);
     return {
       name: t.name, recordedAt: t.at.toISOString(), page: t.page, gesture: t.gesture, summary: t.summary, durationMs: t.dur, strokeCount: t.strokes.length, maxFingers: t.maxF, device: t.device,
       strokes: t.strokes.map((s, i) => ({ finger: i + 1, pointerId: s.pid, input: s.input, type: s.m.type, durationMs: s.m.dur, pathLengthPx: s.m.len, distancePx: s.m.disp,
@@ -559,6 +741,7 @@ class Component extends DCLogic {
   }
   csvRows(t) {
     const out = [];
+    if (t.type === "session") { t.gestures.forEach((g) => g.strokes.forEach((s, i) => s.pts.forEach((p, k) => out.push([t.name + "#" + g.id, i + 1, s.pid, s.input, s.m.type, k, p.x, p.y, p.t, p.p, p.w, p.h].join(","))))); return out; }
     t.strokes.forEach((s, i) => s.pts.forEach((p, k) => out.push([t.name, i + 1, s.pid, s.input, s.m.type, k, p.x, p.y, p.t, p.p, p.w, p.h].join(","))));
     return out;
   }
@@ -566,6 +749,7 @@ class Component extends DCLogic {
   slug(t) { return t.name.toLowerCase().replace(/\s+/g, "-"); }
   files(t) {
     const f = [];
+    if (t.type === "session") return (t.png ? [new File([t.png], this.slug(t) + ".png", { type: "image/png" })] : []).concat([new File([JSON.stringify(this.json(t), null, 2)], this.slug(t) + ".json", { type: "application/json" }), new File([this.sessionCSV(t)], this.slug(t) + "-gestures.csv", { type: "text/csv" })]);
     if (t.png) f.push(new File([t.png], this.slug(t) + ".png", { type: "image/png" }));
     f.push(new File([JSON.stringify(this.json(t), null, 2)], this.slug(t) + ".json", { type: "application/json" }));
     f.push(new File([this.csv([t])], this.slug(t) + ".csv", { type: "text/csv" }));
@@ -631,11 +815,18 @@ class Component extends DCLogic {
         name: t.name, gesture: t.gesture, summary: t.summary, hasImg: !!t.url,
         imgStyle: { width: "100%", height: "100%", backgroundImage: t.url ? "url(" + t.url + ")" : "none", backgroundSize: "cover", backgroundPosition: "center" },
         time: pad(t.at.getHours()) + ":" + pad(t.at.getMinutes()) + ":" + pad(t.at.getSeconds()),
-        onSelect: togSel(t.id), onReplay: () => this.startReplay(t.id),
+        onSelect: togSel(t.id), onReplay: () => (t.type === "session" ? this.setState({ details: t.id }) : this.startReplay(t.id)),
         checkStyle: { width: 22, height: 22, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", background: on ? "#ffd166" : "transparent", boxShadow: on ? "none" : "inset 0 0 0 1.5px rgba(255,255,255,0.3)", color: "#0b0b0d" },
         checkIc: { width: 16, height: 16, display: "block", opacity: on ? 1 : 0 },
         thumbStyle: { width: 64, aspectRatio: ar, flexShrink: 0, borderRadius: 10, overflow: "hidden", background: "#0b0b0d", boxShadow: "inset 0 0 0 0.5px rgba(255,255,255,0.1)", cursor: "pointer", maxHeight: 132 },
-        actions: [
+        actions: t.type === "session" ? [
+          { label: "Details", tap: () => this.setState({ details: t.id }), style: btn(false) },
+          { label: "PNG", tap: () => t.png && download(t.png, this.slug(t) + ".png"), style: btn(false) },
+          { label: "JSON", tap: () => download(new Blob([JSON.stringify(this.json(t), null, 2)], { type: "application/json" }), this.slug(t) + ".json"), style: btn(false) },
+          { label: "CSV", tap: () => download(new Blob([this.sessionCSV(t)], { type: "text/csv" }), this.slug(t) + "-gestures.csv"), style: btn(false) },
+          { label: "Share", tap: () => this.share(t), style: btn(true) },
+          { label: "Delete", tap: () => this.setState((st) => { const sel = Object.assign({}, st.sel); delete sel[t.id]; return { takes: st.takes.filter((x) => x.id !== t.id), sel }; }), style: btn(false, true) },
+        ] : [
           { label: "Details", tap: () => this.setState({ details: t.id }), style: btn(false) },
           { label: "Replay", tap: () => this.startReplay(t.id), style: btn(false) },
           { label: "PNG", tap: () => t.png && download(t.png, this.slug(t) + ".png"), style: btn(false) },
@@ -647,7 +838,26 @@ class Component extends DCLogic {
       };
     });
     const D = s.details && s.takes.find((t) => t.id === s.details);
-    const det = D ? {
+    const det = D && D.type === "session" ? {
+      name: D.name, gesture: D.gesture, summary: D.summary,
+      overview: !!D.url, overviewStyle: { width: "100%", aspectRatio: (D.scr ? D.scr.bw : D.W) + " / " + ((D.scr ? D.scr.bh : D.H) + HH), borderRadius: 14, backgroundImage: D.url ? "url(" + D.url + ")" : "none", backgroundSize: "cover", backgroundPosition: "center top", backgroundColor: "#0b0b0e" },
+      gallery: (D.thumbs || []).map((u, i) => { const g = D.gestures[i]; return {
+        title: "#" + g.id + " " + g.kind, info: g.noEffect ? "No effect" : Object.keys(g.effect).map((k) => k + " " + g.effect[k].from + "→" + g.effect[k].to).join(", "),
+        infoStyle: { fontSize: 10, lineHeight: "13px", color: g.noEffect ? "#ff8a80" : "#9a9aa3", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" },
+        img: { width: "100%", aspectRatio: (D.scr ? D.scr.bw : D.W) + " / " + (D.scr ? D.scr.bh : D.H), borderRadius: 8, backgroundImage: "url(" + u + ")", backgroundSize: "cover" } }; }),
+      device: [
+        { k: "Duration", v: (D.dur / 1000).toFixed(1) + " s" }, { k: "Gestures", v: String(D.gestures.length) },
+        { k: "Hide mode at start", v: String(D.config.mode) }, { k: "Hide mode at end", v: String(D.configEnd.mode) },
+        { k: "State changes logged", v: String(D.events.filter((e) => e.type === "state").length) }, { k: "Recorded", v: D.at.toLocaleString() },
+      ],
+      fingers: [{
+        title: "Effects", color: "#ffd166", peak: "", curve: "", chip: { width: 12, height: 12, borderRadius: 6, background: "#ffd166", flexShrink: 0 },
+        rows: Object.keys(D.effects).sort((a, b) => D.effects[b] - D.effects[a]).slice(0, 24).map((k) => ({ k, v: "×" + D.effects[k] })),
+      }].concat(Object.keys(D.byKind).sort((a, b) => D.byKind[b].count - D.byKind[a].count).map((k, i) => { const b = D.byKind[k]; return {
+        title: k, color: COL[i % COL.length], peak: "", curve: "", chip: { width: 12, height: 12, borderRadius: 6, background: COL[i % COL.length], flexShrink: 0 },
+        rows: [["Count", b.count], ["No effect", b.noEffect], ["Median peak", b.medianPeakPxS + " px/s"], ["Median duration", b.medianDurationMs + " ms"], ["Median path", b.medianPathPx + " px"]].map((r) => ({ k: r[0], v: String(r[1]) })),
+      }; })),
+    } : D ? {
       name: D.name, gesture: D.gesture, summary: D.summary,
       device: [
         { k: "Viewport", v: D.device.viewport.join(" × ") }, { k: "Screen", v: D.device.screen.join(" × ") },
@@ -671,7 +881,7 @@ class Component extends DCLogic {
           ].map((r) => ({ k: r[0], v: String(r[1]) })),
         };
       }),
-    } : { name: "", gesture: "", summary: "", device: [], fingers: [] };
+    } : { name: "", gesture: "", summary: "", device: [], fingers: [], gallery: [], overview: false };
     const RP = s.replay, RT = RP && s.takes.find((t) => t.id === RP.id);
     const cmp = s.compare || [];
     return {
@@ -680,7 +890,7 @@ class Component extends DCLogic {
       onFrameLoad: () => { this.w = null; this.attach(); },
       scrimOn: !!(s.replay || s.compare),
       rec: s.rec,
-      onRecord: () => (s.rec ? this.stop() : this.start()),
+      onRecord: () => (s.rec ? (this.S ? this.stopSession() : this.stop()) : (s.recMode === "session" ? this.startSession() : this.start())),
       recLabel: s.rec ? "Stop" : "Record",
       recBtnStyle: { height: 44, padding: "0 16px 0 14px", borderRadius: 22, display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap",
         background: s.rec ? "#ff3b30" : "rgba(255,59,48,0.14)", color: s.rec ? "#ffffff" : "#ff6b61", transition: "background 200ms, color 200ms" },
@@ -693,6 +903,10 @@ class Component extends DCLogic {
       settingsOpen: s.settings,
       snapTrack: snapSw.track, snapKnob: snapSw.knob, trailTrack: trailSw.track, trailKnob: trailSw.knob,
       onSnap: () => this.setState({ snap: !s.snap }),
+      modeHint: s.recMode === "session" ? "Tap to start, tap Stop when the session ends. No border or trail while recording." : "One gesture per take, with snapshot and replay.",
+      recModes: [["Session", "session"], ["Take", "take"]].map((m) => ({ label: m[0], tap: () => !s.rec && this.setState({ recMode: m[1] }),
+        style: { height: 32, padding: "0 10px", borderRadius: 10, display: "flex", alignItems: "center", fontSize: 13, fontWeight: 500, cursor: s.rec ? "default" : "pointer",
+          background: s.recMode === m[1] ? "#f4f4f5" : "transparent", color: s.recMode === m[1] ? "#0b0b0d" : "#d4d4da", opacity: s.rec && s.recMode !== m[1] ? 0.4 : 1 } })),
       onTrail: () => this.setState({ trail: !s.trail }),
       pressTrack: pressSw.track, pressKnob: pressSw.knob,
       speedTrack: speedSw.track, speedKnob: speedSw.knob,
@@ -703,8 +917,15 @@ class Component extends DCLogic {
         ? { position: "absolute", zIndex: 10, left: s.scr.l, top: s.scr.t, width: s.scr.bw, height: s.scr.bh, transform: "scale(" + s.scr.k + ")", transformOrigin: "0 0", borderRadius: s.scr.rad, overflow: "hidden", pointerEvents: "none" }
         : { position: "absolute", zIndex: 10, inset: 0, overflow: "hidden", pointerEvents: "none" },
       collapsed: !s.open, expanded: s.open,
-      onExpand: () => { if (s.rec) { this.stop(); return; } this.start(); this.setState({ open: true }); },
+      onExpand: () => {
+        if (s.rec) { if (this.S) this.stopSession(); else this.stop(); return; }
+        if (s.recMode === "session") { this.startSession(); return; }
+
+        this.start(); this.setState({ open: true });
+      },
       onCollapse: () => this.setState({ open: false, settings: false }),
+      miniTime: s.rec,
+      recBorder: s.rec && s.recKind !== "session",
       miniStyle: Object.assign({ position: "absolute", zIndex: 30, height: 44, minWidth: 44, padding: s.rec ? "0 14px 0 12px" : 0, boxSizing: "border-box", borderRadius: 22,
         display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer",
         background: s.rec ? "#ff3b30" : "rgba(20,20,24,0.9)", boxShadow: "inset 0 0 0 0.5px rgba(255,255,255,0.14), 0 8px 24px rgba(0,0,0,0.4)",
