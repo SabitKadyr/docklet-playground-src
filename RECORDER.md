@@ -37,7 +37,7 @@ Switch the gesture mode in **Tweak Docklet → Hide gesture → Gesture mode**, 
 Also, in any mode:
 - Swipe up on the dock: the app launcher opens with your finger.
 - Swipe down on the open launcher or the open dock: it closes with your finger.
-- Long-press an empty part of the dock: a "Hide left / Hide right" menu appears.
+- Long-press an app in the launcher: a menu appears to pin it to the dock or add it to favourites.
 
 When something feels wrong, note roughly when it happened ("about 2 minutes in, Pivot Turn, the dock didn't come back").
 
