@@ -87,14 +87,6 @@ select { font-family: inherit; }
 <div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:#9a9aa3">Slow</span><svg width="72" height="6" viewBox="0 0 72 6" style="display:block"><circle cx="3" cy="3" r="2" fill="#d4d4da"></circle><circle cx="7" cy="3" r="2" fill="#d4d4da"></circle><circle cx="11" cy="3" r="2" fill="#d4d4da"></circle><circle cx="17" cy="3" r="2" fill="#d4d4da"></circle><circle cx="25" cy="3" r="2" fill="#d4d4da"></circle><circle cx="36" cy="3" r="2" fill="#d4d4da"></circle><circle cx="50" cy="3" r="2" fill="#d4d4da"></circle><circle cx="68" cy="3" r="2" fill="#d4d4da"></circle></svg><span style="font-size:11px;color:#9a9aa3">Fast</span></div></div>
 <div style="{{ speedTrack }}"><div style="{{ speedKnob }}"></div></div>
 </div>
-<div style="min-height:48px;display:flex;align-items:center;gap:12px;padding:6px 10px">
-<span style="flex:1;font-size:15px;font-weight:500">Traced page</span>
-<select value="{{ pageValue }}" onChange="{{ onPage }}" style="max-width:170px;height:36px;border-radius:10px;border:0;padding:0 8px;background:#23232a;color:#f4f4f5;font-size:13px">
-<sc-for list="{{ pages }}" as="p" hint-placeholder-count="3">
-<option value="{{ p.value }}">{{ p.label }}</option>
-</sc-for>
-</select>
-</div>
 </div>
 </sc-if>
 
@@ -237,13 +229,7 @@ select { font-family: inherit; }
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
-const PAGES = [
-  ["Best of Both Worlds", "Best of Both Worlds.dc.html"],
-  ["Tabbar Improved Better", "Tabbar Improved Better.dc.html"],
-  ["Tabbar Improved", "Tabbar Improved.dc.html"],
-  ["Docklet — Claude's Vision", "Docklet - Claude's Vision.dc.html"],
-  ["Tabbar App", "Tabbar App.dc.html"],
-];
+const PAGES = [["Best of Both Worlds", "Best of Both Worlds.dc.html"]];
 const COL = ["#ff5a5f", "#3ecf8e", "#4aa3ff", "#ffb020", "#c77dff", "#2dd4bf", "#ff7ab6", "#a3e635"];
 const DIRS = ["right", "up-right", "up", "up-left", "left", "down-left", "down", "down-right"];
 const ARW = { right: "→", "up-right": "↗", up: "↑", "up-left": "↖", left: "←", "down-left": "↙", down: "↓", "down-right": "↘" };
@@ -507,7 +493,6 @@ class Component extends DCLogic {
     this.R = { t0: w.performance.now(), strokes: [], active: new Map(), maxF: 0, at: new Date() };
     this.clear();
     this.setState({ rec: true, t: 0, fingers: 0, drawer: false, settings: false, replay: null, compare: null });
-    this.setState({ open: false });
     clearInterval(this.tick);
     this.tick = setInterval(() => { if (this.R && this.w) this.setState({ t: this.w.performance.now() - this.R.t0 }); }, 100);
   }
@@ -713,15 +698,12 @@ class Component extends DCLogic {
       speedTrack: speedSw.track, speedKnob: speedSw.knob,
       onSpeedDots: () => this.setState({ speedDots: !s.speedDots }, () => this.redraw()),
       onPressure: () => this.setState({ pressure: !s.pressure }, () => this.redraw()),
-      pages: PAGES.map((p) => ({ label: p[0], value: p[1] })),
-      pageValue: s.page,
-      onPage: (e) => { if (this.R) this.stop(); this.setState({ page: e.target.value }); },
       busy: s.busy,
       phoneLayer: s.scr
         ? { position: "absolute", zIndex: 10, left: s.scr.l, top: s.scr.t, width: s.scr.bw, height: s.scr.bh, transform: "scale(" + s.scr.k + ")", transformOrigin: "0 0", borderRadius: s.scr.rad, overflow: "hidden", pointerEvents: "none" }
         : { position: "absolute", zIndex: 10, inset: 0, overflow: "hidden", pointerEvents: "none" },
       collapsed: !s.open, expanded: s.open,
-      onExpand: () => (s.rec ? this.stop() : this.setState({ open: true })),
+      onExpand: () => { if (s.rec) { this.stop(); return; } this.start(); this.setState({ open: true }); },
       onCollapse: () => this.setState({ open: false, settings: false }),
       miniStyle: Object.assign({ position: "absolute", zIndex: 30, height: 44, minWidth: 44, padding: s.rec ? "0 14px 0 12px" : 0, boxSizing: "border-box", borderRadius: 22,
         display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer",
