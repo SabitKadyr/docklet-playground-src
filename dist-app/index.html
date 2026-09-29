@@ -737,6 +737,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 <div ref="{{ trayRideRef }}" style="{{ trayRideStyle }}">
 <sc-if value="{{ trayShown }}">
 <div onPointerDown="{{ onBarDown }}" style="{{ trayStyle }}">
+<div style="{{ grabberStyle }}"></div>
 <sc-if value="{{ shellApps }}">
 <div style="{{ appsWrapStyle }}">
 <div ref="{{ appsRevealRef }}" style="{{ appsRevealStyle }}">
@@ -1207,6 +1208,23 @@ if(r){const H=r.parentElement?r.parentElement.offsetHeight:0;r.style.top=y+"px";
 const sc=this.scrimRef.current;
 if(sc&&this._scrimBase!=null)sc.style.transform="translateY("+(this._scrimBase+y)+"px)";
 }
+closeMove(ry){const st=this.state;if(!(st.expanded||st.appsOpen))return false;
+if(!this._fc){if(ry<=0||this._gyClosed==null)return true;const y0=this._gy==null?0:this._gy;this._fc={y0,y1:this._gyClosed,smp:[],f:0};this._gyHold=true;cancelAnimationFrame(this._gyRaf);this._gyRaf=0;}
+const F=this._fc,span=Math.abs(F.y1 - F.y0)||1;let k=ry / span;k=k>1?1+(k - 1)/ 3:k<0?k / 3:k;F.f=k;
+const t=performance.now();F.smp.push([t,k]);while(F.smp.length>2&&t - F.smp[0][0]>80)F.smp.shift();
+this.paintGlass(F.y0+(F.y1 - F.y0)*k);
+const c=Math.max(0,Math.min(1,1 - k)),tr=this.trayRideRef.current,rv=this.appsRevealRef.current;
+if(tr){tr.style.transition="none";tr.style.filter="blur("+((1 - c)*10).toFixed(1)+"px)";}
+if(rv){rv.style.transition="none";rv.style.transformOrigin="50% 100%";rv.style.opacity=String(Math.max(0,Math.min(1,c*1.5 - 0.25)));rv.style.transform="perspective(900px) rotateX("+((1 - c)*26).toFixed(2)+"deg) translateY("+((1 - c)*40).toFixed(1)+"px) scale("+(0.94+0.06*c).toFixed(3)+")";}
+return true;}
+closeEnd(){const F=this._fc;this._fc=null;this._gyHold=false;if(!F)return;
+const a=F.smp[0],b=F.smp[F.smp.length - 1],v=a&&b&&b[0]>a[0]?(b[1]-a[1])/((b[0]-a[0])/ 1000):0,shut=F.f+v*0.1>=0.5;
+const tr=this.trayRideRef.current,rv=this.appsRevealRef.current,ez="320ms cubic-bezier(.2,.8,.2,1)";
+if(tr){tr.style.transition="filter "+ez;tr.style.filter=shut?"blur(10px)":"";}
+if(rv){rv.style.transition="opacity "+ez+", transform "+ez;rv.style.opacity=shut?"0":"";rv.style.transform=shut?"perspective(900px) rotateX(26deg) translateY(40px) scale(0.94)":"";}
+this._gyTo=null;
+if(shut){try{const ae=document.activeElement;if(ae&&ae.blur)ae.blur();}catch(e){}this.collapseDock();setTimeout(()=>{if(tr){tr.style.filter="";tr.style.transition="";}if(rv){rv.style.opacity="";rv.style.transform="";rv.style.transition="";}},420);}
+else{this.driveGlass();setTimeout(()=>{if(tr)tr.style.transition="";if(rv)rv.style.transition="";},360);}}
 launchMove(ry){
 const st=this.state;
 if(!this._fl){
@@ -1456,7 +1474,7 @@ axis=Math.abs(Math.atan2(-ry,Math.abs(rx))*180 / Math.PI)>60?"y":"h";
 }
 this.dragged=true;
 if(axis==="h"&&target==="bar")this.hideMove(this.state.mode,hand(rx),ry);
-else if(axis==="y"&&target==="bar")this.launchMove(ry);
+else if(axis==="y"&&target==="bar"){if(!this.closeMove(ry))this.launchMove(ry);}
 };
 const up=(ev)=>{
 window.removeEventListener("pointermove",move);
@@ -1470,6 +1488,7 @@ const wasOpen=!!st.expanded||!!st.inputMode||!!st.appsOpen;
 const done=()=>{if(this.dragged)this._dragEndAt=Date.now();setTimeout(()=>{this.dragged=false;},0);};
 if(this._hg){done();this.hideRelease(wasOpen,collapse);return;}
 if(this._caught){const c=this._caught;this._caught=null;this.hideSettle(c.kind,c.side,c.p,0,c.p>=0.5?1:0);done();return;}
+if(this._fc){done();this.closeEnd();return;}
 if(this._fl){done();this.launchEnd();return;}
 if(this.dragged&&axis==="y"&&ev.type==="pointerup"){
 if(ry<-40&&st.gate==="none"&&st.barRetract==="none"){this.haptic("medium");this.appsAt=Date.now();this.setState(Object.assign({},collapse,{appsOpen:true,openFx:"lid"}));}
@@ -2603,9 +2622,10 @@ const lidFx=(delay,k)=>s.openFx==="calm"&&!expFading?"calmIn 220ms "+HC+" "+Math
 :(quick
 ?"softIn 220ms "+HC+" "+Math.round(delay / 2)+"ms both"
 :"lidOpen 560ms "+HC+" "+delay+"ms both, rowIn"+k+" 520ms "+HC+" "+delay+"ms both");
+const hTop=s.expanded&&!appsMode&&!s.inputMode?14:0;
 const contentH=appsFading||expFading?0:appsMode?appsContentH:(s.inputMode
 ?listH+shellGap+48
-:110+shellGap+48);
+:110+shellGap+48+hTop);
 const trayH=s.pad*2+contentH;
 const pillLift=(rounded&&!detached&&hasPill&&s.pillShape==="round")?5.4:(rounded&&!detached&&hasPill&&s.pillShape==="elevated")?10:0;
 const shellGapPill=shellGap+(shellExpanded&&!appsFading&&!expFading?pillLift:0);
@@ -2616,7 +2636,7 @@ const revealY=MAXH - shellH;
 const barTop=unified?0:MAXH - s.barHeight;
 const pivotY=(MAXH - s.barHeight / 2)+"px";
 const glassMask='url("data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+(rounded?barW:W)+'" height="'+MAXH+'"><rect width="100%" height="100%" rx="'+s.radius+'" ry="'+s.radius+'" fill="black"/></svg>')+'")';
-this._gyTarget=revealY;
+this._grab=shellExpanded&&(s.expanded||appsMode);this._gyTarget=revealY;if(!shellExpanded)this._gyClosed=revealY;
 const openT=!!s.expanded||appsMode;
 const easeNoTf=ease.split(", ").filter((t)=>!/^(width|height|top|left|bottom|transform) /.test(t)).join(", ");
 const easeNoGeo=ease.split(", ").filter((t)=>!/^(width|height|top|left|bottom) /.test(t)).join(", ");
@@ -3402,6 +3422,7 @@ overflow:"hidden",cursor:"pointer",zIndex:2,
 background:"linear-gradient(180deg, "+glowHsl(0.22)+", "+glowHsl(0.1)+")",
 filter:"brightness(0.9)",
 }:{}),
+grabberStyle:{position:"absolute",top:5,left:"50%",width:36,height:5,marginLeft:-18,borderRadius:3,background:"rgba(255,255,255,0.32)",zIndex:6,pointerEvents:"none",opacity:this._grab?1:0,transition:"opacity 240ms"},
 organicFrameStyle:{position:"relative",color:pillIconCol,opacity:organic?1:0.45,transition:"color 280ms "+HC},
 organicPlusStyle:{position:"absolute",left:0,top:0,color:pillIconCol,transition:"color 280ms "+HC},
 pillFrameStyle:{position:"absolute",left:0,top:0,color:pillIconCol,transition:"opacity 200ms ease-out, transform 360ms cubic-bezier(.3,1.35,.5,1), color 280ms "+HC,opacity:(s.expanded||s.inputMode)?0:1,transform:(s.expanded||s.inputMode)?"scale(0.6)":"none"},
@@ -3534,7 +3555,7 @@ tray?this.glass(s.radius):{},
 pointerEvents:"auto",
 position:"absolute",left:unified?0:12,top:0,
 width:unified?barW:W - 24,height:unified?s.pad+contentH+shellGap:trayH,
-boxSizing:"border-box",padding:s.pad,
+boxSizing:"border-box",padding:s.pad,paddingTop:s.pad+hTop,
 display:"flex",flexDirection:"column",gap:shellGap,
 justifyContent:"flex-start",alignItems:"stretch",
 overflow:"hidden",clipPath:"inset(0 round "+s.radius+"px)",zIndex:5,transition:easeNoGeo,touchAction:"none",
