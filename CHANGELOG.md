@@ -7,12 +7,40 @@ Changes after v0.2. App versions come from `versions.json`. Downloads are on the
 A separate app (`com.docklet.liquid.design`) for the Liquid search flow: the centre Pill flows into a search card, and tapping the field opens text input with a keyboard. Three keyboard layouts can be switched in Tweak Docklet → Centre button → Keyboard layout. Source: `Docklet Liquid.dc.html` with `docklet-liquid.js`, built by `build_liquid.py`.
 
 ### v0.2.5
-First release. Changes on top of the Claude Design export:
-- **✕ closes everything.** In text input, tapping ✕ on a phone used to stop at the camera step: the tap's click landed on the dock Pill that had moved under the finger and reopened it. It now closes all the way.
-- **No live camera.** The camera tile shows a still photo. On the phone the live camera dropped the screen from 120 Hz to 60 Hz and stalled opening the Pill.
+First release. Docklet Liquid is a separate app; Docklet Playground v0.5 stays as it was.
+
+**Compared to Docklet Playground v0.5:**
+
+Search (the centre Pill)
+- **The Pill turns into search.** Tapping it no longer expands the dock into search with a live camera. The Pill itself stretches up into a search card that floats above the dock, with a camera tile and a search field, and a ✕ in a small lobe under the card.
+- **Text input is a second step.** Tap the field: the card grows into recent contacts, a scan button, the field and a keyboard. Swiping up on the Pill goes straight there.
+- **Three keyboard layouts** (Tweak Docklet → Centre button → Keyboard layout): v1 Overlap, v2 Sink, v3 Hide.
+- **Pill morph style:** Liquid, Shape or Fade. The "Pill morphs while typing" switch is gone.
+- **Closing:** ✕ closes everything, Back goes one step back (text input → search card → closed), or swipe down from ✕.
+- **No live camera:** the camera tile shows a still photo.
+- **Shape check:** an overlay of the Figma outlines, to compare shapes on the phone.
+
+Dock
+- 382 pt wide instead of 378, and 27 pt from the bottom instead of 22.
+- Tab labels: Off, Launcher only (default) or Everywhere, instead of an on/off switch. By default the dock shows icons without labels.
+- The last tab is More (•••) by default instead of Apps; Apps icon can be More, Lines or Grid.
+- The dock Shape setting (Rounded / Organic) is gone.
+
+Hiding the dock
+- Default hide gesture is Boom gate instead of Slide.
+- New: how a hidden dock shows at the edge: Edge glow (default), Short glow, Bar or None.
+- New: Hide dock when an app opens (on by default).
+- New: Tester mode (Off / Tester 1). Tester 1 is tuned from the first tester's recorded sessions: a quick flick hides or brings back the dock even when it is short, more diagonal swipes count as sideways, Slide hides to whichever side you swipe, and pressing still on the dock for 0.4 s counts as a hold, not a swipe.
+- Finger tracking reads every touch sample between frames, not only one per frame.
+
+Kept from v0.5: Back closes one layer at a time and never the app, edge swipes don't trigger Android Back, the grabber on the open dock, swipe down to close follows the finger, no first-run onboarding.
+
+**Fixes on top of the Claude Design export:**
+- **✕ closes everything.** In text input, tapping ✕ on a phone used to stop at the camera step: the tap's click landed on the dock Pill that had moved under the finger and reopened it.
+- **No live camera.** On the phone the live camera dropped the screen from 120 Hz to 60 Hz and stalled opening the Pill.
 - **Smooth step into text input.** Measured on a Galaxy A26: 136–144 frames in 1.4 s instead of 103–117, longest frame 25–33 ms instead of up to 92 ms. Once the shape is a card, its glass is a rounded body plus a small lobe moved by transform, instead of a full-screen mask rebuilt every frame, and the rim is drawn only as large as the card.
 - **Closing is one motion.** Swiping down from ✕ or tapping it no longer jumps the card up first and pauses before it shrinks. The card leaves at speed, lands in the dock together with it, and its content fades with the finger.
-- **Fix:** the camera placeholder image never showed in the APK (`build.py` left `./` in front of inlined images).
+- The camera placeholder image never showed in the APK (`build.py` left `./` in front of inlined images).
 
 Known: a swipe down that starts on the card body is taken by the browser as a scroll; start it from ✕.
 
