@@ -6,6 +6,16 @@ Changes after v0.2. App versions come from `versions.json`. Downloads are on the
 
 A separate app (`com.docklet.liquid.design`) for the Liquid search flow: the centre Pill flows into a search card, and tapping the field opens text input with a keyboard. Three keyboard layouts can be switched in Tweak Docklet → Centre button → Keyboard layout. Source: `Docklet Liquid.dc.html` with `docklet-liquid.js`, built by `build_liquid.py`.
 
+### v0.2.7
+Compared to v0.2.5:
+- **The app launcher opens smoothly.** Measured on a Galaxy A26: 98–100 frames in 1.4 s instead of 56–75, longest frame 42–50 ms instead of up to 100 ms (Playground v0.5: 108–117). The notched dock glass that grows into the launcher panel was resized, re-clipped and had its rim SVG rebuilt every frame. Now, once the Pill hole closes, the glass moves as one piece with a fixed mask for the bottom corners and the hole, and the rim is drawn on a canvas with the same paths and gradients.
+- **One dock all the way.** The launcher panel stays the same notched glass as the dock, with the same rim and the glint around the Pill hole.
+- **No glass outside the corners, no dark crescent under the Pill** in the last moments before the dock settles. On this WebView `clip-path` doesn't clip the blur, so that stretch is now masked to the exact shape.
+- **The notch glint no longer jumps** when the dock comes to rest: while the dock grows it is drawn only along the notch, as at rest. After opening and closing the launcher the dock rim is back exactly as on first load; before, the notch glint spread over the whole outline.
+- **The edge glow of a hidden dock fades smoothly** when you bring the dock back. It follows the dock while you pull and fades over 320 ms after you let go. Before, the tap feedback held it bright and it vanished in one frame.
+
+Known: the first launcher open after starting the app still has one frame of about 100 ms.
+
 ### v0.2.5
 First release. Docklet Liquid is a separate app; Docklet Playground v0.5 stays as it was.
 

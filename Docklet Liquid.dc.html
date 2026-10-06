@@ -533,7 +533,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 </sc-for>
 </div>
 </sc-if>
-<div ref="{{ edgeIndRef }}" onPointerDown="{{ onRestoreDown }}" style="{{ edgeIndStyle }}"><div style="{{ edgeIndMark }}"></div></div>
+<div ref="{{ edgeIndRef }}" data-nopress="1" onPointerDown="{{ onRestoreDown }}" style="{{ edgeIndStyle }}"><div style="{{ edgeIndMark }}"></div></div>
 <sc-if value="{{ lqOn }}" hint-placeholder-val="{{ false }}"><div ref="{{ lqDimRef }}" style="{{ lqDimStyle }}"></div></sc-if>
 <div style="{{ lqLayerStyle }}">
 <div onClick="{{ lqClose }}" style="{{ lqCatchStyle }}"></div>
@@ -600,7 +600,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 </sc-if>
 <div ref="{{ dockRef }}" style="{{ dockStyle }}">
 <div style="{{ dockShadowStyle }}"></div>
-<div style="{{ lqDockStyle }}"><div ref="{{ lqDockGlassRef }}" style="{{ lqDockGlassStyle }}"></div><svg ref="{{ lqRimCb }}" width="100%" height="100%" style="position:absolute;left:0;top:0;overflow:visible"></svg></div>
+<div style="{{ lqDockStyle }}"><div ref="{{ lqDockGlassRef }}" style="{{ lqDockGlassStyle }}"></div><svg ref="{{ lqRimCb }}" width="100%" height="100%" style="position:absolute;left:0;top:0;overflow:visible"></svg><canvas ref="{{ lqRimCvRef }}" style="position:absolute;left:0;bottom:0;width:100%;height:0;pointer-events:none;display:none"></canvas></div>
 <div style="{{ glassLayerStyle }}">
 <div ref="{{ glassFillRef }}" style="{{ glassFillStyle }}"></div>
 <div ref="{{ glassRimRef }}" style="{{ glassRimStyle }}"></div>
@@ -989,7 +989,7 @@ super(props);
 this.camRef=React.createRef();this.appsRevealRef=React.createRef();
 this.edgeIndRef=React.createRef();
 this.glassFillRef=React.createRef();
-this.dockRef=React.createRef();setTimeout(()=>this.lqFollow(),0);["lqGlassRef","lqBodyRef","lqLobeRef","lqRimRef","lqXRef","lqContentRef","lqVidRef","lqDefsRef","lqDimRef","lqDockGlassRef","lqSpecRef","lqDarkRef"].forEach((k)=>{this[k]=React.createRef();});
+this.dockRef=React.createRef();setTimeout(()=>this.lqFollow(),0);["lqGlassRef","lqBodyRef","lqLobeRef","lqRimCvRef","lqRimRef","lqXRef","lqContentRef","lqVidRef","lqDefsRef","lqDimRef","lqDockGlassRef","lqSpecRef","lqDarkRef"].forEach((k)=>{this[k]=React.createRef();});
 this.trayRideRef=React.createRef();
 this.glassRimRef=React.createRef();
 this.scrimRef=React.createRef();
@@ -1059,20 +1059,76 @@ this.camStream=null;
 }
 lqGrow(h){
 const dk=this.dockRef&&this.dockRef.current,cp=dk&&dk.querySelector("#lqDockClip");if(!cp)return false;
-const svg=cp.closest("svg"),host=svg.parentElement,md=host.firstElementChild,w=host.offsetWidth||382,h0=this.state.barHeight||62;
-const paths=[...svg.querySelectorAll("path")];
-if(h<=h0+0.5){if(this._lqOn){this._lqOn=false;md.style.clipPath="";md.style.webkitMaskImage=md.style.maskImage=this._lqM0||"";host.style.height=h0+"px";
-const d0=window.DockletLiquid.dockPath(w,h0);paths.forEach((p)=>{p.setAttribute("d",d0);p.removeAttribute("clip-rule");p.removeAttribute("fill-rule");});}return true;}
-if(!this._lqOn){this._lqOn=true;this._lqM0=md.style.webkitMaskImage||md.style.maskImage;md.style.webkitMaskImage=md.style.maskImage="none";}
-const N=(x)=>(+x).toFixed(2),rt=Math.min(32,h / 2),rb=Math.min(h0 / 2,h / 2),cx=w / 2,e=h - h0,Rr=34,rf=6.03,cy=h - h0+21.844;
+const svg=cp.closest("svg"),host=svg.parentElement,md=host.firstElementChild,cv=this.lqRimCvRef&&this.lqRimCvRef.current,h0=this.state.barHeight||62;
+const w=this._lqW||(this._lqW=host.offsetWidth||382),HM=this._lqHM||(this._lqHM=dk.offsetHeight||807);
+const paths=[...svg.querySelectorAll("path")],ms=md.style;
+const cheapOff=()=>{if(!this._lqCheap)return;this._lqCheap=false;const o=this._lqMd0;ms.height=o.height;ms.transform=o.transform;ms.willChange=o.wc;ms.borderRadius=o.radius;ms.webkitMaskSize=ms.maskSize=o.size;ms.webkitMaskPosition=ms.maskPosition=o.pos;};
+if(h<=h0+0.5){if(this._lqOn){this._lqOn=false;this._lqNA=null;this._lqNT=0;cheapOff();ms.clipPath="";ms.webkitMaskImage=ms.maskImage=this._lqM0||"";host.style.height=h0+"px";svg.style.display="";if(cv)cv.style.display="none";
+// back at rest: put the rim SVG back exactly as lqRimCb built it (notch stroke only around the notch, gradients as authored)
+// and let lqFollow fit it again, as on first load
+if(svg._m){svg.innerHTML=svg._m;this._rimK=null;}else{const d0=window.DockletLiquid.dockPath(w,h0);paths.forEach((p)=>{p.setAttribute("d",d0);p.removeAttribute("clip-rule");p.removeAttribute("fill-rule");});}}return true;}
+if(!this._lqOn){this._lqOn=true;this._lqM0=ms.webkitMaskImage||ms.maskImage;ms.webkitMaskImage=ms.maskImage="none";if(cv){svg.style.display="none";cv.style.display="";}}
+h=Math.min(h,HM);
+const N=(x)=>(+x).toFixed(2),rt=Math.min(32,h / 2),rb=Math.min(h0 / 2,h / 2),cx=w / 2,Rr=34,rf=6.03,cy=h - h0+21.844;
 let d="M"+N(w - rt)+" 0A"+N(rt)+" "+N(rt)+" 0 0 1 "+N(w)+" "+N(rt)+"V"+N(h - rb)+"A"+N(rb)+" "+N(rb)+" 0 0 1 "+N(w - rb)+" "+N(h)+"H"+N(rb)+"A"+N(rb)+" "+N(rb)+" 0 0 1 0 "+N(h - rb)+"V"+N(rt)+"A"+N(rt)+" "+N(rt)+" 0 0 1 "+N(rt)+" 0";
 const q=(Rr+rf)*(Rr+rf)-(cy - rf)*(cy - rf);
 if(q>0){const s=Math.sqrt(q),k=Rr / (Rr+rf),ly=cy+(rf - cy)*k,lg=ly<cy?1:0;
 d+="H"+N(cx - s)+"A"+rf+" "+rf+" 0 0 1 "+N(cx - s*k)+" "+N(ly)+"A"+N(Rr)+" "+N(Rr)+" 0 "+lg+" 0 "+N(cx+s*k)+" "+N(ly)+"A"+rf+" "+rf+" 0 0 1 "+N(cx+s)+" 0Z";}
 else d+="ZM"+N(cx - Rr)+" "+N(cy)+"A"+N(Rr)+" "+N(Rr)+" 0 1 0 "+N(cx+Rr)+" "+N(cy)+"A"+N(Rr)+" "+N(Rr)+" 0 1 0 "+N(cx - Rr)+" "+N(cy)+"Z";
-host.style.height=N(h)+"px";md.style.clipPath="path(evenodd,'"+d+"')";
-paths.forEach((p)=>{p.setAttribute("d",d);p.setAttribute(p.parentElement.tagName.toLowerCase()==="clippath"?"clip-rule":"fill-rule","evenodd");});
+// the notch glint follows only the notch (or, once closed, the hole), like the resting rim's notch path, so it doesn't jump at rest
+let nd,nb;if(q>0){const s=Math.sqrt(q),k=Rr / (Rr+rf),ly=cy+(rf - cy)*k,lg=ly<cy?1:0;nd="M"+N(cx - s)+" 0A"+rf+" "+rf+" 0 0 1 "+N(cx - s*k)+" "+N(ly)+"A"+N(Rr)+" "+N(Rr)+" 0 "+lg+" 0 "+N(cx+s*k)+" "+N(ly)+"A"+rf+" "+rf+" 0 0 1 "+N(cx+s)+" 0";nb=[cx - s,0,2*s,cy+Rr];}
+else{nd="M"+N(cx - Rr)+" "+N(cy)+"A"+N(Rr)+" "+N(Rr)+" 0 1 0 "+N(cx+Rr)+" "+N(cy)+"A"+N(Rr)+" "+N(Rr)+" 0 1 0 "+N(cx - Rr)+" "+N(cy)+"Z";nb=[cx - Rr,cy - Rr,2*Rr,2*Rr];}
+// Once the Pill hole no longer touches the top edge (q<=0) the shape is a rounded top that moves plus a fixed bottom with the hole.
+// The glass then stays one size and is only moved, with a fixed mask for the bottom corners and the hole, like the shell glass;
+// resizing it and re-clipping it every frame halved the frame rate while the launcher opened.
+// while the hole still opens into the top edge, mask the glass to this exact shape (rebuilt per frame, only for these
+// ~24 px): clip-path doesn't clip backdrop-filter here, so the blur showed outside the corners and under the Pill
+if(q>0||!cv){cheapOff();host.style.height=N(h)+"px";ms.clipPath="";const mq='url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+N(h)+'" viewBox="0 0 '+w+' '+N(h)+'" preserveAspectRatio="none"><path fill-rule="evenodd" d="'+d+'"/></svg>')+'")';
+ms.webkitMaskImage=ms.maskImage=mq;ms.webkitMaskSize=ms.maskSize="100% 100%";ms.webkitMaskPosition=ms.maskPosition="0px 0px";}
+else{if(!this._lqCheap){this._lqCheap=true;this._lqMd0={height:ms.height,transform:ms.transform,wc:ms.willChange,radius:ms.borderRadius,size:ms.webkitMaskSize||ms.maskSize,pos:ms.webkitMaskPosition||ms.maskPosition};
+const mk=this.lqHoleMask(w,h0,HM);
+host.style.height=HM+"px";ms.clipPath="";ms.height=HM+"px";ms.willChange="transform";ms.borderRadius="32px 32px 0 0";ms.webkitMaskImage=ms.maskImage=mk;ms.webkitMaskSize=ms.maskSize=w+"px "+HM+"px";ms.webkitMaskRepeat=ms.maskRepeat="no-repeat";}
+ms.transform="translateY("+N(HM - h)+"px)";ms.webkitMaskPosition=ms.maskPosition="0px "+N(h - HM)+"px";}
+if(cv)this.lqRimDraw(cv,d,w,h,h0,HM,nd,nb);
+else paths.forEach((p)=>{p.setAttribute("d",d);p.setAttribute(p.parentElement.tagName.toLowerCase()==="clippath"?"clip-rule":"fill-rule","evenodd");});
 return true;
+}
+lqWarm(){
+// size the rim canvas and decode the hole mask while idle, so the first launcher open doesn't pay for them (a 140 ms frame)
+const dk=this.dockRef&&this.dockRef.current,cp=dk&&dk.querySelector("#lqDockClip"),cv=this.lqRimCvRef&&this.lqRimCvRef.current;if(!cp||!cv)return;
+this._lqWarm=1;const host=cp.closest("svg").parentElement,h0=this.state.barHeight||62,w=this._lqW||(this._lqW=host.offsetWidth||382),HM=this._lqHM||(this._lqHM=dk.offsetHeight||807);
+const sc=(this.state.scale||1)*(window.devicePixelRatio||1);cv.width=Math.round(w*sc);cv.height=Math.round(HM*sc);cv.style.height=HM+"px";
+const im=new Image();im.src=this.lqHoleMask(w,h0,HM).slice(5,-2);if(im.decode)im.decode().catch(()=>{});
+}
+lqHoleMask(w,h0,HM){
+// the grown dock's fixed bottom: rounded bottom corners and the Pill hole, as a mask image (built once)
+if(this._lqMk&&this._lqMkK===w+","+h0+","+HM)return this._lqMk;this._lqMkK=w+","+h0+","+HM;
+const N=(x)=>(+x).toFixed(2),cx=w / 2,Rr=34,hy=HM - h0+21.844;this._lqMk='url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+HM+'"><path fill-rule="evenodd" d="M0 0H'+w+'V'+N(HM - h0 / 2)+'A'+N(h0 / 2)+' '+N(h0 / 2)+' 0 0 1 '+N(w - h0 / 2)+' '+HM+'H'+N(h0 / 2)+'A'+N(h0 / 2)+' '+N(h0 / 2)+' 0 0 1 0 '+N(HM - h0 / 2)+'ZM'+N(cx - Rr)+' '+N(hy)+'A'+Rr+' '+Rr+' 0 1 0 '+N(cx+Rr)+' '+N(hy)+'A'+Rr+' '+Rr+' 0 1 0 '+N(cx - Rr)+' '+N(hy)+'Z"/></svg>')+'")';
+return this._lqMk;
+}
+// The growing dock's rim on a canvas, painted like the rim SVG: its paths' paint, stops, widths and clip, with the gradients fitted
+// to the shape the way lqFollow fits them (lqRimV over (w+h)/2 from the top-left, lqNotch over the notch or hole) and the notch glints
+// fading out over 200 ms once the dock is taller than 80, as lqFollow does. Rebuilding the SVG every frame was the other half of the cost.
+// The canvas is HM tall on the dock's bottom, so the shape sits HM - h down.
+lqRimDraw(cv,d,w,h,h0,HM,nd,nb){
+const sc=(this.state.scale||1)*(window.devicePixelRatio||1),W=Math.round(w*sc),H=Math.round(HM*sc);
+if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;cv.style.height=HM+"px";}
+const now=performance.now(),nt=h>80?0:1,na=this._lqNA==null?nt:this._lqNA,dt=Math.min(100,now-(this._lqNT||now));
+this._lqNT=now;this._lqNA=nt>na?Math.min(nt,na+dt / 200):Math.max(nt,na - dt / 200);
+const c=cv.getContext("2d"),P=new Path2D(d),NP=nd?new Path2D(nd):P,svg=cv.previousElementSibling,L=(w+h)/ 2;
+const paint=(v)=>{const m=/url\(#([^)]+)\)/.exec(v||"");if(!m)return null;const e=document.getElementById(m[1]);if(!e||e.tagName.toLowerCase()!=="lineargradient")return null;
+const A=(k,dv)=>{const x=e.getAttribute(k);return x==null?dv:parseFloat(x);};let x1=A("x1",0),y1=A("y1",0),x2=A("x2",1),y2=A("y2",0);
+if(m[1]==="lqRimV"){x1=y1=0;x2=y2=L;}else if(m[1]==="lqNotch"){const b=nb||[0,0,w,h];x1=b[0];y1=b[1];x2=b[0]+b[2];y2=b[1]+b[3];}
+else if(e.getAttribute("gradientUnits")!=="userSpaceOnUse"){x1*=w;x2*=w;y1*=h;y2*=h;}
+const g=c.createLinearGradient(x1,y1,x2,y2);e.querySelectorAll("stop").forEach((s)=>g.addColorStop(+s.getAttribute("offset"),"rgba(255,255,255,"+(s.getAttribute("stop-opacity")||1)+")"));return g;};
+c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);c.setTransform(sc,0,0,sc,0,(HM - h)*sc);
+svg.querySelectorAll("path").forEach((p)=>{const g=p.parentElement;if(g.tagName.toLowerCase()==="clippath")return;
+const notch=p.getAttribute("stroke")==="url(#lqNotch)",op=notch?this._lqNA:(p.style.opacity===""?1:+p.style.opacity);if(!op)return;
+const fill=paint(p.getAttribute("fill")),stroke=paint(p.getAttribute("stroke"));if(!fill&&!stroke)return;
+c.save();c.globalAlpha=op;if(g.getAttribute("clip-path"))c.clip(P,"evenodd");
+if(fill){c.fillStyle=fill;c.fill(P,"evenodd");}
+if(stroke){c.lineWidth=+(p.getAttribute("stroke-width")||g.getAttribute("stroke-width")||1);c.strokeStyle=stroke;c.stroke(notch?NP:P);}
+c.restore();});
 }
 paintGlass(y){
 this._gy=y;
@@ -1490,9 +1546,9 @@ if(kind==="slide"){const g=this._slideGeom;return{t:"translate("+(side==="right"
 if(kind==="gate"){const g=this._gateGeom,q=Math.max(0,p);return{t:"translate("+(side==="right"?g.offR:g.offL)*q*q*q+"px,"+g.y+"px) rotate("+90*sg*p+"deg)",o:side==="right"?g.oR:g.oL};}
 return kind==="park"?this.poseFor("park",side,p*this.parkEnd(side)):this.poseFor("arc",side,p);
 }
-hideApply(kind,side,p){
+hideApply(kind,side,p,keepInd){
 const q=this.hidePose(kind,side,p),el=this.dockRef.current;
-const ind=this.edgeIndRef.current;if(ind){ind.style.transition="none";ind.style.opacity=String(Math.max(0,Math.min(1,p)));}
+const ind=this.edgeIndRef.current;if(ind&&!keepInd){ind.style.transition="none";ind.style.opacity=String(Math.max(0,Math.min(1,p)));}
 if(!el)return;
 el.style.transform=q.t;if(q.o)el.style.transformOrigin=q.o;
 if(kind==="park"||kind==="arc"){this._poseStr=q.t;this._poseOrigin=q.o;this._vis=kind==="park"?p*this.parkEnd(side):p;this._visSide=side;this._poseLive=true;}
@@ -1550,12 +1606,14 @@ if(this._settle)CAF(this._settle.raf);
 const el0=this.dockRef.current;if(el0)el0.style.transition="none";
 const w=2*Math.PI / 0.38,x0=p - to,v0=v*1000,z=Math.abs(v0)>4?0.78:1,wd=w*Math.sqrt(Math.max(0,1 - z*z));
 const t0=performance.now(),S=this._settle={kind,side,p,to,raf:0};
+// coming back out, the edge glow fades on its own clock: tied to the pose it vanished in ~100 ms after a quick release
+const ind=this.edgeIndRef&&this.edgeIndRef.current,fade=!to&&!!ind;if(fade){ind.style.transition="opacity 320ms cubic-bezier(.2,.8,.2,1)";ind.style.opacity="0";}
 const step=(now)=>{
 const t=(now - t0)/ 1000;
 const x=z>=1?(x0+(v0+w*x0)*t)*Math.exp(-w*t):Math.exp(-z*w*t)*(x0*Math.cos(wd*t)+(v0+z*w*x0)/ wd*Math.sin(wd*t));
 S.p=to+x;
-if((Math.abs(x)<0.0015&&t>0.08)||t>1.4){this._settle=null;this.hideApply(kind,side,to);this.hideCommit(kind,side,!!to);return;}
-this.hideApply(kind,side,S.p);
+if((Math.abs(x)<0.0015&&t>0.08)||t>1.4){this._settle=null;this.hideApply(kind,side,to,fade);this.hideCommit(kind,side,!!to);return;}
+this.hideApply(kind,side,S.p,fade);
 S.raf=RAF(step);
 };
 S.raf=RAF(step);
@@ -2218,6 +2276,7 @@ mk.style.top=this._glowTop+"px";mk.style.height=this._glowH+"px";
 lqFollow(){
 CAF(this._lqFr);
 const tick=()=>{this._lqFr=RAF(tick);
+if(!this._lqWarm&&!this._lqOn&&performance.now()>1500)this.lqWarm();
 this.pillHit();
 this.glowPlace();
 if(!this._hg&&!this._settle){const ind=this.edgeIndRef.current,dk=this.dockRef.current,sc=dk&&dk.closest("[data-screen]");
@@ -2228,7 +2287,7 @@ const p=a>0?Math.max(0,Math.min(1,1 - ix*iy / a)):0,v=p<0.01?"0":p>0.99?"1":p.to
 if(ind.style.opacity!==v){ind.style.transition="none";ind.style.opacity=v;}
 }}
 {const dk=this.dockRef.current,rp=dk&&dk.querySelector('path[stroke="url(#lqRimV)"]');
-if(rp&&rp.getBBox){const b=rp.getBBox(),key=b.x+","+b.y+","+b.width+","+b.height;if(key!==this._rimK){this._rimK=key;
+if(rp&&rp.getBBox&&!this._lqOn){const b=rp.getBBox(),key=b.x+","+b.y+","+b.width+","+b.height;if(key!==this._rimK){this._rimK=key;
 const L=(b.width+b.height)/ 2,g=document.getElementById("lqRimV");if(g){g.setAttribute("x1",b.x);g.setAttribute("y1",b.y);g.setAttribute("x2",b.x+L);g.setAttribute("y2",b.y+L);}
 const np=dk.querySelector('path[stroke="url(#lqNotch)"]'),ng=document.getElementById("lqNotch");
 if(np&&ng){const nb=np.getBBox();ng.setAttribute("x1",nb.x);ng.setAttribute("y1",nb.y);ng.setAttribute("x2",nb.x+nb.width);ng.setAttribute("y2",nb.y+nb.height);np.style.opacity=b.height>80?"0":"1";np.style.transition="opacity 200ms";}}}}
@@ -2343,7 +2402,7 @@ lqVidStyle:{position:"absolute",left:0,top:0,width:"100%",height:"100%",objectFi
 lqSwipe:(e)=>{if(e.target&&e.target.closest&&e.target.closest("input"))return;this.xDrag(e);},
 lqChkOn:!!chk,lqChk:chk||{},
 lqDockStyle:{position:"absolute",left:0,right:0,bottom:0,height:s.barHeight,pointerEvents:"none",visibility:s.expanded||s.expFade?"hidden":"visible"},
-lqRimCb:(el)=>{if(!el||!L)return;const m=L.rimMarkup(s.barWidth,s.barHeight,s.barWidth / 2,22,32);if(el._m!==m){el.innerHTML=m;el._m=m;}},lqDockGlassRef:this.lqDockGlassRef,
+lqRimCb:(el)=>{if(!el||!L)return;const m=L.rimMarkup(s.barWidth,s.barHeight,s.barWidth / 2,22,32);if(el._m!==m){el.innerHTML=m;el._m=m;}},lqDockGlassRef:this.lqDockGlassRef,lqRimCvRef:this.lqRimCvRef,
 lqDockGlassStyle:{position:"absolute",left:0,top:0,width:"100%",height:"100%",...(()=>{if(!L)return{};const m="url(\"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+s.barWidth+'" height="'+s.barHeight+'"><path d="'+L.dockPath(s.barWidth,s.barHeight)+'"/></svg>')+"\")";return{WebkitMaskImage:m,maskImage:m,WebkitMaskSize:"100% 100%",maskSize:"100% 100%",WebkitMaskRepeat:"no-repeat",maskRepeat:"no-repeat"};})(),
 background:"radial-gradient(169.988px 61.872px at 50% 0%, #91919133, #2b2b2b33)",backdropFilter:"blur(10px) saturate(150%)",WebkitBackdropFilter:"blur(10px) saturate(150%)"},
 lqDimStyle:{position:"absolute",left:0,top:0,width:402,height:874,zIndex:chat?71:3,pointerEvents:"none",opacity:0,backdropFilter:"blur(8px) brightness(0.7)",WebkitBackdropFilter:"blur(8px) brightness(0.7)"},lqDimRef:this.lqDimRef,
