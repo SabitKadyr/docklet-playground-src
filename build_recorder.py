@@ -73,6 +73,8 @@ def main():
             continue
         html, inlined = build.process_page(open(path, encoding="utf-8").read(), head_extra="")
         open(os.path.join(STAGE, name), "w", encoding="utf-8").write(html)
+        for helper in build.helper_scripts(html):
+            shutil.copy(os.path.join(ROOT, helper), os.path.join(STAGE, helper))
         print("page        : %-36s %6.1f KB (%d assets inlined)" % (name, len(html.encode()) / 1024, inlined))
 
     open(os.path.join(STAGE, "support.js"), "w", encoding="utf-8").write(build.patched_runtime())

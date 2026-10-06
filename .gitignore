@@ -15,3 +15,7 @@ android/app/src/main/assets/www/
 # Recorder build output (build_recorder.py)
 recorder-app/
 android/build-recorder/
+
+# Docklet Liquid build output (build_liquid.py)
+liquid-app/
+android/build-liquid/

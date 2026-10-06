@@ -2,6 +2,20 @@
 
 Changes after v0.2. App versions come from `versions.json`. Downloads are on the [releases page](https://github.com/SabitKadyr/docklet-playground-src/releases).
 
+## Docklet Liquid
+
+A separate app (`com.docklet.liquid.design`) for the Liquid search flow: the centre Pill flows into a search card, and tapping the field opens text input with a keyboard. Three keyboard layouts can be switched in Tweak Docklet → Centre button → Keyboard layout. Source: `Docklet Liquid.dc.html` with `docklet-liquid.js`, built by `build_liquid.py`.
+
+### v0.2.5
+First release. Changes on top of the Claude Design export:
+- **✕ closes everything.** In text input, tapping ✕ on a phone used to stop at the camera step: the tap's click landed on the dock Pill that had moved under the finger and reopened it. It now closes all the way.
+- **No live camera.** The camera tile shows a still photo. On the phone the live camera dropped the screen from 120 Hz to 60 Hz and stalled opening the Pill.
+- **Smooth step into text input.** Measured on a Galaxy A26: 136–144 frames in 1.4 s instead of 103–117, longest frame 25–33 ms instead of up to 92 ms. Once the shape is a card, its glass is a rounded body plus a small lobe moved by transform, instead of a full-screen mask rebuilt every frame, and the rim is drawn only as large as the card.
+- **Closing is one motion.** Swiping down from ✕ or tapping it no longer jumps the card up first and pauses before it shrinks. The card leaves at speed, lands in the dock together with it, and its content fades with the finger.
+- **Fix:** the camera placeholder image never showed in the APK (`build.py` left `./` in front of inlined images).
+
+Known: a swipe down that starts on the card body is taken by the browser as a scroll; start it from ✕.
+
 ## Docklet Playground
 
 ### v0.5

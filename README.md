@@ -27,6 +27,8 @@ What changed in each version: [CHANGELOG.md](CHANGELOG.md).
 | `BoBw Gesture Recorder.dc.html` | Gesture recorder that loads Best of Both Worlds and records touches |
 | `build_recorder.py` | Builds the recorder as a separate app, Docklet Recorder |
 | `RECORDER.md` | Tester guide: how to record gestures and send the logs |
+| `Docklet Liquid.dc.html`, `docklet-liquid.js`, `docklet-sprite.js` | Liquid search flow: the Pill flows into a search card and text input |
+| `build_liquid.py` | Builds it as a separate app, Docklet Liquid |
 
 ## Build
 
@@ -60,11 +62,21 @@ The APK lands in `android/build-recorder/docklet-recorder.apk`. The PNG shows th
 background: the page screenshot needs a library the recorder loads from the internet, and the app
 has no network access.
 
+## Docklet Liquid
+
+Docklet Liquid is a separate app (`com.docklet.liquid.design`) for the Liquid search flow: tap the Pill and it flows into a search card, tap the field to type. To build it:
+
+```bash
+python3 build_liquid.py
+```
+
+The APK lands in `android/build-liquid/docklet-liquid.apk`.
+
 ## Versions
 
-Both apps take their version from `versions.json` (`"playground"` and `"recorder"`, as `major.minor.patch`).
+Each app takes its version from `versions.json` (`"playground"`, `"recorder"` and `"liquid"`, as `major.minor.patch`).
 `make_apk.sh` and the Android Studio build read it, and the versionCode is `major*10000 + minor*100 + patch`.
-Bump the number there before a release. Release tags are `vX.Y` for the playground and `recorder-vX.Y` for the recorder.
+Bump the number there before a release. Release tags are `vX.Y` for the playground, `recorder-vX.Y` for the recorder and `liquid-vX.Y.Z` for Docklet Liquid.
 
 ## Known limitation
 

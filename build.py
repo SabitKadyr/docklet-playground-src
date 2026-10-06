@@ -90,7 +90,8 @@ def process_page(src, head_extra=HEAD_EXTRA):
             continue
         mime = "image/svg+xml" if path.endswith(".svg") else mimetypes.guess_type(path)[0]
         b64 = base64.b64encode(open(full, "rb").read()).decode()
-        src = src.replace(path, "data:%s;base64,%s" % (mime, b64))
+        # "./assets/x" too: leaving the "./" in front would turn the data URI into a relative file URL
+        src = src.replace("./" + path, path).replace(path, "data:%s;base64,%s" % (mime, b64))
         inlined += 1
 
     # dc-runtime invokes componentDidUpdate(prevProps) with no prevState, so an
@@ -134,6 +135,19 @@ def patched_runtime():
     return runtime.replace(fallback, capture, 1)
 
 
+def helper_scripts(src):
+    """Local scripts a page loads besides the runtime, e.g. <script src="./docklet-liquid.js">.
+    They ship as files beside index.html; a missing one stops the build."""
+    names = []
+    for name in re.findall(r'<script src="\./([A-Za-z0-9._-]+\.js)"></script>', src):
+        if name == "support.js" or name in names:
+            continue
+        if not os.path.exists(os.path.join(ROOT, name)):
+            raise SystemExit("page loads ./%s but it is missing next to the export" % name)
+        names.append(name)
+    return names
+
+
 def main():
     src_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, DEFAULT_SRC)
     if not os.path.exists(src_path):
@@ -146,6 +160,10 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(web)
     open(os.path.join(OUT, "support.js"), "w", encoding="utf-8").write(patched_runtime())
+    helpers = helper_scripts(src)
+    for name in helpers:
+        shutil.copy(os.path.join(ROOT, name), os.path.join(OUT, name))
+        print("helper      : " + name)
     for name in VENDOR:
         shutil.copy(os.path.join(ROOT, "vendor", name), os.path.join(OUT, name))
     for folder in SHIPPED_DIRS:
@@ -161,7 +179,7 @@ def main():
     if os.path.isdir(os.path.dirname(ANDROID_ASSETS)):
         os.makedirs(ANDROID_ASSETS, exist_ok=True)
         payload = ["support.js", "manifest.webmanifest",
-                   "icon-192.png", "icon-512.png", "app-icon.png"] + VENDOR
+                   "icon-192.png", "icon-512.png", "app-icon.png"] + VENDOR + helpers
         for name in payload:
             shutil.copy(os.path.join(OUT, name), os.path.join(ANDROID_ASSETS, name))
         open(os.path.join(ANDROID_ASSETS, "index.html"), "w", encoding="utf-8").write(src)
