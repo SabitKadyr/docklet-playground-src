@@ -920,6 +920,13 @@ let b=mk.querySelector("[data-boost]");
 if(!b){b=document.createElement("div");b.setAttribute("data-boost","1");b.style.cssText="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 220ms cubic-bezier(.2,.8,.2,1)";mk.appendChild(b);}
 const bg=mk.style.background.replace(/rgba\(255, 255, 255, ([\d.]+)\)/g,(m,x)=>"rgba(255, 255, 255, "+Math.min(1,+x*1.9).toFixed(4)+")");
 b.style.background=bg;b.style.opacity=on?"1":"0";
+let sw=mk.querySelector("[data-sweep]");
+const rt=this.state.gate==="right"||this.state.barRetract==="right"||(!this.state.leftHanded&&this.state.gate==="none"&&this.state.barRetract==="none");
+if(!sw){sw=document.createElement("div");sw.setAttribute("data-sweep","1");
+sw.style.cssText="position:absolute;inset:0;pointer-events:none;opacity:0;mix-blend-mode:plus-lighter;transition:opacity 320ms cubic-bezier(.2,.8,.2,1);background:linear-gradient(to bottom,#0000 0%,#5b8cff 12%,#a78bfa 24%,#f472b6 36%,#fb923c 48%,#facc15 60%,#34d399 72%,#38bdf8 84%,#0000 100%);background-size:100% 220%;background-repeat:repeat-y";mk.appendChild(sw);}
+const sm="linear-gradient("+(rt?"to left":"to right")+",#000 0px,rgba(0,0,0,.75) 2px,rgba(0,0,0,.35) 6px,rgba(0,0,0,.12) 12px,#0000 22px)";sw.style.webkitMaskImage=sw.style.maskImage=sm;
+if(on){if(!sw._a&&sw.animate)sw._a=sw.animate([{backgroundPosition:"0 0%"},{backgroundPosition:"0 -220%"}],{duration:1400,iterations:Infinity,easing:"linear"});sw.style.opacity="0.9";}
+else{sw.style.opacity="0";clearTimeout(sw._t);sw._t=setTimeout(()=>{if(sw.style.opacity==="0"&&sw._a){sw._a.cancel();sw._a=null;}},360);}
 const right=this.state.gate==="right"||this.state.barRetract==="right"||(!this.state.leftHanded&&this.state.gate==="none"&&this.state.barRetract==="none");
 mk.style.transformOrigin=(right?"100%":"0%")+" 50%";mk.style.transition="scale 260ms cubic-bezier(.2,.9,.3,1.15)";mk.style.scale=on?"1.08":"";};
 if(typeof window!=="undefined"){// only a touch on the grab zone brightens the glow: anywhere else it promised a pull that never came

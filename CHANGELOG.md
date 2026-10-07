@@ -6,6 +6,10 @@ Changes after v0.2. App versions come from `versions.json`. Downloads are on the
 
 A separate app (`com.docklet.liquid.design`) for the Liquid search flow: the centre Pill flows into a search card, and tapping the field opens text input with a keyboard. Three keyboard layouts can be switched in Tweak Docklet → Centre button → Keyboard layout. Source: `Docklet Liquid.dc.html` with `docklet-liquid.js`, built by `build_liquid.py`.
 
+### v0.2.9
+Compared to v0.2.8:
+- **A rainbow shimmer runs along the edge glow while you hold it.** Blue, violet, pink, orange, yellow, green and cyan flow along the glow, one cycle every 1.4 s. They brighten the white glow instead of covering it, are strongest at the screen edge and fade in over 22 px. On release the shimmer fades out over 320 ms. From the new Claude Design version. On a Galaxy A26 the app stays at 120 frames per second while you hold the glow.
+
 ### v0.2.8
 Compared to v0.2.7. Measured on a Galaxy A26:
 
