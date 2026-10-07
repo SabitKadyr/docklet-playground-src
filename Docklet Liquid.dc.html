@@ -1244,10 +1244,11 @@ window.__dockletState=()=>this.state;
 // back. Above the bottom 200 dp the system owns edge swipes, so this is how the upper part of the glow can be pulled.
 window.__dockletBack=(type,x)=>{const st=this.state;
 if(type==="plain"){this._plainBackAt=Date.now();return;}
-if(type==="start"){if(st.gate==="none"&&st.barRetract==="none")return;
+// also while the dock is still flying to or from the edge: catch it where it is
+if(type==="start"){if(st.gate==="none"&&st.barRetract==="none"&&!this._settle)return;
 // the touch at the very edge lands outside the dock, so auto-hide took it for a tap elsewhere and hid the dock again
 clearTimeout(this._ahT);this._lastAct=Date.now();
-if(this._settle){CAF(this._settle.raf);this._settle=null;}
+if(this._settle){this._caught=this._settle;CAF(this._settle.raf);this._settle=null;}
 this._bp={x0:x};this._glowOn=true;this._glowBoost(true);
 // the finger may already have moved the dock before the system took the swipe: carry on from there
 if(this._hg){const H=this._hg;H.p0=H.p;H.rx0=0;H.smp=[];}else this.hideMove(st.mode,0,0);return;}
@@ -1598,16 +1599,17 @@ if(this._settle)CAF(this._settle.raf);
 const el0=this.dockRef.current;if(el0)el0.style.transition="none";
 const w=2*Math.PI / 0.32,x0=p - to,v0=v*1000,z=Math.abs(v0)>4?0.78:1,wd=w*Math.sqrt(Math.max(0,1 - z*z));
 const t0=performance.now(),S=this._settle={kind,side,p,to,raf:0};
+this.hitLive(!!to);if(this._zq)this._zq();// Back exclusion and the Back pull switch over as the dock leaves, not when it lands
 const ind=this.edgeIndRef&&this.edgeIndRef.current,fade=!to&&!!ind;if(fade){ind.style.transition="opacity 320ms cubic-bezier(.2,.8,.2,1)";ind.style.opacity="0";}
 const GD=420 /(this.state.hideSpeed||1);
 const step=(now)=>{
 const t=(now - t0)/ 1000;
 if(gentle){const W=2*Math.PI /(0.42 /(this.state.hideSpeed||1)),tt=(now - t0)/ 1000,ex=Math.exp(-W*tt),e=1 -(1+W*tt)*ex,vel=W*tt*ex*Math.E,u=e>0.998?1:0;S.p=p+(to - p)*e;this.dockFade(Math.max(0,1 - 1.12*Math.pow(e,1.15)),u<1?14*vel:0);
-if(u>=1){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hideCommit(kind,side,!!to);return;}
+if(u>=1){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hitLive(!!to);this.hideCommit(kind,side,!!to);return;}
 this.hideApply(kind,side,S.p,fade);S.raf=RAF(step);return;}
 const x=z>=1?(x0+(v0+w*x0)*t)*Math.exp(-w*t):Math.exp(-z*w*t)*(x0*Math.cos(wd*t)+(v0+z*w*x0)/ wd*Math.sin(wd*t));
 S.p=to+x;
-if((Math.abs(x)<0.0015&&t>0.08)||t>1.4){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hideCommit(kind,side,!!to);return;}
+if((Math.abs(x)<0.0015&&t>0.08)||t>1.4){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hitLive(!!to);this.hideCommit(kind,side,!!to);return;}
 this.hideApply(kind,side,S.p,fade);
 S.raf=RAF(step);
 };
@@ -1895,12 +1897,14 @@ chat:()=>{clearTimeout(this.chatT);this.ss({chatOpen:null,chatClosing:true,chatK
 app:()=>this.leaveApp(),
 tweak:()=>{clearTimeout(this.tweakT);this.ss({screen:"chats",tweakFade:true});this.tweakT=setTimeout(()=>this.ss({tweakFade:false}),460);}})[top]();}
 sendZones(){const N=window.DockletNative;if(!N||!N.setGestureZones)return;
-if(N.setBackPull){const s=this.state,side=s.gate!=="none"?s.gate:s.barRetract!=="none"?s.barRetract:null,ind=this.edgeIndRef&&this.edgeIndRef.current,hit=ind&&ind.querySelector("[data-hit]");
+// a dock flying to or from the edge counts as hidden too: a quick swipe back from the edge then pulls it instead of
+// being a system Back (the state only changes when the animation ends)
+if(N.setBackPull){const s=this.state,S0=this._settle,side=s.gate!=="none"?s.gate:s.barRetract!=="none"?s.barRetract:S0?S0.side:null,ind=this.edgeIndRef&&this.edgeIndRef.current,hit=ind&&ind.querySelector("[data-hit]");
 // the Back pull covers the hidden dock from the glow down to where the dock was; the glow itself is excluded from Back
 let o={on:false};if(side&&hit){const r=hit.getBoundingClientRect();if(r.height>0)o={on:true,side,top:Math.round(r.top),bottom:Math.round(Math.max(r.bottom,ind.getBoundingClientRect().bottom))};}
 const bj=JSON.stringify(o);if(bj!==this._bpj){this._bpj=bj;try{N.setBackPull(bj);}catch(e){}}}
 const s=this.state,g=(this.glassRimRef&&this.glassRimRef.current)||(this.dockRef&&this.dockRef.current);let Z=[];
-if(g&&!s.cardOpen){const r=g.getBoundingClientRect(),vw=innerWidth,vh=innerHeight,bh=Math.min(r.height,s.barHeight*(s.scale||1)),hid=s.gate!=="none"||s.barRetract!=="none";
+if(g&&!s.cardOpen){const r=g.getBoundingClientRect(),vw=innerWidth,vh=innerHeight,bh=Math.min(r.height,s.barHeight*(s.scale||1)),hid=this._settle?this._settle.to===1:s.gate!=="none"||s.barRetract!=="none";
 if(!hid){Z=[{x:r.left-24,y:r.bottom-bh-24,w:r.width+48,h:bh+48}];this._zs=Z[0];}
 else{const L=Math.max(0,r.left),Rr=Math.min(vw,r.right),right=r.left+r.width / 2>vw / 2;let x=L,w=Rr-L;
 if(w<48){x=right?vw-48:0;w=48;}
@@ -1914,7 +1918,9 @@ Z=Z.map((z)=>{const x=Math.max(0,z.x),y=Math.max(0,z.y);return{x:Math.round(x),y
 // otherwise the whole bottom 200 dp, full width
 if(!(hr&&hr.height>0))Z.unshift({x:0,y:Math.max(0,Math.round(vh - 200)),w:Math.round(vw),h:Math.round(Math.min(200,vh))});}
 const j=JSON.stringify(Z);if(j===this._zj)return;this._zj=j;try{N.setGestureZones(j);}catch(e){}}
-edgeGutter(e){const st=this.state;if(st.gate==="none"&&st.barRetract==="none")return false;
+// the glow's grab zone works from the moment the dock leaves for the edge (React only enables it when it lands)
+hitLive(on){const h=this.edgeIndRef&&this.edgeIndRef.current&&this.edgeIndRef.current.querySelector("[data-hit]");if(h)h.style.pointerEvents=on?"auto":"none";}
+edgeGutter(e){const st=this.state;if(st.gate==="none"&&st.barRetract==="none"&&!(this._settle&&this._settle.to===1))return false;
 const ind=this.edgeIndRef&&this.edgeIndRef.current,hit=ind&&ind.querySelector("[data-hit]"),sc=ind&&ind.closest("[data-screen]");
 if(!hit||!sc||sc.contains(e.target))return false;
 const r=hit.getBoundingClientRect(),S=sc.getBoundingClientRect(),y=e.clientY,x=e.clientX;
