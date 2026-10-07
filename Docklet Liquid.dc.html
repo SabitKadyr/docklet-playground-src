@@ -30,10 +30,10 @@ input { -webkit-user-select: auto; user-select: auto; }
 body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
 a { color: #f4f4f5; text-decoration: none; }
 a:hover { color: #ffffff; }
-input[type="range"] { -webkit-appearance: none; appearance: none; height: 44px; background: transparent; touch-action: pan-y; }
-input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 6px; background: #ffffff24; }
+input[type="range"] { -webkit-appearance: none; appearance: none; height: 36px; background: transparent; touch-action: pan-y; }
+input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: #ffffff1f; }
 input[type="range"].plain::-webkit-slider-runnable-track { background: transparent; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -10px; border-radius: 50%; background: #f4f4f5; box-shadow: 0 2px 8px #00000080; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: #f4f4f5; box-shadow: 0 1px 4px #00000099, 0 0 0 0.5px #0000004d; position: relative; z-index: 1; }
 ::-webkit-scrollbar { width: 0; height: 0; }
 @keyframes dockFade {
 0% { opacity: 0; transform: translateY(6px) scale(0.992); }
@@ -286,7 +286,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 <sc-if value="{{ dockTipOpen }}">
 <div ref="{{ tipRef }}" onPointerDown="{{ onDockTipDown }}" style="{{ dockTipStyle }}">
 <div style="{{ dockTipPillStyle }}">
-<span style="font-weight:500;font-size:12px;line-height:16px;text-align:center;color:#0b0c0f"><b style="font-weight:600">Your dock is tucked away</b><br>{{ dockTipLine }}</span>
+<span style="font-weight:500;font-size:12px;line-height:16px;text-align:center;color:#0b0c0f"><b style="font-weight:600">{{ dockTipTitle }}</b><br>{{ dockTipLine }}</span>
 </div>
 </div>
 </sc-if>
@@ -404,37 +404,40 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 </div>
 </div>
 </sc-if>
-<div id="cat-rail" style="flex-shrink:0;display:flex;align-items:center;gap:6px;overflow-x:auto;overflow-y:hidden;padding:2px 14px;margin:0 -14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)">
+<div id="cat-rail" style="{{ railStyle }}">
 <sc-for list="{{ tabs }}" as="c" hint-placeholder-count="6">
 <div onClick="{{ c.onPick }}" style="{{ c.style }}">{{ c.label }}</div>
 </sc-for>
 </div>
+<span style="{{ twSubStyle }}">{{ twSub }}</span>
+<div style="{{ twScrollStyle }}">
 <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="2">
 <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-<sc-if value="{{ sec.head }}"><span style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8c8f98;padding:0 16px">{{ sec.head }}</span></sc-if>
-<div style="{{ cardStyle }}">
+<sc-if value="{{ sec.head }}"><span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#8c8f98;padding:0 16px">{{ sec.head }}</span></sc-if>
+<div style="{{ sec.cardStyle }}">
 <sc-for list="{{ sec.items }}" as="i" hint-placeholder-count="3">
 <div style="{{ i.rowStyle }}">
 <sc-if value="{{ i.slider }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex;flex-direction:column;gap:2px">
 <div style="display:flex;justify-content:space-between;align-items:baseline">
 <span style="font-size:15px;color:#f4f4f5">{{ i.slider.label }}</span>
-<span style="font-size:15px;font-variant-numeric:tabular-nums;color:#8c8f98">{{ i.slider.display }}</span>
+<span style="font-size:14px;font-variant-numeric:tabular-nums;color:#8c8f98">{{ i.slider.display }}</span>
 </div>
-<div style="position:relative;height:44px">
+<div style="position:relative;height:36px">
 <div style="{{ i.slider.barStyle }}"></div>
+<div style="{{ i.slider.fillStyle }}"></div>
 <div style="{{ i.slider.tickStyle }}"></div>
 <input class="{{ i.slider.cls }}" type="range" min="{{ i.slider.min }}" max="{{ i.slider.max }}" step="{{ i.slider.step }}" value="{{ i.slider.value }}" onChange="{{ i.slider.onInput }}" style="position:absolute;inset:0;width:100%;margin:0;accent-color:#f4f4f5">
 </div>
 </div>
 </sc-if>
 <sc-if value="{{ i.seg }}">
-<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;flex-direction:column;gap:8px">
 <div style="display:flex;justify-content:space-between;align-items:baseline">
 <span style="font-size:15px; color:{{ i.seg.color }}">{{ i.seg.label }}</span>
 <span style="font-size:13px;color:#8c8f98">{{ i.seg.hint }}</span>
 </div>
-<div style="display:flex;flex-wrap:wrap;gap:4px;padding:4px;background:#ffffff0f;border-radius:13px">
+<div style="display:flex;flex-wrap:wrap;gap:2px;padding:3px;background:#ffffff0d;border-radius:12px">
 <sc-for list="{{ i.seg.options }}" as="o" hint-placeholder-count="3">
 <div onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</div>
 </sc-for>
@@ -442,7 +445,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 </div>
 </sc-if>
 <sc-if value="{{ i.toggle }}">
-<div onClick="{{ i.toggle.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;min-height:48px">
+<div onClick="{{ i.toggle.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;min-height:44px">
 <span style="font-size:15px;color:#f4f4f5">{{ i.toggle.label }}</span>
 <div style="{{ i.toggle.trackStyle }}"><div style="{{ i.toggle.knobStyle }}"></div></div>
 </div>
@@ -450,15 +453,17 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 <sc-if value="{{ i.illus }}">
 <div style="{{ i.illusStyle }}"></div>
 </sc-if>
-<sc-if value="{{ i.btn }}"><div onClick="{{ i.btn }}" style="min-height:48px;border-radius:14px;background:#ffffff14;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#f4f4f5;cursor:pointer">{{ i.btnLabel }}</div></sc-if>
+<sc-if value="{{ i.btn }}"><div onClick="{{ i.btn }}" style="min-height:44px;border-radius:12px;background:#ffffff12;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#f4f4f5;cursor:pointer">{{ i.btnLabel }}</div></sc-if>
 <sc-if value="{{ i.note }}">
 <span style="font-size:13px;line-height:19px;color:#8c8f98;display:block">{{ i.note }}</span>
 </sc-if>
 </div>
 </sc-for>
 </div>
+<sc-if value="{{ sec.foot }}"><span style="font-size:12.5px;line-height:17px;color:#8c8f98;padding:0 16px;text-wrap:pretty">{{ sec.foot }}</span></sc-if>
 </div>
 </sc-for>
+</div>
 </div>
 </sc-if>
 <sc-if value="{{ dockMenuOpen }}">
@@ -910,11 +915,13 @@ this.camRef=React.createRef();this.appsRevealRef=React.createRef();
 this.edgeIndRef=React.createRef();
 if(typeof window!=="undefined"){
 const inDock=(t)=>{if(!t||!t.closest)return false;const d=this.dockRef.current;return!!((d&&d.contains(t))||t.closest("[data-lqpill],[data-opill],[data-app-id]")||(this.lqGlassRef.current&&this.lqGlassRef.current.contains(t))||(this.lqContentRef.current&&this.lqContentRef.current.contains(t))||(this.lqXRef.current&&this.lqXRef.current.contains(t))||(this.edgeIndRef.current&&this.edgeIndRef.current.contains(t)));};
-const arm=(ms)=>{clearTimeout(this._ahT);this._ahT=setTimeout(()=>{if(Date.now()-(this._lastAct||0)>=ms - 50)this.autoHide(true);else arm(ms);},ms);};
+// counts from the first tap outside the Docklet: more taps elsewhere don't push it back (they did, so tapping away
+// kept the dock up); a touch on the Docklet still cancels it
+const arm=(ms)=>{if(this._ahT)return;this._ahT=setTimeout(()=>{this._ahT=0;this.autoHide(true);},ms);};
 const idle=()=>{clearTimeout(this._idleT);this._idleT=setTimeout(()=>this.autoHide(true),(this.state.ahIdle??10)*1000);};
-this._actOn=(e)=>{this._lastAct=Date.now();idle();if(inDock(e.target)||this.edgeGutter(e)){clearTimeout(this._ahT);return;}arm((this.state.ahTap??2)*1000);};
+this._actOn=(e)=>{this._lastAct=Date.now();idle();if(inDock(e.target)||this.edgeGutter(e)){(clearTimeout(this._ahT),this._ahT=0);return;}arm((this.state.ahTap??2)*1000);};
 window.addEventListener("pointerdown",this._actOn,true);
-window.addEventListener("keydown",()=>{this._lastAct=Date.now();idle();clearTimeout(this._ahT);},true);
+window.addEventListener("keydown",()=>{this._lastAct=Date.now();idle();(clearTimeout(this._ahT),this._ahT=0);},true);
 window.addEventListener("wheel",()=>{this._lastAct=Date.now();idle();arm((this.state.ahTap??2)*1000);},{capture:true,passive:true});
 setTimeout(idle,0);}
 this._glowBoost=(on)=>{const ind=this.edgeIndRef.current,mk=ind&&ind.firstChild;if(!mk)return;
@@ -1214,7 +1221,10 @@ setTimeout(()=>{const d=this.dockRef.current;if(d&&d.animate&&!this._hg&&!this._
 {const hid=st.gate!=="none"||st.barRetract!=="none",was=ps.gate!=="none"||ps.barRetract!=="none";
 if(hid&&!was)this._hidOnce=true;
 if(st.testerMode!==ps.testerMode){try{window.localStorage.setItem("docklet.tester",st.testerMode||"off");}catch(e){}this.armNudge();}
-if(hid&&!was&&!st.dockTipSeen&&!st.dockTipOpen&&!st.tipFly)this.ss({dockTipOpen:true});}
+// the first time the dock hides on its own (2 s after a tap elsewhere, or 10 s idle) it says so, once
+if(hid&&!was){const auto=this._autoHid;this._autoHid=false;
+if(auto&&!this.seenGet().autoTip&&!st.dockTipOpen&&!st.tipFly){this.seenSet("autoTip",1);this.ss({dockTipOpen:true,dockTipAuto:true});}
+else if(!st.dockTipSeen&&!st.dockTipOpen&&!st.tipFly)this.ss({dockTipOpen:true,dockTipAuto:false});}}
 if(st.dockTipOpen&&!st.tipFly&&st.gate==="none"&&st.barRetract==="none")this.tipAway(ps.barRetract!=="none"?ps.barRetract:ps.gate);
 if(!st.launchTipSeen&&((ps.appsOpen&&!st.appsOpen)||st.menuFor))this.ss({launchTipSeen:true});
 if(!st.tipSeen&&((ps.active===2&&st.active!==2)||(st.appsOpen&&st.active===2)))this.ss({tipSeen:true});
@@ -1247,14 +1257,14 @@ if(type==="plain"){this._plainBackAt=Date.now();return;}
 // also while the dock is still flying to or from the edge: catch it where it is
 if(type==="start"){if(st.gate==="none"&&st.barRetract==="none"&&!this._settle)return;
 // the touch at the very edge lands outside the dock, so auto-hide took it for a tap elsewhere and hid the dock again
-clearTimeout(this._ahT);this._lastAct=Date.now();
+(clearTimeout(this._ahT),this._ahT=0);this._lastAct=Date.now();
 if(this._settle){this._caught=this._settle;CAF(this._settle.raf);this._settle=null;}
 this._bp={x0:x};this._glowOn=true;this._glowBoost(true);
 // the finger may already have moved the dock before the system took the swipe: carry on from there
 if(this._hg){const H=this._hg;H.p0=H.p;H.rx0=0;H.smp=[];}else this.hideMove(st.mode,0,0);return;}
 const B=this._bp;if(!B)return;
 if(type==="move"){this.hideMove(st.mode,(x - B.x0)/(st.scale||1),0);return;}
-this._bp=null;this._glowOn=false;this._glowBoost(false);clearTimeout(this._ahT);this._lastAct=Date.now();const H=this._hg;this._hg=null;CAF(this._hgRaf);this._hgRaf=0;
+this._bp=null;this._glowOn=false;this._glowBoost(false);(clearTimeout(this._ahT),this._ahT=0);this._lastAct=Date.now();const H=this._hg;this._hg=null;CAF(this._hgRaf);this._hgRaf=0;
 if(H)this.hideSettle(H.kind,H.side,H.p,0,type==="commit"?0:1);};
 {let tm="off";try{tm=window.localStorage.getItem("docklet.tester")||"off";}catch(e){}if(!TUNING[tm])tm="off";this.state.testerMode=tm;}
 this.armNudge();
@@ -1440,13 +1450,16 @@ if(on&&this._snapKey!==key)this.haptic("select");
 this._snapKey=on?key:null;
 this.set(key,nv);
 },
+// the default value is a small mark on the track; the track fills up to the thumb
 tickStyle:typeof def==="number"&&def>=min&&def<=max?{
-position:"absolute",top:15,width:2,height:14,marginLeft:-1,borderRadius:1,pointerEvents:"none",
-left:"calc(13px + (100% - 26px) * "+((def - min)/(max - min)).toFixed(4)+")",
-background:Math.abs(v - def)<1e-9?"#f4f4f5e6":"#f4f4f559",
+position:"absolute",top:12,width:2,height:12,marginLeft:-1,borderRadius:1,pointerEvents:"none",
+left:"calc(11px + (100% - 22px) * "+((def - min)/(max - min)).toFixed(4)+")",
+background:Math.abs(v - def)<1e-9?"#f4f4f5":"#f4f4f566",
 }:{display:"none"},
 bar:!!bar,cls:bar?"plain":"",
-barStyle:bar?{position:"absolute",left:0,right:0,top:19,height:6,borderRadius:6,background:bar,pointerEvents:"none"}:null,
+barStyle:bar?{position:"absolute",left:0,right:0,top:15,height:6,borderRadius:3,background:bar,pointerEvents:"none"}:{display:"none"},
+fillStyle:bar?{display:"none"}:{position:"absolute",left:0,top:16,height:4,borderRadius:2,background:"#f4f4f5",pointerEvents:"none",
+width:"calc(11px + (100% - 22px) * "+Math.max(0,Math.min(1,(v - min)/(max - min))).toFixed(4)+")"},
 };
 }
 seg(label,key,opts,disabled){
@@ -1458,11 +1471,11 @@ options:opts.map((o)=>({
 label:o[0],
 onClick:disabled?null:()=>this.set(key,o[1]),
 style:{
-flex:1,minWidth:0,textAlign:"center",padding:"10px 4px",borderRadius:10,lineHeight:"18px",
-fontSize:opts.length>3?12.5:13.5,fontWeight:500,cursor:disabled?"default":"pointer",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",
+flex:1,minWidth:0,textAlign:"center",padding:"8px 4px",borderRadius:9,lineHeight:"18px",
+fontSize:opts.length>3?12.5:13,fontWeight:500,cursor:disabled?"default":"pointer",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",
 opacity:disabled?0.4:1,
-background:cur===o[1]?"#f4f4f5":"transparent",
-color:cur===o[1]?"#111111":"#8c8f98",
+background:cur===o[1]?"#f4f4f5":"transparent",boxShadow:cur===o[1]?"0 1px 3px #00000059":"none",
+color:cur===o[1]?"#111111":"#a1a1a6",
 transition:"background 240ms "+HC+", color 240ms "+HC,
 },
 })),
@@ -1476,10 +1489,10 @@ label:"Gesture mode",color:"#dadbe0",hint:"",
 options:[["Slide","slide"],["Reverse Park","arc"],["Drawbridge","gate"],["Pivot Turn","park"]].map((o)=>({
 label:o[0],onClick:pick(o[1]),
 style:{
-flex:"1 1 calc(50% - 4px)",minWidth:0,boxSizing:"border-box",textAlign:"center",padding:"10px 4px",lineHeight:"18px",borderRadius:10,
-fontSize:13.5,fontWeight:500,cursor:"pointer",whiteSpace:"nowrap",
-background:cur===o[1]?"#f4f4f5":"transparent",
-color:cur===o[1]?"#111111":"#8c8f98",
+flex:"1 1 calc(50% - 2px)",minWidth:0,boxSizing:"border-box",textAlign:"center",padding:"8px 4px",lineHeight:"18px",borderRadius:9,
+fontSize:13,fontWeight:500,cursor:"pointer",whiteSpace:"nowrap",
+background:cur===o[1]?"#f4f4f5":"transparent",boxShadow:cur===o[1]?"0 1px 3px #00000059":"none",
+color:cur===o[1]?"#111111":"#a1a1a6",
 transition:"background 240ms "+HC+", color 240ms "+HC,
 },
 })),
@@ -1852,7 +1865,7 @@ this.autoHideT=setTimeout(()=>{if(this.state.appFg)this.autoHide();},wasExpanded
 seenGet(){try{return JSON.parse(window.localStorage.getItem("docklet.seen")||"{}")||{};}catch(e){return{};}}
 seenSet(k,v){const o=this.seenGet();o[k]=v;try{window.localStorage.setItem("docklet.seen",JSON.stringify(o));}catch(e){}}
 toast(text,undo){clearTimeout(this.toastT);this._undo=undo||null;this.ss({toast:{text,undo:!!undo}});this.toastT=setTimeout(()=>this.ss({toast:null}),3600);}
-replayOb(){try{const k="docklet.seen",sn=JSON.parse(window.localStorage.getItem(k)||"{}");delete sn.dockTip;delete sn.launchTip;delete sn.slotTip;delete sn.hideNudge;window.localStorage.setItem(k,JSON.stringify(sn));}catch(e){}this._tipHides=0;this.ss({dockTipSeen:false,launchTipSeen:false,tipSeen:false,screen:"chats"});this.armNudge();}
+replayOb(){try{const k="docklet.seen",sn=JSON.parse(window.localStorage.getItem(k)||"{}");delete sn.dockTip;delete sn.autoTip;delete sn.launchTip;delete sn.slotTip;delete sn.hideNudge;window.localStorage.setItem(k,JSON.stringify(sn));}catch(e){}this._tipHides=0;this.ss({dockTipSeen:false,launchTipSeen:false,tipSeen:false,screen:"chats"});this.armNudge();}
 armNudge(){clearTimeout(this._nudgeT);clearTimeout(this._idleT);this._nudgeArmed=false;if(!this.tune().hideNudge||this._hidOnce||this.seenGet().hideNudge)return;this._nudgeArmed=true;this._nudgeT=setTimeout(()=>this.hideNudge(),20000);this._idleT=setTimeout(()=>this.hideNudge(),8000);}
 hideNudge(){
 if(!this._nudgeArmed)return;const s=this.state,el=this.dockRef.current;
@@ -1876,7 +1889,7 @@ if(s.expanded||s.inputMode||s.appsOpen||s.lqOpen||s.screen==="controls"||s.dockM
 if(this._hg||this._settle)return;
 const side=s.leftHanded?"left":"right";
 
-RAF(()=>RAF(()=>{const t=this.state;if(t.gate!=="none"||t.barRetract!=="none"||this._hg||this._settle)return;this._quiet=1;this.hideSettle(t.mode,side,0,0,1,true);}));
+RAF(()=>RAF(()=>{const t=this.state;if(t.gate!=="none"||t.barRetract!=="none"||this._hg||this._settle)return;this._quiet=1;this._autoHid=true;this.hideSettle(t.mode,side,0,0,1,true);}));
 }
 layers(){const s=this.state;return[(s.menuFor!=null||s.dockMenu)&&"menu",s.inputMode&&"input",s.expanded&&"pill",s.appsOpen&&"apps",s.cardOpen&&"card",s.chatOpen!=null&&"chat",s.appFg&&s.activeApp&&"app",s.screen==="controls"&&"tweak"].filter(Boolean);}
 syncBack(){const B=this._bk;if(!B)return;const n=this.layers().length;
@@ -2202,9 +2215,10 @@ const out={
 [null,[mode,this.gestureIllus(this.state.mode),notes[notes.length - 1]]],
 ["When hidden",pick("Gestures",["Show at the edge","Indicator","Peek"])],
 ["Behaviour",[].concat(rename(pick("Gestures",["Auto-hide","Swipe on empty","Southpaw"]),{"Swipe on empty":"Bring back by swiping empty space"}),notes.length>1?[notes[0]]:[],this.state.autoHide===false?[]:[{slider:Object.assign(this.slider("Hide after tapping elsewhere","ahTap",0,2,0.1,"s"),{display:(this.state.ahTap??2).toFixed(1)+" s"})},{slider:Object.assign(this.slider("Hide when idle","ahIdle",2,30,1,"s"),{display:(this.state.ahIdle??10)+" s"})}],[{slider:Object.assign(this.slider("Animation speed","hideSpeed",0.5,2,0.05,"x"),{display:(this.state.hideSpeed||1).toFixed(2)+"\u00d7"})}])]),
-"Motion":sec([null,g["Motion"]||[]]),
-"Dock":sec([null,rename([].concat(pick("Dock shape",["Shape"]),pick("Dock",["Width","Height","Corner radius","Bottom offset"]),pick("Tab items",["Inner padding"]),pick("Dock",["Expanded (tap the pill)"])),{"Bottom offset":"Distance from bottom","Inner padding":"Padding","Expanded (tap the pill)":"Preview expanded"})],
-["Search card",rename(pick("Dock shape",["Keyboard layout","Pill morph","Morph speed","Shape check"]),{"Keyboard layout":"Version"})]),
+// one choice of curve across three families, then speed
+"Motion":(()=>{const m=g["Motion"]||[];return sec(["Curve",[m[0],m[1],m[2],m[3],m[6]]],["Speed",[m[4],m[5]]]);})(),
+"Dock":sec([null,rename([].concat(pick("Dock shape",["Shape"]),pick("Dock",["Width","Height","Corner radius","Bottom offset"]),pick("Tab items",["Inner padding"]),pick("Dock",["Expanded (tap the pill)"])),{"Bottom offset":"Distance from bottom","Inner padding":"Padding","Expanded (tap the pill)":"Show it expanded"})],
+["Search card",rename(pick("Dock shape",["Keyboard layout","Pill morph","Morph speed","Shape check"]),{"Shape check":"Show shape outline"})]),
 "Tabs":sec([null,rename(pick("Tab items",["Labels","Right slot","Apps icon","Item overlap","Selection tint"]),{"Item overlap":"Spacing","Selection tint":"Selection strength"})]),
 "Centre button":sec([null,rename([].concat(pick("Dock shape",["Pill","Pill morphs while typing"]),pick("Centre pill",["Icon","Position","Press-in on tap","Side","Gap to dock"])),{"Pill":"Shape","Pill morphs while typing":"Pill shape while typing"})]),
 "Button colour":sec([null,rename(pick("Centre pill",["Hue","Saturation","Brightness","Edge light saturation","Tint with open app's accent"]),{"Edge light saturation":"Rim saturation","Tint with open app's accent":"Match open app's accent"})]),
@@ -3052,13 +3066,13 @@ background:"radial-gradient(120% 90% at 50% 0%, #1c1c20 0%, #101012 70%)",
 headerStyle:{display:"none",alignItems:"center",gap:12,alignSelf:"stretch",maxWidth:402,margin:"0 auto",width:"100%"},
 panelStyle:{
 position:"absolute",left:8,right:8,top:106,bottom:s.bottom+s.barHeight+12,zIndex:2,
-display:"flex",flexDirection:"column",gap:20,
-overflowY:"auto",WebkitOverflowScrolling:"touch",boxSizing:"border-box",scrollbarWidth:"none",
-padding:"14px 14px 28px",
-background:"#0d0e11eb",
+display:"flex",flexDirection:"column",gap:10,
+overflow:"hidden",boxSizing:"border-box",
+padding:"12px 12px 0",
+background:"#0d0e11ed",
 backdropFilter:"blur(40px) saturate(140%)",WebkitBackdropFilter:"blur(40px) saturate(140%)",
-borderRadius:34,
-boxShadow:"0 24px 60px #0000008c, inset 0 0.5px 0 #ffffff29, inset 0 0 0 1px #ffffff1a",
+borderRadius:30,
+boxShadow:"0 24px 60px #0000008c, inset 0 0 0 0.5px #ffffff26",
 animation:s.screen==="controls"
 ?"curtainDown 420ms "+HC+" both"
 :"curtainUp 360ms "+HC+" both",
@@ -3083,20 +3097,20 @@ fsLabel:s.immersive?"Exit full screen":"Full screen",
 controlsScreen:s.screen==="controls"||!!s.tweakFade,
 shapeLabel:s.shape==="organic"?"Organic dock":"Rounded dock",
 saveBtnStyle:{
-padding:"13px 14px",borderRadius:999,cursor:"pointer",background:"#f4f4f5",color:"#111111",
+padding:"13px 14px",borderRadius:999,cursor:"pointer",background:"#ffffff14",color:"#f4f4f5",
 fontSize:13,fontWeight:600,lineHeight:"16px",whiteSpace:"nowrap",
 },
 resetBtnStyle:{
-padding:"13px 14px",borderRadius:999,cursor:"pointer",
-background:"#ffffff0f",border:"1px solid #ffffff17",color:"#dadbe0",
+padding:"13px 10px",borderRadius:999,cursor:"pointer",
+background:"transparent",color:"#a1a1a6",
 fontSize:13,fontWeight:500,lineHeight:"16px",whiteSpace:"nowrap",
 },
 chatsScreen:true,
 headerIcons:!miniDef&&s.screen!=="controls",
 titleShown:!miniDef,
 headerStyle2:{position:"relative",zIndex:3,minHeight:44,display:"flex",justifyContent:"center",alignItems:"center",padding:"0 16px",marginTop:2,boxSizing:"border-box"},
-screenTitle:s.active===1?"Pocket":(s.active===2&&!s.hotApp?"Pinned":"Chats"),
-screenBtnLabel:s.screen==="controls"?"Close":"Tweak Docklet"+(s.testerMode&&s.testerMode!=="off"?" \u00b7 "+s.testerMode.toUpperCase():""),
+screenTitle:s.screen==="controls"?"Tweak":s.active===1?"Pocket":(s.active===2&&!s.hotApp?"Pinned":"Chats"),
+screenBtnLabel:s.screen==="controls"?"Done":"Tweak Docklet"+(s.testerMode&&s.testerMode!=="off"?" \u00b7 "+s.testerMode.toUpperCase():""),
 screenBtnStyle:{
 padding:"13px 16px",borderRadius:999,cursor:"pointer",
 background:s.screen==="controls"?"#f4f4f5":"#ffffff14",
@@ -3109,7 +3123,9 @@ if(s.screen==="controls"){
 this.ss({screen:"chats",tweakFade:true});
 this.tweakT=setTimeout(()=>this.ss({tweakFade:false}),460);
 }else{
-this.ss({screen:"controls",tweakFade:false});
+// open on the current category, its chip centred in the rail
+this.ss({screen:"controls",tweakFade:false},()=>RAF(()=>{const rail=document.getElementById("cat-rail"),el=rail&&[...rail.children].find((c)=>c.style.fontWeight==="600");
+if(rail&&el)rail.scrollLeft=Math.max(0,el.offsetLeft -(rail.clientWidth - el.offsetWidth)/ 2);}));
 }
 },
 panelLabel:s.panelOpen?"Close":"Tweak",
@@ -3125,7 +3141,8 @@ slotEmptyOpen:s.active===2&&!s.hotApp&&!miniDef,
 slotTipOpen:s.active===2&&!s.hotApp&&!miniDef&&!s.tipSeen&&!s.appsOpen&&!s.expanded&&!s.hidden&&s.gate==="none"&&s.barRetract==="none"&&s.screen!=="controls",
 onTipClose:()=>this.ss({tipSeen:true}),
 dockTipOpen:!!s.dockTipOpen&&(!!s.tipFly||s.gate!=="none"||s.barRetract!=="none"),
-dockTipLine:s.mode==="slide"?"Drag its edge back in, or tap here":"Drag in from the "+(s.leftHanded?"left":"right")+" edge, or tap here",
+dockTipTitle:s.dockTipAuto?"Docklet tucked itself away":"Your dock is tucked away",
+dockTipLine:s.dockTipAuto?"It hides when you're not using it. Drag it in from the glow, or tap here":s.mode==="slide"?"Drag its edge back in, or tap here":"Drag in from the "+(s.leftHanded?"left":"right")+" edge, or tap here",
 tipRef:this.tipRef||(this.tipRef=React.createRef()),
 onDockTipDown:(e)=>{
 if(s.tipFly)return;
@@ -3850,12 +3867,12 @@ s.specular?{slider:this.slider("Specular hue","specHue",0,360,1,"\u00b0",HUE_BAR
 s.specular?{slider:this.slider("Specular saturation","specSat",0,100,1,"%","linear-gradient(90deg, hsl("+s.specHue+" 0% 92%), hsl("+s.specHue+" 100% 72%))")}:null,
 ].filter(Boolean)},
 {title:"Motion",items:[
-{seg:this.seg("Curve preset","easing",[["House","smooth"],["Material 3","material"],["M3 Expr.","m3x"]])},
+{seg:this.seg("House & Material","easing",[["House","smooth"],["Material 3","material"],["M3 Expr.","m3x"]])},
 {seg:this.seg("iOS spring","easing",[["Smooth","ios"],["Snappy","iosSnap"],["Bouncy","iosBounce"]])},
-{seg:this.seg("\u00a0","easing",[["Fluent 2","fluent"],["Carbon","carbon"],["Ant","ant"]])},
+{seg:this.seg("Other systems","easing",[["Fluent 2","fluent"],["Carbon","carbon"],["Ant","ant"]])},
 {note:"Timings rescale to each platform's reference duration ("+(EASINGS[s.easing]||EASINGS.smooth).T+" ms here). Springs are sampled from the real damped-oscillator response."},
 {slider:Object.assign(this.slider("Speed","speed",0.3,2.5,0.05,"x"),{display:(s.speed||1).toFixed(2)+"\u00d7"})},
-{toggle:this.toggle("Disable all motion","motionOff")},
+{toggle:this.toggle("Turn off all motion","motionOff")},
 {note:mo.label+" \u00b7 "+(mo.c.indexOf("linear(")===0?"spring":mo.c)+" \u00b7 "+Math.round(mo.T*0.85 /(s.speed||1))+" ms"},
 ]},
 {title:"Haptics",items:[
@@ -3901,24 +3918,32 @@ if(rail.scrollTo)rail.scrollTo({left:Math.max(0,left),behavior:"smooth"});
 });
 },
 style:{
-flexShrink:0,padding:"10px 15px",borderRadius:999,cursor:"pointer",
-fontSize:13.5,fontWeight:500,lineHeight:"18px",whiteSpace:"nowrap",
-background:n===active?"#f4f4f5":"#ffffff0f",
-color:n===active?"#111111":"#dadbe0",
-border:"1px solid "+(n===active?"transparent":"#ffffff17"),
+flexShrink:0,padding:"8px 14px",borderRadius:999,cursor:"pointer",
+fontSize:13.5,fontWeight:n===active?600:500,lineHeight:"18px",whiteSpace:"nowrap",
+background:n===active?"#f4f4f5":"transparent",
+color:n===active?"#111111":"#a1a1a6",
+boxShadow:n===active?"0 1px 3px #00000059":"none",
 transition:"background 240ms "+HC+", color 240ms "+HC,
 },
 }));
+// Tweak layout: the category rail and a line saying what the category is for stay at the top; only the settings
+// below scroll, fading out under the rail and above the dock
+out.railStyle={flexShrink:0,display:"flex",alignItems:"center",gap:2,overflowX:"auto",overflowY:"hidden",padding:"3px 24px 3px 10px",
+background:"#ffffff0b",borderRadius:999,scrollbarWidth:"none",WebkitOverflowScrolling:"touch",
+WebkitMaskImage:"linear-gradient(90deg,transparent,#000 10px,#000 calc(100% - 22px),transparent)",maskImage:"linear-gradient(90deg,transparent,#000 10px,#000 calc(100% - 22px),transparent)"};
+out.twSub=({"Hide gesture":"How the dock tucks away and how it comes back","Motion":"The curve and speed of every animation","Dock":"Size and shape of the dock and its search card","Tabs":"Labels, the right slot and the selection","Centre button":"The Pill in the middle of the dock","Button colour":"The colour of the Pill","Material":"The glass: blur, tint and light","Haptics":"What you feel on taps and swipes","Pressed glow":"The glow behind the Pill icon when pressed","Help":"Tester mode and the first-run tips"})[active]||"";
+out.twSubStyle={flexShrink:0,fontSize:13,lineHeight:"18px",color:"#8c8f98",padding:"2px 8px 0"};
+out.twScrollStyle={flex:"1 1 auto",minHeight:0,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",
+display:"flex",flexDirection:"column",gap:22,margin:"0 -12px",padding:"8px 12px 28px",boxSizing:"border-box",
+WebkitMaskImage:"linear-gradient(180deg,transparent,#000 10px,#000 calc(100% - 28px),transparent)",maskImage:"linear-gradient(180deg,transparent,#000 10px,#000 calc(100% - 28px),transparent)"};
 out.sections=[];(byTitle[active]||[]).forEach((it)=>{if(it.head||!out.sections.length)out.sections.push({head:it.head||"",items:[]});if(!it.head)out.sections[out.sections.length - 1].items.push(it);});
-out.sections=out.sections.filter((sc)=>sc.items.length).map((sc)=>({head:sc.head,items:sc.items.map((it,idx,arr)=>Object.assign({},it,{
-rowStyle:{padding:it.note?"12px 0 14px":it.illus?"6px 0 4px":"10px 0 12px",borderBottom:idx===arr.length - 1||it.note&&idx>0?"none":"0.5px solid #ffffff14"},
-}))}));
-out.cardStyle={
-display:"flex",flexDirection:"column",
-background:"#ffffff0d",borderRadius:22,
-boxShadow:"inset 0 0.5px 0 #ffffff1a",padding:"2px 16px",boxSizing:"border-box",
-flexShrink:0,animation:"dockFade 260ms "+HC+" both",
-};
+out.sections=out.sections.filter((sc)=>sc.items.length).map((sc)=>{
+const rows=sc.items.filter((it)=>!it.note),foot=sc.items.filter((it)=>it.note).map((it)=>it.note).join(" ");
+return{head:sc.head,foot,
+cardStyle:{display:rows.length?"flex":"none",flexDirection:"column",background:"#ffffff0b",borderRadius:20,padding:"0 16px",boxSizing:"border-box",flexShrink:0,animation:"dockFade 260ms "+HC+" both"},
+items:rows.map((it,idx,arr)=>Object.assign({},it,{
+rowStyle:{padding:it.illus?"8px 0":it.toggle?"3px 0":it.btn?"12px 0":it.slider?"11px 0 3px":"12px 0",borderBottom:idx===arr.length - 1?"none":"0.5px solid #ffffff12"},
+}))};});
 return this.motion(out);
 }
 }
