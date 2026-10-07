@@ -42,7 +42,7 @@ def main():
         shutil.copytree(os.path.join(ROOT, folder), os.path.join(STAGE, folder))
     print("page        : %s  %.1f KB (%d assets inlined)" % (os.path.basename(src_path), len(html.encode()) / 1024, inlined))
 
-    env = dict(os.environ, APP_ID=APP_ID, APP_LABEL=APP_LABEL, ASSET_BASE=STAGE_BASE, VERSION_KEY="liquid",
+    env = dict(os.environ, APP_ID=APP_ID, APP_LABEL=APP_LABEL, ASSET_BASE=STAGE_BASE, VERSION_KEY="liquid", PREDICTIVE_BACK="1",
                OUT=APK_OUT, APK_NAME=APK_NAME)
     subprocess.run(["bash", os.path.join(ROOT, "android", "make_apk.sh")], env=env, check=True)
 

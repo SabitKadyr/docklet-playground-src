@@ -64,6 +64,11 @@ MANIFEST_SED=(-e "s|<manifest |<manifest package=\"$APP_ID\" |"
               -e "s|android:name=\"\\.MainActivity\"|android:name=\"$PKG.MainActivity\"|"
               -e "s|android:versionCode=\"[0-9]*\"|android:versionCode=\"$VERSION_CODE\"|"
               -e "s|android:versionName=\"[^\"]*\"|android:versionName=\"$VERSION_NAME\"|")
+# PREDICTIVE_BACK=1 opts the app into Back callbacks: MainActivity then gets the Back swipe's progress (Docklet Liquid
+# uses it to pull a hidden dock out from the upper part of its edge glow). Unset keeps the classic onBackPressed path.
+if [ "${PREDICTIVE_BACK:-}" = "1" ]; then
+  MANIFEST_SED+=(-e "s|<application|<application android:enableOnBackInvokedCallback=\"true\"|")
+fi
 if [ -n "${APP_LABEL:-}" ]; then
   MANIFEST_SED+=(-e "s|android:label=\"@string/app_name\"|android:label=\"$APP_LABEL\"|")
 fi

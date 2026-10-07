@@ -26,6 +26,10 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import android.window.BackEvent;
+import android.window.OnBackAnimationCallback;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -69,6 +73,8 @@ public class MainActivity extends Activity {
     private WebView webView;
     /** getUserMedia call parked while the Android camera permission dialog is up. */
     private PermissionRequest pendingCameraRequest;
+    /** Predictive Back pull of a hidden dock (API 34+), see setBackPull. Null until first used. */
+    private Object backPull;
 
     private static Map<String, String> buildMimeTypes() {
         Map<String, String> m = new HashMap<>();
@@ -134,6 +140,7 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new NativeBridge(), "DockletNative");
 
         setContentView(webView);
+        installBackCallback();
 
         if (savedInstanceState == null) {
             webView.loadUrl(START_URL);
@@ -263,6 +270,39 @@ public class MainActivity extends Activity {
             });
         }
 
+        /**
+         * The page reports whether the dock is hidden, as JSON {on, side: "left"|"right", top, bottom} in CSS px:
+         * the edge it hides to and the height of its edge glow. While on, a system Back swipe that starts at that
+         * edge within that height is handed to the page (window.__dockletBack) to pull the dock out with the
+         * finger; any other Back stays a normal Back. Above the bottom 200 dp the system owns edge swipes, so this
+         * is the only way to pull the upper part of the glow. Needs android:enableOnBackInvokedCallback, which
+         * make_apk.sh sets when PREDICTIVE_BACK=1; without it Android ignores the callback.
+         */
+        @JavascriptInterface
+        public void setBackPull(String json) {
+            if (Build.VERSION.SDK_INT < 34) {
+                return;
+            }
+            final boolean on;
+            final String side;
+            final float top, bottom;
+            try {
+                JSONObject o = new JSONObject(json == null ? "{}" : json);
+                on = o.optBoolean("on", false);
+                side = o.optString("side", "right");
+                top = (float) o.optDouble("top", 0);
+                bottom = (float) o.optDouble("bottom", 0);
+            } catch (JSONException e) {
+                return;
+            }
+            runOnUiThread(() -> {
+                if (backPull == null) {
+                    backPull = new BackPull();
+                }
+                ((BackPull) backPull).set(on, side, top, bottom);
+            });
+        }
+
         @JavascriptInterface
         public boolean save(String name, String mime, String base64) {
             String safe = name == null ? "" : name.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
@@ -334,6 +374,105 @@ public class MainActivity extends Activity {
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        }
+    }
+
+    /**
+     * With android:enableOnBackInvokedCallback the system no longer calls onBackPressed; this routes Back to the
+     * same handling. Without the flag Android ignores the callback and onBackPressed runs as before.
+     */
+    private void installBackCallback() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_DEFAULT, (OnBackInvokedCallback) this::onBackPressed);
+        }
+    }
+
+    /** Hands a Back swipe from the hidden dock's edge glow to the page; see NativeBridge.setBackPull. */
+    private final class BackPull implements OnBackAnimationCallback {
+        private boolean registered, claimed, pendingOff, otherEdge;
+        private String side = "right";
+        private float top, bottom;
+
+        void set(boolean on, String side, float top, float bottom) {
+            this.side = side;
+            this.top = top;
+            this.bottom = bottom;
+            if (on && !registered) {
+                getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                        OnBackInvokedDispatcher.PRIORITY_OVERLAY, this);
+                registered = true;
+                pendingOff = false;
+            } else if (!on && registered) {
+                if (claimed) {
+                    pendingOff = true;
+                } else {
+                    unregister();
+                }
+            }
+        }
+
+        private void unregister() {
+            getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(this);
+            registered = false;
+            pendingOff = false;
+        }
+
+        private void page(String type, float x) {
+            if (webView != null) {
+                webView.evaluateJavascript("window.__dockletBack&&window.__dockletBack('" + type + "'," + x + ")", null);
+            }
+        }
+
+        @Override
+        public void onBackStarted(BackEvent e) {
+            float d = getResources().getDisplayMetrics().density, y = e.getTouchY() / d;
+            // the Back key also starts a back event, with no edge (EDGE_NONE on API 35+): neither edge then
+            int se = e.getSwipeEdge();
+            String edge = se == BackEvent.EDGE_RIGHT ? "right" : se == BackEvent.EDGE_LEFT ? "left" : "";
+            claimed = edge.equals(side) && y >= top - 24 && y <= bottom + 24;
+            otherEdge = !edge.isEmpty() && !edge.equals(side);
+            if (claimed) {
+                page("start", e.getTouchX() / d);
+            }
+        }
+
+        @Override
+        public void onBackProgressed(BackEvent e) {
+            if (claimed) {
+                page("move", e.getTouchX() / getResources().getDisplayMetrics().density);
+            }
+        }
+
+        @Override
+        public void onBackInvoked() {
+            if (!claimed) {
+                // a Back swipe from the other edge is a plain Back: the page must not bring the dock back for it
+                if (otherEdge) {
+                    page("plain", 0);
+                }
+                otherEdge = false;
+                onBackPressed();
+                return;
+            }
+            claimed = false;
+            page("commit", 0);
+            if (pendingOff) {
+                unregister();
+            }
+        }
+
+        @Override
+        public void onBackCancelled() {
+            otherEdge = false;
+            if (!claimed) {
+                return;
+            }
+            claimed = false;
+            page("cancel", 0);
+            if (pendingOff) {
+                unregister();
+            }
         }
     }
 
