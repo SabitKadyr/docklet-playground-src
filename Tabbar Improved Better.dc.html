@@ -1446,7 +1446,7 @@ const cur=this.state.mode;
 const pick=(m)=>()=>this.setState({mode:m,gate:"none",barRetract:"none",hidden:false});
 return{
 label:"Gesture mode",color:"#dadbe0",hint:"",
-options:[["Slide","slide"],["Reverse Park","arc"],["Boom gate","gate"],["Pivot Turn","park"]].map((o)=>({
+options:[["Slide","slide"],["Reverse Park","arc"],["Drawbridge","gate"],["Pivot Turn","park"]].map((o)=>({
 label:o[0],onClick:pick(o[1]),
 style:{
 flex:1,textAlign:"center",padding:"14px 0",minHeight:20,borderRadius:8,

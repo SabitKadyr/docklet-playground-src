@@ -23,7 +23,7 @@ Tips:
 - Back never closes the app. It closes whatever is open in the prototype. Use the Home gesture to leave.
 
 ## 3. What to try
-Switch the gesture mode in **Tweak Docklet → Hide gesture → Gesture mode**, then close the panel. It's fine to switch modes during one session: the log records which mode each gesture was made in. For each of the 4 modes (Slide, Reverse Park, Boom gate, Pivot Turn), try:
+Switch the gesture mode in **Tweak Docklet → Hide gesture → Gesture mode**, then close the panel. It's fine to switch modes during one session: the log records which mode each gesture was made in. For each of the 4 modes (Slide, Reverse Park, Drawbridge, Pivot Turn), try:
 
 | Gesture | What should happen |
 |---|---|

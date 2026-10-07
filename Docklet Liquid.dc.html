@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
 <script src="./docklet-sprite.js"></script>
+<script src="./docklet-data.js"></script>
 <script src="./docklet-liquid.js"></script>
 </head>
 <body>
@@ -533,7 +534,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 </sc-for>
 </div>
 </sc-if>
-<div ref="{{ edgeIndRef }}" data-nopress="1" onPointerDown="{{ onRestoreDown }}" style="{{ edgeIndStyle }}"><div style="{{ edgeIndMark }}"></div></div>
+<div ref="{{ edgeIndRef }}" data-nopress="1" onPointerDown="{{ onRestoreDown }}" style="{{ edgeIndStyle }}"><div style="{{ edgeIndMark }}"></div><div data-hit="1" style="{{ edgeIndHit }}"></div></div>
 <sc-if value="{{ lqOn }}" hint-placeholder-val="{{ false }}"><div ref="{{ lqDimRef }}" style="{{ lqDimStyle }}"></div></sc-if>
 <div style="{{ lqLayerStyle }}">
 <div onClick="{{ lqClose }}" style="{{ lqCatchStyle }}"></div>
@@ -832,66 +833,18 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26p
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:980},&quot;pillMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;left&quot;,&quot;center&quot;,&quot;right&quot;,&quot;off&quot;],&quot;default&quot;:&quot;center&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showLabels&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;selection&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pill&quot;,&quot;dot&quot;,&quot;none&quot;],&quot;default&quot;:&quot;pill&quot;,&quot;tsType&quot;:&quot;string&quot;}}">const HC="cubic-bezier(.24,.68,.22,1)";
-const TUNING={off:{holdLockMs:0,holdLockPx:0,flickRestore:0,flickHide:0,eitherSide:false,axisDeg:60,autoHideFromDock:false,hideNudge:false},
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:980},&quot;pillMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;left&quot;,&quot;center&quot;,&quot;right&quot;,&quot;off&quot;],&quot;default&quot;:&quot;center&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showLabels&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;selection&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pill&quot;,&quot;dot&quot;,&quot;none&quot;],&quot;default&quot;:&quot;pill&quot;,&quot;tsType&quot;:&quot;string&quot;}}">let PEOPLE,APPS,ROWS,APP_THEME,CHAT_SEED;const loadData=()=>{const D=window.DockletData;if(D&&!APPS){({PEOPLE,APPS,ROWS,APP_THEME,CHAT_SEED}=D);}return!!APPS;};
+const HC="cubic-bezier(.24,.68,.22,1)";
+// flickRestore 0.35 px/ms: a short quick flick off the edge glow (~70 px in 80 ms) projected short of half and was ignored
+const TUNING={off:{holdLockMs:0,holdLockPx:0,flickRestore:0.35,flickHide:0,eitherSide:false,axisDeg:60,autoHideFromDock:false,hideNudge:false},
 t1:{holdLockMs:400,holdLockPx:36,flickRestore:0.8,flickHide:0.8,eitherSide:true,axisDeg:70,autoHideFromDock:true,hideNudge:true}};
 const SCREEN_W=402,SCREEN_H=874,PILL_W=72;
 const PRESET_KEY="tabbar-playground-presets";
 const RECENTS=["mostwanted","oceanWave.77","web3 summit","remyxolog","polkadot wiki","alex.99","coin flip","staking","fred.11","hackathon","grunge","dice"];
-const PEOPLE=[
-{name:"mosticRiver.88",initial:"M",bg:"#064e3b",fg:"#d1fae5"},
-{name:"monster.01",initial:"M",bg:"#c24c1b",fg:"#ffedd5"},
-{name:"molecule",initial:"M",bg:"#9f1239",fg:"#ffe4e6"},
-{name:"mostwanted",initial:"M",bg:"#0891b2",fg:"#cffafe"},
-{name:"morales",initial:"M",bg:"#e2e8f0",fg:"#1e293b"},
-{name:"oceanWave.77",initial:"O",bg:"#7c3aed",fg:"#ede9fe"},
-{name:"alex.99",initial:"A",bg:"#c24c1b",fg:"#ffedd5"},
-{name:"sam.45",initial:"S",bg:"#1e1b4b",fg:"#a5b4fc"},
-{name:"remyxolog",initial:"R",bg:"#9f1239",fg:"#ffe4e6"},
-{name:"fred.11",initial:"F",bg:"#0891b2",fg:"#cffafe"},
-{name:"grunge",initial:"G",bg:"#064e3b",fg:"#d1fae5"},
-{name:"moonlit.42",initial:"M",bg:"#1e293b",fg:"#e5e7eb"},
-{name:"mojo.dev",initial:"M",bg:"#7c3aed",fg:"#ede9fe"},
-{name:"motif",initial:"M",bg:"#b45309",fg:"#fef3c7"},
-{name:"mosaic.io",initial:"M",bg:"#0891b2",fg:"#cffafe"},
-{name:"momentum",initial:"M",bg:"#9f1239",fg:"#ffe4e6"},
-{name:"moss.garden",initial:"M",bg:"#064e3b",fg:"#d1fae5"},
-{name:"albert.78",initial:"A",bg:"#1e293b",fg:"#e5e7eb"},
-{name:"aliali",initial:"A",bg:"#c24c1b",fg:"#ffedd5"},
-{name:"anna.sol",initial:"A",bg:"#7c3aed",fg:"#ede9fe"},
-{name:"amber.fox",initial:"A",bg:"#b45309",fg:"#fef3c7"},
-{name:"sierra",initial:"S",bg:"#0891b2",fg:"#cffafe"},
-{name:"solstice",initial:"S",bg:"#064e3b",fg:"#d1fae5"},
-{name:"stellar.9",initial:"S",bg:"#1e1b4b",fg:"#a5b4fc"},
-{name:"river.run",initial:"R",bg:"#0891b2",fg:"#cffafe"},
-{name:"rook",initial:"R",bg:"#1e293b",fg:"#e5e7eb"},
-{name:"fern.08",initial:"F",bg:"#064e3b",fg:"#d1fae5"},
-{name:"falcon",initial:"F",bg:"#c24c1b",fg:"#ffedd5"},
-{name:"gala.x",initial:"G",bg:"#9f1239",fg:"#ffe4e6"},
-{name:"orbit.eth",initial:"O",bg:"#7c3aed",fg:"#ede9fe"},
-{name:"opal",initial:"O",bg:"#e2e8f0",fg:"#1e293b"},
-];
 const KB_H=342;
 const KEY_FACE={height:42,borderRadius:8.5,background:"#707070",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 1px 0 #00000059"};
 const KEY_GLYPH={fontFamily:'"SF Compact", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',fontWeight:457,fontSize:25,lineHeight:"30px",textAlign:"center",color:"#f4f4f5"};
 const KEY_ROWS=[["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["z","x","c","v","b","n","m"]];
-const APPS=[
-{id:"calc",name:"Calc",initial:"C",icon:"#ai-calc",bg:"#3f3f46",fg:"#f4f4f5"},
-{id:"coin",name:"Coin",initial:"C",icon:"#ai-coin",bg:"#b45309",fg:"#fef3c7"},
-{id:"dice",name:"Dice",initial:"D",icon:"#ai-dice",bg:"#be123c",fg:"#ffe4e6"},
-{id:"xoxo",name:"XOXO",initial:"X",icon:"#ai-xoxo",bg:"#0d9488",fg:"#ccfbf1"},
-{id:"timer",name:"Timer",initial:"T",icon:"#ai-timer",bg:"#1e40af",fg:"#dbeafe"},
-{id:"tally",name:"Tally",initial:"T",icon:"#ai-tally",bg:"#65a30d",fg:"#ecfccb"},
-{id:"rps",name:"RPS",initial:"R",icon:"#ai-rps",bg:"#7c3aed",fg:"#ede9fe"},
-{id:"guess",name:"Guess",initial:"G",icon:"#ai-guess",bg:"#1e1b4b",fg:"#a5b4fc"},
-{id:"paint",name:"Paint",initial:"P",icon:"#ai-paint",bg:"#c24c1b",fg:"#ffedd5"},
-{id:"temp",name:"Temp",initial:"T",icon:"#ai-temp",bg:"#0891b2",fg:"#cffafe"},
-{id:"tip",name:"Tip",initial:"T",icon:"#ai-tip",bg:"#064e3b",fg:"#d1fae5"},
-{id:"bpm",name:"BPM",initial:"B",icon:"#ai-bpm",bg:"#9f1239",fg:"#ffe4e6"},
-{id:"pick",name:"Pick",initial:"P",icon:"#ai-pick",bg:"#334155",fg:"#e2e8f0"},
-{id:"eight",name:"Magic 8",initial:"8",icon:"#ai-eight",bg:"#e2e8f0",fg:"#1e293b"},
-{id:"settings",name:"Settings",initial:"S",icon:"#ai-settings",bg:"#23252a",fg:"#f4f4f5"},
-];
 const HUE_BAR="linear-gradient(90deg, hsl(0 90% 55%), hsl(60 90% 55%), hsl(120 90% 55%), hsl(180 90% 55%), hsl(240 90% 55%), hsl(300 90% 55%), hsl(360 90% 55%))";
 function springCurve(opt){
 const w0=opt.stiffness?Math.sqrt(opt.stiffness):(2*Math.PI)/ opt.response;
@@ -925,7 +878,7 @@ carbon:{label:"Carbon",c:"cubic-bezier(0.4,0.14,0.3,1)",T:400},
 ant:{label:"Ant",c:"cubic-bezier(0.08,0.82,0.17,1)",T:300},
 };
 const DEFAULTS={
-easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"plus",labelWhere:"launcher",ctxCell:true,haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,edgeSat:60,appTint:false,hideSpeed:1,
+easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"plus",labelWhere:"launcher",ctxCell:true,haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:2,ahIdle:10,edgeSat:60,appTint:false,hideSpeed:1,
 blur:7,sat:100,tintOp:0.3,tint:"8,8,8",borderOp:0.32,shadow:0.45,specular:false,specHue:200,specSat:0,
 barWidth:382,barHeight:62,radius:32,itemGap:-8,pad:4,bottom:27,pillGap:8,
 pillMode:"center",barAlign:"center",labels:true,selection:"pill",selOp:0.14,
@@ -938,56 +891,50 @@ const TABS=[
 {label:"Pin",icon:"#ic-pin-empty",viewBox:"0 0 28 28",iconSize:28},
 {label:"More",icon:"#ic-ellipsis",viewBox:"0 0 20 20",iconSize:28},
 ];
-const ROWS=[
-{name:"oceanWave.77",initial:"O",bg:"#7c3aed",fg:"#ede9fe",time:"14:45",text:"Something\u2019s shifting. You\u2019ll want to see this",heartSolid:true},
-{name:"alex.99",initial:"A",bg:"#c24c1b",fg:"#ffedd5",time:"14:45",text:"You missed the first signal. Don\u2019t miss the second",muted:true},
-{name:"sam.45",initial:"M",bg:"#1e1b4b",fg:"#a5b4fc",time:"14:45",text:"",redact:"78px",muted:true,heartGhost:true},
-{name:"remyxolog",initial:"R",bg:"#9f1239",fg:"#ffe4e6",time:"12:30",text:"Tiny spoiler: things are about to feel a lot more fun around here",muted:true,heartGhost:true,count:"324"},
-{name:"fred.11",initial:"F",bg:"#0891b2",fg:"#cffafe",time:"14:45",text:"You were right about the lights. They\u2019re moving again"},
-{name:"albert.78",initial:"A",bg:"#1e293b",fg:"#e5e7eb",time:"14:45",text:"They told us not to open it until sunrise"},
-{name:"grunge",initial:"G",bg:"#064e3b",fg:"#d1fae5",time:"14:45",text:"Hey! Watch out",redact:"56px"},
-{name:"aliali",initial:"A",bg:"#c24c1b",fg:"#ffedd5",time:"14:45",text:"Same sky. Different rules"},
-{name:"Group chat",initial:"G",bg:"#064e3b",fg:"#ede9fe",time:"12:30",text:"Karl.99 \u00b7 Hey there! How can I assist you today?",count:"324"},
-];
 const MONO='"JetBrains Mono", ui-monospace, monospace';
 const SERIF='"Instrument Serif", Georgia, serif';
 const BRIC='"Bricolage Grotesque", Inter, sans-serif';
-const APP_THEME={
-calc:{glow:"#ff95001a",accent:"#ff9500",onAccent:"#fff",font:MONO,w:400,big:56,align:"right",panel:true,r:999,keyTint:"#ffffff14"},
-coin:{glow:"#d977066b",accent:"#fbbf24",onAccent:"#1c1203",font:SERIF,w:400,big:72,italic:true,r:999},
-dice:{glow:"#dc262661",accent:"#f87171",onAccent:"#2a0707",font:BRIC,w:800,big:84,r:12},
-xoxo:{glow:"#6366f166",accent:"#818cf8",onAccent:"#0d0f2e",font:BRIC,w:800,big:36,r:22,keyH:96,keyFs:40},
-timer:{glow:"#14b8a657",accent:"#2dd4bf",onAccent:"#04201d",font:MONO,w:600,big:60,r:999},
-tally:{glow:"#22c55e57",accent:"#4ade80",onAccent:"#052012",font:BRIC,w:800,big:96,r:28,keyH:72},
-rps:{glow:"#a855f761",accent:"#c084fc",onAccent:"#1d0a33",font:BRIC,w:800,big:40,r:999},
-guess:{glow:"#0ea5e95c",accent:"#38bdf8",onAccent:"#04202e",font:MONO,w:600,big:56,panel:true,r:14},
-paint:{glow:"#ec48994d",accent:"#f472b6",onAccent:"#2b0716",font:SERIF,w:400,big:52,italic:true,r:8},
-temp:{glow:"#06b6d457",accent:"#67e8f9",onAccent:"#032028",font:MONO,w:400,big:60,panel:true,r:16},
-tip:{glow:"#10b98157",accent:"#34d399",onAccent:"#03231a",font:MONO,w:600,big:52,align:"right",panel:true,r:16},
-bpm:{glow:"#e11d486b",accent:"#fb7185",onAccent:"#2c0610",font:BRIC,w:800,big:88,r:999,keyH:120,keyFs:22},
-pick:{glow:"#64748b66",accent:"#cbd5e1",onAccent:"#0f172a",font:SERIF,w:400,big:56,italic:true,r:20},
-eight:{glow:"#581c878c",accent:"#e2e8f0",onAccent:"#0b0c0f",font:SERIF,w:400,big:40,italic:true,r:999},
-};
-const CHAT_SEED=[
-[["c","Did you see the new onboarding flow?","2:21"],["m","Yes, the steps are much shorter now","2:24"],["m","And the final screen can confirm the setup is done without adding more decisions","2:33",1,["Jake.23","Some long referenced message the message is replying to. The content beyond two lines is hidden"]],["m","That way it feels calm instead of overwhelming","2:33",1],["c","Let\u2019s also make the error message less scary","2:40"],["c","Maybe: \u201cWe couldn\u2019t save that change. Check your connection and try again\u201d","2:41",1,["Jake.23","Some long referenced message the message is replying to. The content beyond two lines is hidden"]],["c","Something\u2019s shifting. You\u2019ll want to see this","14:45"]],
-[["m","Are you coming tonight?","13:02"],["c","Running late, sorry","13:40"],["c","You missed the first signal. Don\u2019t miss the second","14:45"]],
-[["c","Sent you the file","11:10"],["m","Got it, thanks!","11:12"],["c","Let me know what you think","14:45"]],
-[["c","Big news soon","12:01"],["m","Tell me more","12:10"],["c","Tiny spoiler: things are about to feel a lot more fun around here","12:30"]],
-[["m","Are the lights still on the hill?","14:20"],["c","You were right about the lights. They\u2019re moving again","14:45"]],
-[["c","Found the box in the attic","14:30"],["m","Open it!","14:31"],["c","They told us not to open it until sunrise","14:45"]],
-[["m","On my way","14:40"],["c","Hey! Watch out","14:45"]],
-[["c","Look outside","14:41"],["m","It looks the same to me","14:43"],["c","Same sky. Different rules","14:45"]],
-[["c","Welcome to the group!","12:20",0,null,"Karl.99"],["m","Thanks, happy to be here","12:25"],["c","Hey there! How can I assist you today?","12:30",0,null,"Karl.99"]],
-];
 const W_DOCK=(c)=>(c._gateGeom?c._gateGeom.pxR - c._gateGeom.pxL - 28:378);
 const RAF=(f)=>requestAnimationFrame(f),CAF=(i)=>cancelAnimationFrame(i);
+const GLOW_STOPS=Array.from({length:17},(_,i)=>{const x=i*1.5,a=0.5*Math.exp(-x / 4.2)+0.06*Math.exp(-x / 14)*(1 - x / 24);return "rgba(255,255,255,"+Math.max(0,a).toFixed(4)+") "+x.toFixed(1)+"px";}).join(", ");
+const GLOW_MASK="linear-gradient(to bottom, "+Array.from({length:9},(_,i)=>{const t=i / 8,a=t*t*(3 - 2*t);return "rgba(0,0,0,"+a.toFixed(3)+") "+(t*22).toFixed(1)+"px";}).join(", ")+", #000 calc(100% - 22px), "+Array.from({length:9},(_,i)=>{const t=1 - i / 8,a=t*t*(3 - 2*t);return "rgba(0,0,0,"+a.toFixed(3)+") calc(100% - "+((1 - i / 8)*22).toFixed(1)+"px)";}).join(", ")+")";
 class Component extends DCLogic {
 ss(a,b){return this.setState(a,b);}
 tune(){return TUNING[this.state.testerMode]||TUNING.off;}
 constructor(props){
-super(props);
+super(props);loadData();
 this.camRef=React.createRef();this.appsRevealRef=React.createRef();
 this.edgeIndRef=React.createRef();
+if(typeof window!=="undefined"){
+const inDock=(t)=>{if(!t||!t.closest)return false;const d=this.dockRef.current;return!!((d&&d.contains(t))||t.closest("[data-lqpill],[data-opill],[data-app-id]")||(this.lqGlassRef.current&&this.lqGlassRef.current.contains(t))||(this.lqContentRef.current&&this.lqContentRef.current.contains(t))||(this.lqXRef.current&&this.lqXRef.current.contains(t))||(this.edgeIndRef.current&&this.edgeIndRef.current.contains(t)));};
+const arm=(ms)=>{clearTimeout(this._ahT);this._ahT=setTimeout(()=>{if(Date.now()-(this._lastAct||0)>=ms - 50)this.autoHide(true);else arm(ms);},ms);};
+const idle=()=>{clearTimeout(this._idleT);this._idleT=setTimeout(()=>this.autoHide(true),(this.state.ahIdle??10)*1000);};
+this._actOn=(e)=>{this._lastAct=Date.now();idle();if(inDock(e.target)){clearTimeout(this._ahT);return;}arm((this.state.ahTap??2)*1000);};
+window.addEventListener("pointerdown",this._actOn,true);
+window.addEventListener("keydown",()=>{this._lastAct=Date.now();idle();clearTimeout(this._ahT);},true);
+window.addEventListener("wheel",()=>{this._lastAct=Date.now();idle();arm((this.state.ahTap??2)*1000);},{capture:true,passive:true});
+setTimeout(idle,0);}
+this._glowBoost=(on)=>{const ind=this.edgeIndRef.current,mk=ind&&ind.firstChild;if(!mk)return;
+mk.style.filter="";mk.style.scale="";
+let b=mk.querySelector("[data-boost]");
+if(!b){b=document.createElement("div");b.setAttribute("data-boost","1");b.style.cssText="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 220ms cubic-bezier(.2,.8,.2,1)";mk.appendChild(b);}
+const bg=mk.style.background.replace(/rgba\(255, 255, 255, ([\d.]+)\)/g,(m,x)=>"rgba(255, 255, 255, "+Math.min(1,+x*1.9).toFixed(4)+")");
+b.style.background=bg;b.style.opacity=on?"1":"0";
+const right=this.state.gate==="right"||this.state.barRetract==="right"||(!this.state.leftHanded&&this.state.gate==="none"&&this.state.barRetract==="none");
+mk.style.transformOrigin=(right?"100%":"0%")+" 50%";mk.style.transition="scale 260ms cubic-bezier(.2,.9,.3,1.15)";mk.style.scale=on?"1.08":"";};
+if(typeof window!=="undefined"){// only a touch on the grab zone brightens the glow: anywhere else it promised a pull that never came
+window.addEventListener("pointerdown",(e)=>{const st=this.state,ind=this.edgeIndRef.current;if((st.gate!=="none"||st.barRetract!=="none")&&ind&&ind.contains(e.target)){this._glowOn=true;this._glowBoost(true);}},true);
+const off=()=>{if(this._glowOn){this._glowOn=false;this._glowBoost(false);}};window.addEventListener("pointerup",off,true);window.addEventListener("pointercancel",off,true);}
+// a tap Chrome delivers without a click: seen on the phone right after a fast swipe opened the launcher (pointerdown and
+// pointerup on ••• and no click, so the first tap did nothing). If no click follows a still, short tap on a dock tab or
+// a launcher app within 120 ms, click it ourselves
+if(typeof window!=="undefined"){let T=null;const at=(e)=>e.target&&e.target.closest?e.target.closest("[data-app-id]"):null;
+window.addEventListener("pointerdown",(e)=>{const el=at(e);T=el?{el,x:e.clientX,y:e.clientY,t:e.timeStamp,id:e.pointerId}:null;},true);
+window.addEventListener("pointermove",(e)=>{if(T&&e.pointerId===T.id&&Math.hypot(e.clientX - T.x,e.clientY - T.y)>10)T=null;},true);
+window.addEventListener("pointercancel",()=>{T=null;},true);
+window.addEventListener("pointerup",(e)=>{const p=T;T=null;if(!p||e.pointerId!==p.id||e.timeStamp - p.t>400||at(e)!==p.el)return;
+let tm=0;const got=()=>{clearTimeout(tm);window.removeEventListener("click",got,true);};window.addEventListener("click",got,true);
+tm=setTimeout(()=>{window.removeEventListener("click",got,true);if(p.el.isConnected&&!this.dragged&&!this.held)p.el.click();},120);},true);}
 this.glassFillRef=React.createRef();
 this.dockRef=React.createRef();setTimeout(()=>this.lqFollow(),0);["lqGlassRef","lqBodyRef","lqLobeRef","lqRimCvRef","lqRimRef","lqXRef","lqContentRef","lqVidRef","lqDefsRef","lqDimRef","lqDockGlassRef","lqSpecRef","lqDarkRef"].forEach((k)=>{this[k]=React.createRef();});
 this.trayRideRef=React.createRef();
@@ -1064,8 +1011,6 @@ const w=this._lqW||(this._lqW=host.offsetWidth||382),HM=this._lqHM||(this._lqHM=
 const paths=[...svg.querySelectorAll("path")],ms=md.style;
 const cheapOff=()=>{if(!this._lqCheap)return;this._lqCheap=false;const o=this._lqMd0;ms.height=o.height;ms.transform=o.transform;ms.willChange=o.wc;ms.borderRadius=o.radius;ms.webkitMaskSize=ms.maskSize=o.size;ms.webkitMaskPosition=ms.maskPosition=o.pos;};
 if(h<=h0+0.5){if(this._lqOn){this._lqOn=false;this._lqNA=null;this._lqNT=0;cheapOff();ms.clipPath="";ms.webkitMaskImage=ms.maskImage=this._lqM0||"";host.style.height=h0+"px";svg.style.display="";if(cv)cv.style.display="none";
-// back at rest: put the rim SVG back exactly as lqRimCb built it (notch stroke only around the notch, gradients as authored)
-// and let lqFollow fit it again, as on first load
 if(svg._m){svg.innerHTML=svg._m;this._rimK=null;}else{const d0=window.DockletLiquid.dockPath(w,h0);paths.forEach((p)=>{p.setAttribute("d",d0);p.removeAttribute("clip-rule");p.removeAttribute("fill-rule");});}}return true;}
 if(!this._lqOn){this._lqOn=true;this._lqM0=ms.webkitMaskImage||ms.maskImage;ms.webkitMaskImage=ms.maskImage="none";if(cv){svg.style.display="none";cv.style.display="";}}
 h=Math.min(h,HM);
@@ -1075,14 +1020,8 @@ const q=(Rr+rf)*(Rr+rf)-(cy - rf)*(cy - rf);
 if(q>0){const s=Math.sqrt(q),k=Rr / (Rr+rf),ly=cy+(rf - cy)*k,lg=ly<cy?1:0;
 d+="H"+N(cx - s)+"A"+rf+" "+rf+" 0 0 1 "+N(cx - s*k)+" "+N(ly)+"A"+N(Rr)+" "+N(Rr)+" 0 "+lg+" 0 "+N(cx+s*k)+" "+N(ly)+"A"+rf+" "+rf+" 0 0 1 "+N(cx+s)+" 0Z";}
 else d+="ZM"+N(cx - Rr)+" "+N(cy)+"A"+N(Rr)+" "+N(Rr)+" 0 1 0 "+N(cx+Rr)+" "+N(cy)+"A"+N(Rr)+" "+N(Rr)+" 0 1 0 "+N(cx - Rr)+" "+N(cy)+"Z";
-// the notch glint follows only the notch (or, once closed, the hole), like the resting rim's notch path, so it doesn't jump at rest
 let nd,nb;if(q>0){const s=Math.sqrt(q),k=Rr / (Rr+rf),ly=cy+(rf - cy)*k,lg=ly<cy?1:0;nd="M"+N(cx - s)+" 0A"+rf+" "+rf+" 0 0 1 "+N(cx - s*k)+" "+N(ly)+"A"+N(Rr)+" "+N(Rr)+" 0 "+lg+" 0 "+N(cx+s*k)+" "+N(ly)+"A"+rf+" "+rf+" 0 0 1 "+N(cx+s)+" 0";nb=[cx - s,0,2*s,cy+Rr];}
 else{nd="M"+N(cx - Rr)+" "+N(cy)+"A"+N(Rr)+" "+N(Rr)+" 0 1 0 "+N(cx+Rr)+" "+N(cy)+"A"+N(Rr)+" "+N(Rr)+" 0 1 0 "+N(cx - Rr)+" "+N(cy)+"Z";nb=[cx - Rr,cy - Rr,2*Rr,2*Rr];}
-// Once the Pill hole no longer touches the top edge (q<=0) the shape is a rounded top that moves plus a fixed bottom with the hole.
-// The glass then stays one size and is only moved, with a fixed mask for the bottom corners and the hole, like the shell glass;
-// resizing it and re-clipping it every frame halved the frame rate while the launcher opened.
-// while the hole still opens into the top edge, mask the glass to this exact shape (rebuilt per frame, only for these
-// ~24 px): clip-path doesn't clip backdrop-filter here, so the blur showed outside the corners and under the Pill
 if(q>0||!cv){cheapOff();host.style.height=N(h)+"px";ms.clipPath="";const mq='url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+N(h)+'" viewBox="0 0 '+w+' '+N(h)+'" preserveAspectRatio="none"><path fill-rule="evenodd" d="'+d+'"/></svg>')+'")';
 ms.webkitMaskImage=ms.maskImage=mq;ms.webkitMaskSize=ms.maskSize="100% 100%";ms.webkitMaskPosition=ms.maskPosition="0px 0px";}
 else{if(!this._lqCheap){this._lqCheap=true;this._lqMd0={height:ms.height,transform:ms.transform,wc:ms.willChange,radius:ms.borderRadius,size:ms.webkitMaskSize||ms.maskSize,pos:ms.webkitMaskPosition||ms.maskPosition};
@@ -1094,22 +1033,16 @@ else paths.forEach((p)=>{p.setAttribute("d",d);p.setAttribute(p.parentElement.ta
 return true;
 }
 lqWarm(){
-// size the rim canvas and decode the hole mask while idle, so the first launcher open doesn't pay for them (a 140 ms frame)
 const dk=this.dockRef&&this.dockRef.current,cp=dk&&dk.querySelector("#lqDockClip"),cv=this.lqRimCvRef&&this.lqRimCvRef.current;if(!cp||!cv)return;
 this._lqWarm=1;const host=cp.closest("svg").parentElement,h0=this.state.barHeight||62,w=this._lqW||(this._lqW=host.offsetWidth||382),HM=this._lqHM||(this._lqHM=dk.offsetHeight||807);
 const sc=(this.state.scale||1)*(window.devicePixelRatio||1);cv.width=Math.round(w*sc);cv.height=Math.round(HM*sc);cv.style.height=HM+"px";
 const im=new Image();im.src=this.lqHoleMask(w,h0,HM).slice(5,-2);if(im.decode)im.decode().catch(()=>{});
 }
 lqHoleMask(w,h0,HM){
-// the grown dock's fixed bottom: rounded bottom corners and the Pill hole, as a mask image (built once)
 if(this._lqMk&&this._lqMkK===w+","+h0+","+HM)return this._lqMk;this._lqMkK=w+","+h0+","+HM;
 const N=(x)=>(+x).toFixed(2),cx=w / 2,Rr=34,hy=HM - h0+21.844;this._lqMk='url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+HM+'"><path fill-rule="evenodd" d="M0 0H'+w+'V'+N(HM - h0 / 2)+'A'+N(h0 / 2)+' '+N(h0 / 2)+' 0 0 1 '+N(w - h0 / 2)+' '+HM+'H'+N(h0 / 2)+'A'+N(h0 / 2)+' '+N(h0 / 2)+' 0 0 1 0 '+N(HM - h0 / 2)+'ZM'+N(cx - Rr)+' '+N(hy)+'A'+Rr+' '+Rr+' 0 1 0 '+N(cx+Rr)+' '+N(hy)+'A'+Rr+' '+Rr+' 0 1 0 '+N(cx - Rr)+' '+N(hy)+'Z"/></svg>')+'")';
 return this._lqMk;
 }
-// The growing dock's rim on a canvas, painted like the rim SVG: its paths' paint, stops, widths and clip, with the gradients fitted
-// to the shape the way lqFollow fits them (lqRimV over (w+h)/2 from the top-left, lqNotch over the notch or hole) and the notch glints
-// fading out over 200 ms once the dock is taller than 80, as lqFollow does. Rebuilding the SVG every frame was the other half of the cost.
-// The canvas is HM tall on the dock's bottom, so the shape sits HM - h down.
 lqRimDraw(cv,d,w,h,h0,HM,nd,nb){
 const sc=(this.state.scale||1)*(window.devicePixelRatio||1),W=Math.round(w*sc),H=Math.round(HM*sc);
 if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;cv.style.height=HM+"px";}
@@ -1138,7 +1071,9 @@ if(t){t.style.transform="translateY("+y+"px)";t.style.clipPath=y>0.5?"inset(0 0 
 const r=this.glassRimRef.current;
 if(r){const H=r.parentElement?r.parentElement.offsetHeight:0;r.style.top=y+"px";r.style.height=Math.max(0,H - y)+"px";
 const st=this.state,on=(st.appsOpen||st.appsFade)&&!st.expanded&&!st.inputMode;
-const lq=this.lqGrow(on?H - y:0),own=lq;g&&(g.style.opacity=own?"0":"");r.style.opacity=own?"0":"";}
+const lq=this.lqGrow(on?H - y:0),own=lq;
+// hidden, not just transparent: at opacity 0 its 18px backdrop blur was still computed every frame of the launcher open (~90 vs ~120 frames per 1.4 s)
+if(g){g.style.opacity=own?"0":"";g.style.visibility=own?"hidden":"";}r.style.opacity=own?"0":"";}
 const sc=this.scrimRef.current;
 if(sc&&this._scrimBase!=null)sc.style.transform="translateY("+(this._scrimBase+y)+"px)";
 }
@@ -1416,12 +1351,15 @@ const d=Math.hypot(rx,ry);maxD=Math.max(maxD,d);
 if(locked){if(d>T.holdLockPx)clearTimeout(this._barHoldT);return;}
 if(d<10)return;
 clearTimeout(this._barHoldT);clearTimeout(lockT);
-axis=Math.abs(Math.atan2(-ry,Math.abs(rx))*180 / Math.PI)>T.axisDeg?"y":"h";
+{const ang=Math.atan2(-ry,Math.abs(rx))*180 / Math.PI,away=this.state.barRetract!=="none"||this.state.gate!=="none"||this._caught||this._settle;
+// on the dock: up and steeper than 30 deg opens the launcher (either side), down and steeper than 45 deg is vertical;
+// only a near-horizontal swipe hides the dock
+axis=away?(Math.abs(ang)>T.axisDeg?"y":"h"):(ang>30||ang< -45?"y":"h");}
 }
 this.dragged=true;
 const ce=ev.getCoalescedEvents?ev.getCoalescedEvents():[];
 for(const e2 of(ce.length?ce:[ev])){this._evT=e2.timeStamp;const x2=(e2.clientX - sx)/ scale,y2=(e2.clientY - sy)/ scale;
-if(axis==="h"&&target==="bar")this.hideMove(this.state.mode,hand(x2),y2);
+if(axis==="h"&&target==="bar"){if(!this._hg){const sc=this.dockRef.current&&this.dockRef.current.closest("[data-screen]"),r=sc&&sc.getBoundingClientRect();this._hgX0=r?(sx - r.left)/ scale:null;}this.hideMove(this.state.mode,hand(x2),y2);}
 else if(axis==="y"&&target==="bar"){
 if(this._pillSwipe){this.pillDrag(y2);continue;}
 if(!this.closeMove(y2))this.launchMove(y2);}}
@@ -1504,7 +1442,7 @@ const cur=this.state.mode;
 const pick=(m)=>()=>this.ss(Object.assign({mode:m,gate:"none",barRetract:"none",hidden:false},m==="gate"?{anchored:false}:{}));
 return{
 label:"Gesture mode",color:"#dadbe0",hint:"",
-options:[["Slide","slide"],["Reverse Park","arc"],["Boom gate","gate"],["Pivot Turn","park"]].map((o)=>({
+options:[["Slide","slide"],["Reverse Park","arc"],["Drawbridge","gate"],["Pivot Turn","park"]].map((o)=>({
 label:o[0],onClick:pick(o[1]),
 style:{
 flex:"1 1 calc(50% - 4px)",minWidth:0,boxSizing:"border-box",textAlign:"center",padding:"10px 4px",lineHeight:"18px",borderRadius:10,
@@ -1547,6 +1485,10 @@ if(kind==="gate"){const g=this._gateGeom,q=Math.max(0,p);return{t:"translate("+(
 return kind==="park"?this.poseFor("park",side,p*this.parkEnd(side)):this.poseFor("arc",side,p);
 }
 hideApply(kind,side,p,keepInd){
+if(this._hgFold){const F=this._hgFold,k=Math.max(0,Math.min(1,p / 0.6)),c=1 - k;this.paintGlass(F.y0+(F.y1 - F.y0)*k);
+const tr=this.trayRideRef.current,rv=this.appsRevealRef.current;
+if(tr){tr.style.transition="none";tr.style.filter="blur("+(k*10).toFixed(1)+"px)";}
+if(rv){rv.style.transition="none";rv.style.transformOrigin="50% 100%";rv.style.opacity=String(Math.max(0,Math.min(1,c*1.5 - 0.25)));rv.style.transform="perspective(900px) rotateX("+(k*26).toFixed(2)+"deg) translateY("+(k*40).toFixed(1)+"px) scale("+(0.94+0.06*c).toFixed(3)+")";}}
 const q=this.hidePose(kind,side,p),el=this.dockRef.current;
 const ind=this.edgeIndRef.current;if(ind&&!keepInd){ind.style.transition="none";ind.style.opacity=String(Math.max(0,Math.min(1,p)));}
 if(!el)return;
@@ -1560,13 +1502,18 @@ const st=this.state,c=this._caught;this._caught=null;
 const parked=kind==="slide"?st.barRetract!=="none":st.gate!=="none";
 const side=c?c.side:(parked?(kind==="slide"?st.barRetract:st.gate):(kind==="slide"&&this.tune().eitherSide&&rx!==0?(rx<0?"left":"right"):(st.leftHanded?"left":"right")));
 const p0=c?c.p:(parked?1:0);
-H=this._hg={kind,side,p0,rx0:rx,ry0:ry,p:p0,smp:[],out:p0>=0.5?1:0};
-if(kind==="gate"&&p0>=0.5)H.unit=Math.max(160,W_DOCK(this)*0.75);
-else if(kind==="gate"){
+H=this._hg={kind,side,p0,rx0:rx,ry0:ry,p:p0,smp:[],out:p0>=0.5?1:0};this.dockFade(null);
+if(p0<0.5&&(st.appsOpen||st.expanded)&&this._gyClosed!=null&&!this._hgFold){this._hgFold={y0:this._gy==null?0:this._gy,y1:this._gyClosed};this._gyHold=true;CAF(this._gyRaf);this._gyRaf=0;}
+if(kind==="gate")H.unit=Math.max(160,W_DOCK(this)*0.75);
+else if(false){
 const g=this._gateGeom,f0=this._p0||{x:0,y:0};
 H.px=(side==="right"?g.pxR:g.pxL)+(side==="right"?g.offR:g.offL)*Math.pow(Math.max(0,p0),3);
 H.fx=f0.x+rx;H.fy=f0.y+ry;H.a0=Math.atan2(H.fy - g.py,H.fx - H.px);
 }else if(!H.unit)H.unit=Math.abs(kind==="slide"?(side==="right"?this._slideGeom.hR:this._slideGeom.hL):kind==="park"?this.parkEnd(side):this.arcTxEnd(side))||1;
+// hiding from the far part of the dock leaves little room to the edge (55 px from the last tab): scale the travel to
+// that room, so the same swipe hides the dock from anywhere on it
+if(p0<0.5&&this._hgX0!=null){const room=side==="right"?SCREEN_W - this._hgX0:this._hgX0;H.unit=Math.min(H.unit,Math.max(60,room*1.2));}
+this._hgX0=null;
 const el=this.dockRef.current;if(el)el.style.transition="none";
 }
 const sg=H.side==="right"?1:-1;
@@ -1597,30 +1544,51 @@ if((H.pk||0)>0.05&&H.pk - Math.abs(H.p - H.p0)>0.3*H.pk)to=H.p0>=0.5?1:0;
 {const T=this.tune(),sp=v*(H.unit||300);
 if(H.p0<0.5&&T.flickHide&&sp>T.flickHide)to=1;
 if(H.p0>=0.5&&T.flickRestore&&-sp>T.flickRestore)to=0;}
-if(to&&wasOpen)this.ss(collapse);
+if(to&&wasOpen&&!this._hgFold)this.ss(collapse);
 this.hideSettle(H.kind,H.side,H.p,v,to);
 }
-hideSettle(kind,side,p,v,to){
+dockFade(o,mb){
+// fade leaves only: opacity on an ancestor of a backdrop-filter element drops its glass
+const v=o==null||o>=0.999?"":String(o.toFixed(3));
+if(v===""){(this._fadeEls||[]).forEach((e)=>{e.style.opacity=e._fo0||"";if(!e._bf)e.style.filter="";});this._fadeEls=null;return;}
+if(!this._fadeEls){const out=[],bf=(e)=>{const c=getComputedStyle(e);return(c.backdropFilter&&c.backdropFilter!=="none")||(c.webkitBackdropFilter&&c.webkitBackdropFilter!=="none");};
+const has=(e)=>bf(e)||[...e.querySelectorAll("*")].some(bf);
+const walk=(e)=>{if(!has(e)){out.push(e);return;}if(bf(e)){e._bf=1;out.push(e);}[...e.children].forEach(walk);};
+const d=this.dockRef.current,g=this.lqGlassRef&&this.lqGlassRef.current,w=g&&g.parentElement&&g.parentElement.parentElement;
+[d,w].forEach((r)=>r&&[...r.children].forEach(walk));
+out.forEach((e)=>{e._fo0=e.style.opacity;});this._fadeEls=out;}
+this._fadeEls.forEach((e)=>{const b=e._fo0===""?1:+e._fo0;e.style.opacity=String((b*o).toFixed(3));});
+// opacity only: a blur on every leaf made the first frame of each auto-hide 75–117 ms on the phone
+}
+hideSettle(kind,side,p,v,to,gentle){
+if(!gentle)this.dockFade(null);
 if(!to)this.tipAway(side);else if(this._tipX){this._tipX=0;const te=this.tipRef&&this.tipRef.current;if(te){te.style.transition="translate 300ms cubic-bezier(.3,.8,.3,1), opacity 300ms";te.style.translate="0px 0";te.style.opacity="1";}}
 if(this._settle)CAF(this._settle.raf);
 const el0=this.dockRef.current;if(el0)el0.style.transition="none";
-const w=2*Math.PI / 0.38,x0=p - to,v0=v*1000,z=Math.abs(v0)>4?0.78:1,wd=w*Math.sqrt(Math.max(0,1 - z*z));
+const w=2*Math.PI / 0.32,x0=p - to,v0=v*1000,z=Math.abs(v0)>4?0.78:1,wd=w*Math.sqrt(Math.max(0,1 - z*z));
 const t0=performance.now(),S=this._settle={kind,side,p,to,raf:0};
-// coming back out, the edge glow fades on its own clock: tied to the pose it vanished in ~100 ms after a quick release
 const ind=this.edgeIndRef&&this.edgeIndRef.current,fade=!to&&!!ind;if(fade){ind.style.transition="opacity 320ms cubic-bezier(.2,.8,.2,1)";ind.style.opacity="0";}
+const GD=420 /(this.state.hideSpeed||1);
 const step=(now)=>{
 const t=(now - t0)/ 1000;
+if(gentle){const W=2*Math.PI /(0.42 /(this.state.hideSpeed||1)),tt=(now - t0)/ 1000,ex=Math.exp(-W*tt),e=1 -(1+W*tt)*ex,vel=W*tt*ex*Math.E,u=e>0.998?1:0;S.p=p+(to - p)*e;this.dockFade(Math.max(0,1 - 1.12*Math.pow(e,1.15)),u<1?14*vel:0);
+if(u>=1){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hideCommit(kind,side,!!to);return;}
+this.hideApply(kind,side,S.p,fade);S.raf=RAF(step);return;}
 const x=z>=1?(x0+(v0+w*x0)*t)*Math.exp(-w*t):Math.exp(-z*w*t)*(x0*Math.cos(wd*t)+(v0+z*w*x0)/ wd*Math.sin(wd*t));
 S.p=to+x;
-if((Math.abs(x)<0.0015&&t>0.08)||t>1.4){this._settle=null;this.hideApply(kind,side,to,fade);this.hideCommit(kind,side,!!to);return;}
+if((Math.abs(x)<0.0015&&t>0.08)||t>1.4){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hideCommit(kind,side,!!to);return;}
 this.hideApply(kind,side,S.p,fade);
 S.raf=RAF(step);
 };
 S.raf=RAF(step);
 }
+foldEnd(shut){const F=this._hgFold;if(!F)return;this._hgFold=null;this._gyHold=false;
+const tr=this.trayRideRef.current,rv=this.appsRevealRef.current,clr=()=>{if(tr){tr.style.filter="";tr.style.transition="";}if(rv){rv.style.opacity="";rv.style.transform="";rv.style.transition="";}};
+if(shut){this._gyTo=null;this.ss({expanded:false,inputMode:false,query:"",appsOpen:false,appsFade:false,expFade:false});setTimeout(clr,60);}
+else{clr();this._gyTo=null;this.driveGlass();}}
 hideCommit(kind,side,hidden){
 const was=kind==="slide"?this.state.barRetract!=="none":this.state.gate!=="none";
-if(was!==hidden)this.haptic(hidden?"heavy":"medium");
+if(was!==hidden&&!this._quiet)this.haptic(hidden?"heavy":"medium");this._quiet=0;
 const sync=()=>{const ds=this._dockStyleNow,d=this.dockRef.current;if(ds&&d){d.style.transition=ds.transition||"";d.style.transform=ds.transform||"";d.style.transformOrigin=ds.transformOrigin||"";}};
 const shown=hidden?{}:{pillRetract:"none",hidden:false,scrollHidden:false,dockTipOpen:false,dockTipSeen:true};
 if(kind==="slide"){this.ss(Object.assign({barRetract:hidden?side:"none",lastGate:side},shown),sync);return;}
@@ -1709,7 +1677,9 @@ startRestore(){
 return(e)=>{
 const zone=e.currentTarget;
 const tapThrough=()=>{window.removeEventListener("pointerup",tapThrough);setTimeout(()=>{const st=this.state,hid=st.gate!=="none"||st.barRetract!=="none";
-if(hid&&!(this._settle&&this._settle.to===0))this.tipRestore();},0);};
+// a tap only: after a drag the release has already started a settle (either way); restoring here too ran a second
+// animation from fully hidden, 20 ms after a midway release that settles back to hidden
+if(hid&&!this._settle)this.tipRestore();},0);};
 window.addEventListener("pointerup",tapThrough);
 return this.startDrag("bar")(e);
 };
@@ -1865,13 +1835,15 @@ const tx=x0+dir*-220,te=this.tipRef&&this.tipRef.current,ez="320ms cubic-bezier(
 if(te){te.style.transition="translate "+ez+", opacity "+ez+", filter "+ez;te.style.translate=tx+"px 0";te.style.opacity="0";te.style.filter="blur(4px)";}
 this.ss({tipFly:dir,tipDx:tx});clearTimeout(this._tipAwayT);this._tipAwayT=setTimeout(()=>{if(te){te.style.transition=te.style.translate=te.style.opacity=te.style.filter="";}this.ss({dockTipOpen:false,dockTipSeen:true,tipFly:0,tipDx:0});},360);}
 tipRestore(){const st=this.state,slide=st.barRetract!=="none",sd=slide?st.barRetract:st.gate;if(sd&&sd!=="none")this.hideSettle(slide?"slide":st.mode,sd,1,0,0);}
-autoHide(){
+autoHide(rule){
 const s=this.state;
-if(s.gate!=="none"||s.barRetract!=="none"||s.hidden)return;
+if(!rule)return;
+if(s.gate!=="none"||s.barRetract!=="none"||s.hidden||s.autoHide===false)return;
+if(s.expanded||s.inputMode||s.appsOpen||s.lqOpen||s.screen==="controls"||s.dockMenu||s.menuFor||s.chatKb||this._hg||this._settle||this._fl||this._fc)return;
 if(this._hg||this._settle)return;
 const side=s.leftHanded?"left":"right";
-if((this._tipHides=(this._tipHides||0)+1)<=2&&!s.dockTipSeen)this.ss({dockTipOpen:true});
-RAF(()=>RAF(()=>{const t=this.state;if(t.gate!=="none"||t.barRetract!=="none"||this._hg||this._settle)return;this.hideSettle(t.mode,side,0,0,1);}));
+
+RAF(()=>RAF(()=>{const t=this.state;if(t.gate!=="none"||t.barRetract!=="none"||this._hg||this._settle)return;this._quiet=1;this.hideSettle(t.mode,side,0,0,1,true);}));
 }
 layers(){const s=this.state;return[(s.menuFor!=null||s.dockMenu)&&"menu",s.inputMode&&"input",s.expanded&&"pill",s.appsOpen&&"apps",s.cardOpen&&"card",s.chatOpen!=null&&"chat",s.appFg&&s.activeApp&&"app",s.screen==="controls"&&"tweak"].filter(Boolean);}
 syncBack(){const B=this._bk;if(!B)return;const n=this.layers().length;
@@ -1887,7 +1859,7 @@ if(!top){if(s.gate!=="none"||s.barRetract!=="none")this.restoreDock();return;}
 input:()=>this.ss({inputMode:false}),
 pill:()=>this.collapseDock(),apps:()=>this.collapseDock(),
 card:()=>{clearTimeout(this.cardT);this.ss({cardOpen:null,cardClosing:s.cardOpen,cashDetails:false});this.cardT=setTimeout(()=>this.ss({cardClosing:null}),300);},
-chat:()=>{clearTimeout(this.chatT);this.ss({chatOpen:null,chatClosing:true,chatKb:false});this.restoreDock();this.chatT=setTimeout(()=>this.ss({chatClosing:false}),320);},
+chat:()=>{clearTimeout(this.chatT);this.ss({chatOpen:null,chatClosing:true,chatKb:false});this.chatT=setTimeout(()=>this.ss({chatClosing:false}),320);},
 app:()=>this.leaveApp(),
 tweak:()=>{clearTimeout(this.tweakT);this.ss({screen:"chats",tweakFade:true});this.tweakT=setTimeout(()=>this.ss({tweakFade:false}),460);}})[top]();}
 sendZones(){const N=window.DockletNative;if(!N||!N.setGestureZones)return;
@@ -1898,9 +1870,11 @@ else{const L=Math.max(0,r.left),Rr=Math.min(vw,r.right),right=r.left+r.width / 2
 if(w<48){x=right?vw-48:0;w=48;}
 const b=Math.min(vh,Math.max(r.bottom,this._zs?this._zs.y+this._zs.h:r.bottom));
 Z=[{x,y:b-bh-48,w,h:bh+48}];if(this._zs)Z.push(this._zs);}
-Z=Z.map((z)=>{const x=Math.max(0,z.x),y=Math.max(0,z.y);return{x:Math.round(x),y:Math.round(y),w:Math.round(Math.min(vw,z.x+z.w)-x),h:Math.round(Math.min(vh,z.y+z.h)-y)};}).filter((z)=>z.w>0&&z.h>0);}
+Z=Z.map((z)=>{const x=Math.max(0,z.x),y=Math.max(0,z.y);return{x:Math.round(x),y:Math.round(y),w:Math.round(Math.min(vw,z.x+z.w)-x),h:Math.round(Math.min(vh,z.y+z.h)-y)};}).filter((z)=>z.w>0&&z.h>0);
+// the whole bottom 200 dp, full width: the most Android lets an app take from the Back gesture (per edge, counted from the bottom)
+Z.unshift({x:0,y:Math.max(0,Math.round(vh - 200)),w:Math.round(vw),h:Math.round(Math.min(200,vh))});}
 const j=JSON.stringify(Z);if(j===this._zj)return;this._zj=j;try{N.setGestureZones(j);}catch(e){}}
-restoreDock(){
+restoreDock(){this.dockFade(null);
 this.ss({gate:"none",barRetract:"none",pillRetract:"none"});
 }
 collapseDock(extra){
@@ -2176,7 +2150,7 @@ const out={
 "Hide gesture":sec(
 [null,[mode,this.gestureIllus(this.state.mode),notes[notes.length - 1]]],
 ["When hidden",pick("Gestures",["Show at the edge","Indicator","Peek"])],
-["Behaviour",[].concat(rename(pick("Gestures",["Hide dock when an app opens","Swipe on empty","Southpaw"]),{"Swipe on empty":"Bring back by swiping empty space"}),notes.length>1?[notes[0]]:[],[{slider:Object.assign(this.slider("Animation speed","hideSpeed",0.5,2,0.05,"x"),{display:(this.state.hideSpeed||1).toFixed(2)+"\u00d7"})}])]),
+["Behaviour",[].concat(rename(pick("Gestures",["Auto-hide","Swipe on empty","Southpaw"]),{"Swipe on empty":"Bring back by swiping empty space"}),notes.length>1?[notes[0]]:[],this.state.autoHide===false?[]:[{slider:Object.assign(this.slider("Hide after tapping elsewhere","ahTap",0,2,0.1,"s"),{display:(this.state.ahTap??2).toFixed(1)+" s"})},{slider:Object.assign(this.slider("Hide when idle","ahIdle",2,30,1,"s"),{display:(this.state.ahIdle??10)+" s"})}],[{slider:Object.assign(this.slider("Animation speed","hideSpeed",0.5,2,0.05,"x"),{display:(this.state.hideSpeed||1).toFixed(2)+"\u00d7"})}])]),
 "Motion":sec([null,g["Motion"]||[]]),
 "Dock":sec([null,rename([].concat(pick("Dock shape",["Shape"]),pick("Dock",["Width","Height","Corner radius","Bottom offset"]),pick("Tab items",["Inner padding"]),pick("Dock",["Expanded (tap the pill)"])),{"Bottom offset":"Distance from bottom","Inner padding":"Padding","Expanded (tap the pill)":"Preview expanded"})],
 ["Search card",rename(pick("Dock shape",["Keyboard layout","Pill morph","Morph speed","Shape check"]),{"Keyboard layout":"Version"})]),
@@ -2272,6 +2246,7 @@ const k=S.width / 402||1,ir=ind.getBoundingClientRect(),top=Math.max(S.top+56*k,
 if(bot<=top)return;
 this._glowK=key;this._glowTop=+((top - ir.top)/ k).toFixed(1);this._glowH=+((bot - top)/ k).toFixed(1);
 mk.style.top=this._glowTop+"px";mk.style.height=this._glowH+"px";
+const hit=ind.querySelector("[data-hit]");if(hit)hit.style.top=this._glowTop+"px";
 }
 lqFollow(){
 CAF(this._lqFr);
@@ -2328,7 +2303,6 @@ const rem=(close?P.p:1 - P.p)*P.trav,vpx=Math.abs(v)*P.trav,ms=vpx>300?Math.min(
 this._lqDur=ms*1.7*(this.state.speed||1)/ 560;this._lqRun=0;
 if(close){this.lqTo(0);setTimeout(()=>this.ss({lqKbHold:false}),ms+80);}else{this.lqTo(P.v,true);setTimeout(()=>this.ss({lqKbHold:false}),Math.round(ms*0.6));}
 setTimeout(()=>{this._lqDur=0;},50);};
-// capture phase: the ✕'s own pointerup stops propagation, so a bubbling listener would never hear the finger lift
 window.addEventListener("pointermove",mv,true);window.addEventListener("pointerup",up,true);window.addEventListener("pointercancel",up,true);
 }
 pillRect(){const rim=this.lqRimRef&&this.lqRimRef.current;const r=rim&&rim.getBoundingClientRect();if(r&&r.width>8)return r;const pe=this.dockRef.current&&this.dockRef.current.querySelector("[data-lqpill]");return pe?pe.getBoundingClientRect():null;}
@@ -2343,7 +2317,6 @@ if(key!==this._hitK){this._hitK=key;h.style.borderRadius="12px";h.style.left=x+"
 h.style.pointerEvents=this.state.lqOpen?"none":"auto";
 }
 lqAtRest(){const g=this._lqG;
-// not while a morph runs: lqOpen turns false as the close starts, and following the dock's own translate then moved the shape twice
 if(this._lqRun)return false;return!this.state.lqOpen||!g||g.w<=72;}
 lqRefs(){return{glass:this.lqGlassRef.current,body:this.lqBodyRef.current,lobe:this.lqLobeRef.current,spec:this.lqSpecRef.current,dark:this.lqDarkRef.current,rim:this.lqRimRef.current,x:this.lqXRef.current,content:this.lqContentRef.current,defs:this.lqDefsRef.current,dock:this.dockRef.current,dim:this.lqDimRef.current,dockGlass:this.lqDockGlassRef.current};}
 lqTo(to,force,fromV){
@@ -2359,11 +2332,9 @@ const A=this._lqG||L.geo(from,st.kbLayout);
 this._lqRun=1;if(this._lqSync)this._lqSync();
 const go=()=>L.run({refs:this.lqRefs(),from:A,to:L.geo(to,this.state.kbLayout),kind,dur:this._lqDur||(from===0&&to===2?1.4:1),mode:this.state.pillMorph||"Liquid",speed:1.7*(this.state.speed||1),
 onFrame:(g)=>{this._lqG=g;},done:()=>{this._lqRun=0;if(!to){this._lqG=null;this.ss({lqView:0},()=>this._lqSync&&this._lqSync());}}});
-// an open needs the content rendered first; a close or move starts at once, so a released swipe keeps moving instead of pausing ~3 frames
 if(kind==="open")this.ss({lqOpen:to>0,lqView:to||st.lqView},()=>RAF(go));else{this.ss({lqOpen:to>0,lqView:to||st.lqView});go();}
 }
 lqCam(on){
-// live camera off: on the phone the stream dropped the screen to 60 Hz and stalled the open morph; a still stands in (a drifting one cost ~20% of the frames during the morph)
 if(on)return;
 const v=this.lqVidRef.current;
 if(on){if(this._lqS||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
@@ -2590,7 +2561,6 @@ this.haptic("light");
 if(r){this.lastChatName=r.name;this.lastChatInitial=r.initial;this.lastChatAvatar={background:r.bg,color:r.fg};this.lastChatMsgs=msgs;}
 clearTimeout(this.chatT);
 this.ss({chatOpen:null,chatClosing:true,chatKb:false});
-this.restoreDock();
 this.chatT=setTimeout(()=>this.ss({chatClosing:false}),320);
 },
 };
@@ -2629,6 +2599,7 @@ h=(h*60+360)% 360;
 return{h:Math.round(h),s:Math.round(sat*100),l:Math.round(l*100)};
 }
 renderVals(){
+if(!loadData()){if(!this._ldT)this._ldT=setTimeout(()=>{this._ldT=0;this.forceUpdate();},30);return{};}
 const st0=this.state;
 const th=st0.appTint===true&&st0.appFg&&st0.activeApp?APP_THEME[st0.activeApp]:null;
 const acc=th&&th.accent?this.accentHsl(th.accent):null;
@@ -2816,7 +2787,6 @@ const mkTab=(i,isFirstOfGroup)=>{
 const t=TABS[i];
 const pinned=i===2&&hotAppDef?hotAppDef:null;
 const switcher=i===3;
-// app-menu cell: while the front app is already marked elsewhere (launcher open, or it lives in the pin slot), this cell turns into its menu
 const ctx=switcher&&s.ctxCell!==false&&!!activeAppDef&&!!s.appFg&&(appsMode||activeAppDef.id===s.hotApp);
 const on=ctx?false:appsMode
 ?switcher
@@ -2981,12 +2951,10 @@ const mId=s.menuFor;
 const isFav=(s.favs||[]).indexOf(mId)>-1;
 const running=s.activeApp===mId||s.slotApp===mId;
 const nm=(id)=>(APPS.find((a)=>a.id===id)||{}).name||"App";
-const menuItems=!mId?[]:(s.menuHot
-?[
-menuRow("Unpin from the dock",()=>this.unpinApp(mId,closeMenu),true),
-]
-:[
-s.hotApp===mId
+// a pinned app gets the same menu as any other app (from the dock or the launcher): Unpin instead of Pin, and no Close
+const pinnedM=s.hotApp===mId;
+const menuItems=!mId?[]:[
+pinnedM
 ?menuRow("Unpin from the dock",()=>this.unpinApp(mId,closeMenu),true)
 :menuRow("Pin to the dock",()=>{
 const fromEmptySlot=s.active===2&&!s.appFg;
@@ -3000,12 +2968,12 @@ isFav
 ?menuRow("Remove from favourites",()=>closeMenu({favs:(s.favs||[]).filter((x)=>x!==mId)}))
 :menuRow("Add to favourites",()=>closeMenu({favs:(s.favs||[]).concat([mId])},"success")),
 running&&menuRow("Refresh",()=>{closeMenu();this.openApp(mId);this.toast(nm(mId)+" restarted");}),
-running&&menuRow("Close",()=>closeMenu(Object.assign({
+!pinnedM&&running&&menuRow("Close",()=>closeMenu(Object.assign({
 activeApp:s.activeApp===mId?null:s.activeApp,
 slotApp:s.slotApp===mId?null:s.slotApp,
 appData:s.activeApp===mId?{}:s.appData,
 },s.activeApp===mId&&s.appFg?{appFg:false,appsOpen:false,expanded:false,active:0}:{}),"warn"),true),
-]);
+];
 const out={
 fitStyle:{width:SCREEN_W*scale,height:SCREEN_H*scale,flexShrink:0},
 immersive:s.immersive,
@@ -3292,14 +3260,15 @@ menuTitle:(APPS.find((a)=>a.id===s.menuFor)||{}).name||"",
 onCloseMenu:()=>{if(this.held&&this._retarget){this.held=this._retarget=false;return;}this.held=this._retarget=false;this.ss({menuFor:null});},
 onMenuBackdropDown:(e)=>{const bd=e.currentTarget,cell=document.elementsFromPoint(e.clientX,e.clientY).filter((x)=>x!==bd).map((x)=>x.closest&&x.closest("[data-app-id]")).find((x)=>x&&x.getAttribute("data-app-id"));
 if(cell)cell.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY,pointerId:e.pointerId,pointerType:e.pointerType,isPrimary:true,button:0}));},
-menuBackdropStyle:{position:"absolute",inset:0,zIndex:7},
+// above the Pill layer (zIndex 8, 74 in a chat) and the launcher's open-app highlight: the menu showed behind them
+menuBackdropStyle:{position:"absolute",inset:0,zIndex:75},
 menuStyle:(()=>{
 const MW=244;
 const a=s.menuAt||{cx:SCREEN_W / 2,top:SCREEN_H - s.bottom - shellH,bottom:SCREEN_H - s.bottom};
 const left=Math.max(12,Math.min(SCREEN_W - 12 - MW,Math.round(a.cx - MW / 2)));
 const originX=Math.round(Math.max(8,Math.min(MW - 8,a.cx - left)));
 return{
-position:"absolute",zIndex:8,left,width:MW,
+position:"absolute",zIndex:76,left,width:MW,
 bottom:Math.round(SCREEN_H - a.top+12),
 boxSizing:"border-box",padding:0,overflow:"hidden",
 borderRadius:16,
@@ -3338,18 +3307,23 @@ cursor:"grab",touchAction:"none",
 gateChipStyle:true?{display:"none"}:Object.assign({opacity:0},{position:"absolute",top:"50%",marginTop:-20,width:5,height:40,borderRadius:3,pointerEvents:"none",background:"#f4f4f5e6",boxShadow:"0 0 0 0.5px #00000059, 0 0 16px 3px #ffffff4d",animation:"softIn 200ms cubic-bezier(.2,.8,.2,1) 40ms both"},{position:"relative",top:"auto",marginTop:0,alignSelf:"center"},pivotSide==="right"?{marginLeft:"auto",marginRight:Math.max(0,6 - Math.max(0,SCREEN_W - dockLeft - W - 42))}:{marginRight:"auto",marginLeft:Math.max(0,6 - Math.max(0,dockLeft - 42))}),
 edgeIndRef:this.edgeIndRef,
 edgeIndStyle:(()=>{const gm=s.mode!=="slide";const on=gm?!s.gatePeek:s.slidePeek===false;return{display:on?"block":"none",position:"absolute",zIndex:90,pointerEvents:(gm?s.gate!=="none":s.barRetract!=="none")?"auto":"none",touchAction:"none",cursor:"pointer",padding:"24px 22px",boxSizing:"content-box",width:5,height:40,top:SCREEN_H - bottomOffset - s.barHeight / 2 - 44,left:s.leftHanded?-18:SCREEN_W - 31,willChange:"opacity",opacity:0};})(),
+// the grab zone: the glow is 24 px wide at the edge, and a touch beside it only brightened it; take ~47 px from the edge
+// along the whole glow down to the bottom of the indicator
+edgeIndHit:(()=>{const on=s.mode!=="slide"?s.gate!=="none":s.barRetract!=="none",glow=s.hiddenMark!=="bar"&&s.hiddenMark!=="soft";
+const cTop=SCREEN_H - bottomOffset - s.barHeight / 2 - 44,gBot=SCREEN_H - bottomOffset,gTop=gBot - (s.barWidth||382);
+return{position:"absolute",pointerEvents:on?"auto":"none",touchAction:"none",top:glow?(this._glowTop!=null?this._glowTop:gTop - cTop):0,bottom:0,
+left:s.leftHanded?0:-15,right:s.leftHanded?-16:0};})(),
 edgeIndMark:s.hiddenMark==="soft"
 ?{position:"absolute",pointerEvents:(s.mode!=="slide"?s.gate!=="none":s.barRetract!=="none")?"auto":"none",touchAction:"none",top:44 - s.barHeight / 2,height:s.barHeight,width:24,left:s.leftHanded?18:7,
-background:"linear-gradient("+(s.leftHanded?"to right":"to left")+", #ffffff8c 0px, #ffffff59 1px, #ffffff26 3px, #ffffff12 7px, #ffffff06 14px, #ffffff00 24px)",
-filter:"blur(1.5px)",
-WebkitMaskImage:"linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%)",maskImage:"linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%)"}
+background:"linear-gradient("+(s.leftHanded?"to right":"to left")+", "+GLOW_STOPS+")",
+filter:"blur(2.4px)",
+WebkitMaskImage:GLOW_MASK,maskImage:GLOW_MASK}
 :s.hiddenMark!=="bar"
 ?(()=>{const cTop=SCREEN_H - bottomOffset - s.barHeight / 2 - 44,gBot=SCREEN_H - bottomOffset,gTop=gBot - (s.barWidth||382),dir=s.leftHanded?"to right":"to left";
-// light through a door left ajar: a hairline at the edge, a soft spill inward, and crisp top/bottom ends
 return{position:"absolute",pointerEvents:(s.mode!=="slide"?s.gate!=="none":s.barRetract!=="none")?"auto":"none",touchAction:"none",top:this._glowTop!=null?this._glowTop:gTop - cTop,height:this._glowH!=null?this._glowH:gBot - gTop,width:24,left:s.leftHanded?18:7,
-background:s.hiddenMark==="none"?"transparent":"linear-gradient("+dir+", #ffffff8c 0px, #ffffff59 1px, #ffffff26 3px, #ffffff12 7px, #ffffff06 14px, #ffffff00 24px)",
-filter:"blur(1.5px)",
-WebkitMaskImage:"linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%)",maskImage:"linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%)",
+background:s.hiddenMark==="none"?"transparent":"linear-gradient("+dir+", "+GLOW_STOPS+")",
+filter:"blur(2.4px)",
+WebkitMaskImage:GLOW_MASK,maskImage:GLOW_MASK,
 };})()
 :{width:5,height:40,borderRadius:2.5,background:"#f4f4f5e6",boxShadow:"0 0 0 0.5px #00000059, 0 0 14px 2px #ffffff4d",pointerEvents:"none"},
 edgeMarkStyle:(()=>{
@@ -3610,7 +3584,6 @@ this.collapseDock();
 onPillClick:(e)=>{
 if(e&&e.stopPropagation)e.stopPropagation();
 if(this.dragged)return;
-// a touch tap on the ✕ closes the card, then Chrome re-hit-tests the tap's click and it lands on the dock Pill now under the finger
 if(Date.now()-(this._xAt||0)<600)return;
 this._pillTapAt=Date.now();
 this.haptic("medium");
@@ -3836,13 +3809,13 @@ s.haptics?{seg:this.seg("Intensity","hapticLevel",[["Soft","soft"],["Medium","me
 {seg:this.modeSeg()},
 {toggle:this.toggle("Swipe on empty","anchored",true)},
 {toggle:this.toggle("Southpaw","leftHanded")},
-{toggle:this.toggle("Hide dock when an app opens","autoHide")},
+{toggle:this.toggle("Auto-hide","autoHide")},
 {note:s.leftHanded?"The dock hides to the left edge.":"The dock hides to the right edge."},
 {seg:this.seg("Show at the edge",gateMode?"gatePeek":"slidePeek",[["Edge",true],["Indicator",false]])},
 (gateMode?!s.gatePeek:s.slidePeek===false)?{seg:this.seg("Indicator","hiddenMark",[["Edge glow","glow"],["Short glow","soft"],["Bar","bar"],["None","none"]])}:null,
 (gateMode?s.gatePeek:s.slidePeek!==false)?{slider:this.slider("Peek","peek",4,40,1,"px")}:null,
 {note:((sd)=>({
-gate:"Swipe diagonally up and "+sd+" to swing the dock out. To bring it back, drag in from the "+sd+" edge or tap it.",
+gate:"Swipe the dock "+sd+" to swing it out. To bring it back, drag in from the "+sd+" edge or tap it.",
 park:"Swipe the dock "+sd+". It turns upright and parks at the edge. To bring it back, drag it in or tap it.",
 arc:"Swipe the dock "+sd+". It curves up and away along the edge. To bring it back, drag it in or tap it.",
 slide:"Swipe the dock "+sd+" to tuck it into the edge. To bring it back, drag the edge in or tap it.",

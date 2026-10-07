@@ -8,7 +8,7 @@ It is not a release build of the app.
 - Swipe up on the dock to open the app launcher.
 - Long-press an app to pin it to the dock or add it to favourites.
 - Tap the centre Pill to open search with a live camera.
-- Hide the dock with one of four gestures: Slide, Reverse Park, Boom Gate or Pivot Turn.
+- Hide the dock with one of four gestures: Slide, Reverse Park, Drawbridge or Pivot Turn.
 - Open "Tweak Docklet" to change motion, speed, dock shape, tabs, haptics and the Pill press style live.
 - Pass any export to the build to try an older version: `python3 build.py "Tabbar App.dc.html"`.
 
@@ -27,7 +27,7 @@ What changed in each version: [CHANGELOG.md](CHANGELOG.md).
 | `BoBw Gesture Recorder.dc.html` | Gesture recorder that loads Best of Both Worlds and records touches |
 | `build_recorder.py` | Builds the recorder as a separate app, Docklet Recorder |
 | `RECORDER.md` | Tester guide: how to record gestures and send the logs |
-| `Docklet Liquid.dc.html`, `docklet-liquid.js`, `docklet-sprite.js` | Liquid search flow: the Pill flows into a search card and text input |
+| `Docklet Liquid.dc.html`, `docklet-liquid.js`, `docklet-sprite.js`, `docklet-data.js` | Liquid search flow: the Pill flows into a search card and text input |
 | `build_liquid.py` | Builds it as a separate app, Docklet Liquid |
 
 ## Build
