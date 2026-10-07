@@ -21,6 +21,9 @@
 <style>
 .lq-cam-sim { background: url(./assets/camera-sim.jpg) center / cover no-repeat; }
 html, body { margin: 0; padding: 0; background: #141416; overscroll-behavior: none; }
+/* nothing pans at page level (lists scroll in their own containers): an edge swipe in the sliver beside the scaled
+   screen started a pan there and Chrome cancelled the touch */
+body { touch-action: none; }
 * { -webkit-tap-highlight-color: transparent; }
 body, body * { -webkit-user-select: none; user-select: none; }
 input { -webkit-user-select: auto; user-select: auto; }
@@ -909,7 +912,7 @@ if(typeof window!=="undefined"){
 const inDock=(t)=>{if(!t||!t.closest)return false;const d=this.dockRef.current;return!!((d&&d.contains(t))||t.closest("[data-lqpill],[data-opill],[data-app-id]")||(this.lqGlassRef.current&&this.lqGlassRef.current.contains(t))||(this.lqContentRef.current&&this.lqContentRef.current.contains(t))||(this.lqXRef.current&&this.lqXRef.current.contains(t))||(this.edgeIndRef.current&&this.edgeIndRef.current.contains(t)));};
 const arm=(ms)=>{clearTimeout(this._ahT);this._ahT=setTimeout(()=>{if(Date.now()-(this._lastAct||0)>=ms - 50)this.autoHide(true);else arm(ms);},ms);};
 const idle=()=>{clearTimeout(this._idleT);this._idleT=setTimeout(()=>this.autoHide(true),(this.state.ahIdle??10)*1000);};
-this._actOn=(e)=>{this._lastAct=Date.now();idle();if(inDock(e.target)){clearTimeout(this._ahT);return;}arm((this.state.ahTap??2)*1000);};
+this._actOn=(e)=>{this._lastAct=Date.now();idle();if(inDock(e.target)||this.edgeGutter(e)){clearTimeout(this._ahT);return;}arm((this.state.ahTap??2)*1000);};
 window.addEventListener("pointerdown",this._actOn,true);
 window.addEventListener("keydown",()=>{this._lastAct=Date.now();idle();clearTimeout(this._ahT);},true);
 window.addEventListener("wheel",()=>{this._lastAct=Date.now();idle();arm((this.state.ahTap??2)*1000);},{capture:true,passive:true});
@@ -933,6 +936,11 @@ mk.style.transformOrigin=(right?"100%":"0%")+" 50%";mk.style.transition="scale 2
 if(typeof window!=="undefined"){// only a touch on the grab zone brightens the glow: anywhere else it promised a pull that never came
 window.addEventListener("pointerdown",(e)=>{const st=this.state,ind=this.edgeIndRef.current;if((st.gate!=="none"||st.barRetract!=="none")&&ind&&ind.contains(e.target)){this._glowOn=true;this._glowBoost(true);}},true);
 const off=()=>{if(this._glowOn&&!this._bp){this._glowOn=false;this._glowBoost(false);}};window.addEventListener("pointerup",off,true);window.addEventListener("pointercancel",off,true);}
+// The scaled screen is about 0.7 px narrower than the window (it fits the height), and an edge swipe often starts in
+// that sliver, outside every element of the screen. On the hidden dock's glow, hand such a touch to the glow itself.
+if(typeof window!=="undefined")window.addEventListener("pointerdown",(e)=>{if(!this.edgeGutter(e))return;
+const hit=this.edgeIndRef.current.querySelector("[data-hit]");this._glowOn=true;this._glowBoost(true);
+this.startRestore()({clientX:e.clientX,clientY:e.clientY,pointerId:e.pointerId,pointerType:e.pointerType,button:e.button,isPrimary:e.isPrimary,timeStamp:e.timeStamp,target:hit,currentTarget:hit,preventDefault(){},stopPropagation(){}});},true);
 // a tap Chrome delivers without a click: seen on the phone right after a fast swipe opened the launcher (pointerdown and
 // pointerup on ••• and no click, so the first tap did nothing). If no click follows a still, short tap on a dock tab or
 // a launcher app within 120 ms, click it ourselves
@@ -1365,9 +1373,7 @@ const tm=(ev)=>{if(this.dragged&&ev.cancelable)ev.preventDefault();};
 window.addEventListener("touchmove",tm,{passive:false});
 const hand=(x)=>(this.state.mode==="slide"||this._caught||this._hg||this.state.barRetract!=="none"||this.state.gate!=="none")?x:(this.state.leftHanded?Math.min(-0.001,x):Math.max(0,x));
 clearTimeout(this._barHoldT);
-if(target==="bar"&&st0.barRetract==="none"&&st0.gate==="none"&&!st0.expanded&&!st0.appsOpen&&!st0.inputMode){
-this._barHoldT=setTimeout(()=>{if(this.held||this.dragged)return;this.held=myHold=true;this.haptic("notch");this.ss({dockMenu:true});},520);
-}
+// no long-press menu on the dock (it offered Hide left / Hide right); hiding is a swipe only
 const move=(ev)=>{
 const rx=(ev.clientX - sx)/ scale,ry=(ev.clientY - sy)/ scale;
 if(!axis){
@@ -1890,7 +1896,8 @@ app:()=>this.leaveApp(),
 tweak:()=>{clearTimeout(this.tweakT);this.ss({screen:"chats",tweakFade:true});this.tweakT=setTimeout(()=>this.ss({tweakFade:false}),460);}})[top]();}
 sendZones(){const N=window.DockletNative;if(!N||!N.setGestureZones)return;
 if(N.setBackPull){const s=this.state,side=s.gate!=="none"?s.gate:s.barRetract!=="none"?s.barRetract:null,ind=this.edgeIndRef&&this.edgeIndRef.current,hit=ind&&ind.querySelector("[data-hit]");
-let o={on:false};if(side&&hit){const r=hit.getBoundingClientRect();if(r.height>0)o={on:true,side,top:Math.round(r.top),bottom:Math.round(r.bottom)};}
+// the Back pull covers the hidden dock from the glow down to where the dock was; the glow itself is excluded from Back
+let o={on:false};if(side&&hit){const r=hit.getBoundingClientRect();if(r.height>0)o={on:true,side,top:Math.round(r.top),bottom:Math.round(Math.max(r.bottom,ind.getBoundingClientRect().bottom))};}
 const bj=JSON.stringify(o);if(bj!==this._bpj){this._bpj=bj;try{N.setBackPull(bj);}catch(e){}}}
 const s=this.state,g=(this.glassRimRef&&this.glassRimRef.current)||(this.dockRef&&this.dockRef.current);let Z=[];
 if(g&&!s.cardOpen){const r=g.getBoundingClientRect(),vw=innerWidth,vh=innerHeight,bh=Math.min(r.height,s.barHeight*(s.scale||1)),hid=s.gate!=="none"||s.barRetract!=="none";
@@ -1899,10 +1906,19 @@ else{const L=Math.max(0,r.left),Rr=Math.min(vw,r.right),right=r.left+r.width / 2
 if(w<48){x=right?vw-48:0;w=48;}
 const b=Math.min(vh,Math.max(r.bottom,this._zs?this._zs.y+this._zs.h:r.bottom));
 Z=[{x,y:b-bh-48,w,h:bh+48}];if(this._zs)Z.push(this._zs);}
+// hidden with an edge glow: the 200 dp Android allows per edge go to the glow (any 200 dp, not only the bottom;
+// asked for more, it keeps the bottom-most), so the glow is grabbed directly with no Back arrow
+const ind=this.edgeIndRef&&this.edgeIndRef.current,hit=hid&&ind&&ind.style.display!=="none"&&ind.querySelector("[data-hit]"),hr=hit&&hit.getBoundingClientRect();
+if(hr&&hr.height>0){const rt=hr.left+hr.width / 2>vw / 2;Z=[{x:rt?hr.left:0,y:hr.top,w:rt?vw - hr.left:hr.right,h:Math.min(200,hr.height)}];}
 Z=Z.map((z)=>{const x=Math.max(0,z.x),y=Math.max(0,z.y);return{x:Math.round(x),y:Math.round(y),w:Math.round(Math.min(vw,z.x+z.w)-x),h:Math.round(Math.min(vh,z.y+z.h)-y)};}).filter((z)=>z.w>0&&z.h>0);
-// the whole bottom 200 dp, full width: the most Android lets an app take from the Back gesture (per edge, counted from the bottom)
-Z.unshift({x:0,y:Math.max(0,Math.round(vh - 200)),w:Math.round(vw),h:Math.round(Math.min(200,vh))});}
+// otherwise the whole bottom 200 dp, full width
+if(!(hr&&hr.height>0))Z.unshift({x:0,y:Math.max(0,Math.round(vh - 200)),w:Math.round(vw),h:Math.round(Math.min(200,vh))});}
 const j=JSON.stringify(Z);if(j===this._zj)return;this._zj=j;try{N.setGestureZones(j);}catch(e){}}
+edgeGutter(e){const st=this.state;if(st.gate==="none"&&st.barRetract==="none")return false;
+const ind=this.edgeIndRef&&this.edgeIndRef.current,hit=ind&&ind.querySelector("[data-hit]"),sc=ind&&ind.closest("[data-screen]");
+if(!hit||!sc||sc.contains(e.target))return false;
+const r=hit.getBoundingClientRect(),S=sc.getBoundingClientRect(),y=e.clientY,x=e.clientX;
+return r.height>0&&y>=r.top&&y<=r.bottom&&(r.left+r.width / 2>S.left+S.width / 2?x>=S.right - 1:x<=S.left+1);}
 restoreDock(){this.dockFade(null);
 this.ss({gate:"none",barRetract:"none",pillRetract:"none"});
 }
@@ -2271,11 +2287,14 @@ const q=this.hidePose(kind,side,1),pt=dk.style.transform,po=dk.style.transformOr
 const bar=dk.querySelector('path[stroke="url(#lqRimV)"]');if(!bar)return;
 dk.style.transition="none";dk.style.transform=q.t;if(q.o)dk.style.transformOrigin=q.o;const R2=bar.getBoundingClientRect();
 dk.style.transform=pt;dk.style.transformOrigin=po;dk.style.transition=ptr;
-const k=S.width / 402||1,ir=ind.getBoundingClientRect(),top=Math.max(S.top+56*k,R2.top),bot=Math.min(S.bottom - 8*k,R2.bottom);
+const k=S.width / 402||1,ir=ind.getBoundingClientRect(),top=Math.max(S.top+56*k,R2.top);
+// only the top 200 dp of the hidden dock: Android lets an app take that much of an edge from the Back gesture,
+// so that stretch is grabbed directly (sendZones excludes it), and the glow shows only the part that works
+const bot=Math.min(S.bottom - 8*k,R2.bottom,top+200);
 if(bot<=top)return;
 this._glowK=key;this._glowTop=+((top - ir.top)/ k).toFixed(1);this._glowH=+((bot - top)/ k).toFixed(1);
 mk.style.top=this._glowTop+"px";mk.style.height=this._glowH+"px";
-const hit=ind.querySelector("[data-hit]");if(hit)hit.style.top=this._glowTop+"px";
+const hit=ind.querySelector("[data-hit]");if(hit){hit.style.top=this._glowTop+"px";hit.style.height=this._glowH+"px";}
 }
 lqFollow(){
 CAF(this._lqFr);
@@ -2816,8 +2835,12 @@ const mkTab=(i,isFirstOfGroup)=>{
 const t=TABS[i];
 const pinned=i===2&&hotAppDef?hotAppDef:null;
 const switcher=i===3;
-const ctx=switcher&&s.ctxCell!==false&&!!activeAppDef&&!!s.appFg&&(appsMode||activeAppDef.id===s.hotApp);
-const shownApp=switcher&&!ctx&&!!slotAppDef;
+// the right slot is the current product's context menu, never the launcher. It shows the product's icon when that icon
+// is nowhere else in the Docklet (an open app that is not pinned, launcher closed), otherwise •••
+const curApp=activeAppDef&&s.appFg?activeAppDef:null;
+const slotIcon=switcher&&curApp&&!appsMode&&curApp.id!==s.hotApp?curApp:null;
+const ctx=switcher&&!slotIcon;
+const shownApp=!!slotIcon;
 // the highlight stays on the current product's icon, launcher open or not; ••• (the menu, or More) is never a product,
 // so it is never highlighted. With the launcher open, an app that is not pinned is highlighted in the launcher instead
 const on=ctx?false:(activeAppDef&&s.appFg
@@ -2826,7 +2849,7 @@ const on=ctx?false:(activeAppDef&&s.appFg
 :!appsMode&&switcher&&!!shownApp&&activeAppDef.id!==s.hotApp)
 :s.active===i&&!switcher);
 const col=on?((s.expanded||s.inputMode)?"#a5a5aa":"#f4f4f5"):"#999999";
-const shown=pinned||(switcher&&!ctx?slotAppDef:null);
+const shown=pinned||slotIcon;
 return{
 label:shown?shown.name:t.label,labelShown:s.labels&&s.labelWhere!=="launcher"&&!!(shown?shown.name:t.label),
 icon:shown?null:ctx?"#ic-ellipsis":(i===3&&s.appsIcon==="lines"?"#ic-lines":i===3&&s.appsIcon==="grid"?"#ic-apps":t.icon),viewBox:ctx?"0 0 20 20":t.viewBox,iconSize:t.iconSize,
@@ -2837,7 +2860,7 @@ appBoxStyle:shown?{position:"relative",width:28,height:28,display:"flex",alignIt
 appIconHref:shown?shown.icon:"",
 appSvgStyle:shown?{width:28,height:28,color:col,display:"block",transition:"color 280ms "+HC,animation:on?"iconPop 420ms cubic-bezier(.34,1.4,.64,1) both":"iconSettle 280ms "+HC+" both"}:null,
 appId:pinned?pinned.id:"",
-onDown:pinned?this.holdApp(pinned.id,true):(switcher?this.holdLaunch():null),
+onDown:pinned?this.holdApp(pinned.id,true):null,
 onClick:(e)=>{
 if(this.dragged||this.held){this.held=false;return;}
 if(s.gate!=="none"||s.barRetract!=="none")return;
@@ -2845,25 +2868,12 @@ if(this.chatVis()){
 if(i===0)return;
 this.ss({chatKb:false});
 }
-if(ctx){
+if(switcher){
 if(e&&e.stopPropagation)e.stopPropagation();
 const el=e&&e.currentTarget,host=el&&el.closest?el.closest("[data-screen]"):null;let at=null;
 if(el&&host){const hr=host.getBoundingClientRect(),r=el.getBoundingClientRect(),sc=hr.width / 402||1;at={cx:(r.left+r.width / 2 - hr.left)/ sc,top:(r.top - hr.top)/ sc,bottom:(r.bottom - hr.top)/ sc};}
-this.haptic("notch");this.ss({menuFor:activeAppDef.id,menuHot:activeAppDef.id===s.hotApp,menuAt:at});return;
-}
-if(switcher){
-if(e&&e.stopPropagation)e.stopPropagation();
-this.appsAt=Date.now();
-if(shown&&!s.appsOpen){this.openApp(shown.id,this.tune().autoHideFromDock);return;}
-const inApps=!!s.appsOpen&&!s.expanded&&!s.inputMode;
-const open=!inApps;
-if(!open){this.collapseDock();return;}
-this.haptic("medium");
-this.ss({
-appsOpen:open,expanded:false,inputMode:false,query:"",
-openFx:open&&(s.inputMode||s.expanded)?"soft":"lid",
-});
-return;
+const id=curApp?curApp.id:(["@chats","@pocket","@pin"][s.active]||"@chats");
+this.haptic("notch");this.ss({menuFor:id,menuHot:!!curApp&&curApp.id===s.hotApp,menuAt:at});return;
 }
 if(s.inputMode||s.expanded)this.ss({inputMode:false,expanded:false,query:""});
 if(pinned){this.openApp(pinned.id,this.tune().autoHideFromDock);this.ss({active:i});return;}
@@ -2983,7 +2993,13 @@ const running=s.activeApp===mId||s.slotApp===mId;
 const nm=(id)=>(APPS.find((a)=>a.id===id)||{}).name||"App";
 // a pinned app gets the same menu as any other app (from the dock or the launcher): Unpin instead of Pin, and no Close
 const pinnedM=s.hotApp===mId;
-const menuItems=!mId?[]:[
+// context menus of the built-in products (from •••): placeholders until their own settings exist
+const PRODUCT_MENU={
+"@chats":()=>[menuRow("Chat settings",()=>{closeMenu();this.openApp("settings",true);})],
+"@pocket":()=>[menuRow("Pocket settings",()=>{closeMenu();this.openApp("settings",true);})],
+"@pin":()=>[menuRow("Choose an app to pin",()=>closeMenu({appsOpen:true,expanded:false,inputMode:false,query:"",openFx:"lid"}))],
+};
+const menuItems=!mId?[]:PRODUCT_MENU[mId]?PRODUCT_MENU[mId]():[
 pinnedM
 ?menuRow("Unpin from the dock",()=>this.unpinApp(mId,closeMenu),true)
 :menuRow("Pin to the dock",()=>{
@@ -3286,7 +3302,7 @@ boxShadow:"inset 0 0 0 1px #23252a",
 favRows:favRowChunks.map((c,i)=>({apps:mkApps(c),rowStyle:depthRow(i)})),
 appRows:appRowChunks.map((c,i)=>({apps:mkApps(c),rowStyle:depthRow(favRowChunks.length+i)})),
 menuShown:!!s.menuFor,
-menuTitle:(APPS.find((a)=>a.id===s.menuFor)||{}).name||"",
+menuTitle:({"@chats":"Chats","@pocket":"Pocket","@pin":"Pin"})[s.menuFor]||(APPS.find((a)=>a.id===s.menuFor)||{}).name||"",
 onCloseMenu:()=>{if(this.held&&this._retarget){this.held=this._retarget=false;return;}this.held=this._retarget=false;this.ss({menuFor:null});},
 onMenuBackdropDown:(e)=>{const bd=e.currentTarget,cell=document.elementsFromPoint(e.clientX,e.clientY).filter((x)=>x!==bd).map((x)=>x.closest&&x.closest("[data-app-id]")).find((x)=>x&&x.getAttribute("data-app-id"));
 if(cell)cell.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY,pointerId:e.pointerId,pointerType:e.pointerType,isPrimary:true,button:0}));},
@@ -3336,12 +3352,13 @@ cursor:"grab",touchAction:"none",
 },
 gateChipStyle:true?{display:"none"}:Object.assign({opacity:0},{position:"absolute",top:"50%",marginTop:-20,width:5,height:40,borderRadius:3,pointerEvents:"none",background:"#f4f4f5e6",boxShadow:"0 0 0 0.5px #00000059, 0 0 16px 3px #ffffff4d",animation:"softIn 200ms cubic-bezier(.2,.8,.2,1) 40ms both"},{position:"relative",top:"auto",marginTop:0,alignSelf:"center"},pivotSide==="right"?{marginLeft:"auto",marginRight:Math.max(0,6 - Math.max(0,SCREEN_W - dockLeft - W - 42))}:{marginRight:"auto",marginLeft:Math.max(0,6 - Math.max(0,dockLeft - 42))}),
 edgeIndRef:this.edgeIndRef,
-edgeIndStyle:(()=>{const gm=s.mode!=="slide";const on=gm?!s.gatePeek:s.slidePeek===false;return{display:on?"block":"none",position:"absolute",zIndex:90,pointerEvents:(gm?s.gate!=="none":s.barRetract!=="none")?"auto":"none",touchAction:"none",cursor:"pointer",padding:"24px 22px",boxSizing:"content-box",width:5,height:40,top:SCREEN_H - bottomOffset - s.barHeight / 2 - 44,left:s.leftHanded?-18:SCREEN_W - 31,willChange:"opacity",opacity:0};})(),
+edgeIndStyle:(()=>{const gm=s.mode!=="slide";const on=gm?!s.gatePeek:s.slidePeek===false;return{display:on?"block":"none",position:"absolute",zIndex:90,pointerEvents:(gm?s.gate!=="none":s.barRetract!=="none")&&(s.hiddenMark==="bar"||s.hiddenMark==="soft")?"auto":"none",touchAction:"none",cursor:"pointer",padding:"24px 22px",boxSizing:"content-box",width:5,height:40,top:SCREEN_H - bottomOffset - s.barHeight / 2 - 44,left:s.leftHanded?-18:SCREEN_W - 31,willChange:"opacity",opacity:0};})(),
 // the grab zone: the glow is 24 px wide at the edge, and a touch beside it only brightened it; take ~47 px from the edge
 // along the whole glow down to the bottom of the indicator
 edgeIndHit:(()=>{const on=s.mode!=="slide"?s.gate!=="none":s.barRetract!=="none",glow=s.hiddenMark!=="bar"&&s.hiddenMark!=="soft";
 const cTop=SCREEN_H - bottomOffset - s.barHeight / 2 - 44,gBot=SCREEN_H - bottomOffset,gTop=gBot - (s.barWidth||382);
-return{position:"absolute",pointerEvents:on?"auto":"none",touchAction:"none",top:glow?(this._glowTop!=null?this._glowTop:gTop - cTop):0,bottom:0,
+return{position:"absolute",pointerEvents:on?"auto":"none",touchAction:"none",top:glow?(this._glowTop!=null?this._glowTop:gTop - cTop):0,
+...(glow?{height:this._glowH!=null?this._glowH:Math.min(gBot - gTop,200 /(s.scale||1))}:{bottom:0}),
 left:s.leftHanded?0:-15,right:s.leftHanded?-16:0};})(),
 edgeIndMark:s.hiddenMark==="soft"
 ?{position:"absolute",pointerEvents:(s.mode!=="slide"?s.gate!=="none":s.barRetract!=="none")?"auto":"none",touchAction:"none",top:44 - s.barHeight / 2,height:s.barHeight,width:24,left:s.leftHanded?18:7,
@@ -3350,7 +3367,7 @@ filter:"blur(2.4px)",
 WebkitMaskImage:GLOW_MASK,maskImage:GLOW_MASK}
 :s.hiddenMark!=="bar"
 ?(()=>{const cTop=SCREEN_H - bottomOffset - s.barHeight / 2 - 44,gBot=SCREEN_H - bottomOffset,gTop=gBot - (s.barWidth||382),dir=s.leftHanded?"to right":"to left";
-return{position:"absolute",pointerEvents:(s.mode!=="slide"?s.gate!=="none":s.barRetract!=="none")?"auto":"none",touchAction:"none",top:this._glowTop!=null?this._glowTop:gTop - cTop,height:this._glowH!=null?this._glowH:gBot - gTop,width:24,left:s.leftHanded?18:7,
+return{position:"absolute",pointerEvents:(s.mode!=="slide"?s.gate!=="none":s.barRetract!=="none")?"auto":"none",touchAction:"none",top:this._glowTop!=null?this._glowTop:gTop - cTop,height:this._glowH!=null?this._glowH:Math.min(gBot - gTop,200 /(s.scale||1)),width:24,left:s.leftHanded?18:7,
 background:s.hiddenMark==="none"?"transparent":"linear-gradient("+dir+", "+GLOW_STOPS+")",
 filter:"blur(2.4px)",
 WebkitMaskImage:GLOW_MASK,maskImage:GLOW_MASK,

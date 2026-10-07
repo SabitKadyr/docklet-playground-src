@@ -72,7 +72,7 @@ python3 build_liquid.py
 
 The APK lands in `android/build-liquid/docklet-liquid.apk`.
 
-It is built with `PREDICTIVE_BACK=1`, which turns on Android's Back callbacks (`android:enableOnBackInvokedCallback`). While the dock is hidden, a Back swipe that starts at its edge glow pulls the dock out (`DockletNative.setBackPull` in `MainActivity`). The playground and the recorder are built without it and keep the classic Back handling.
+It is built with `PREDICTIVE_BACK=1`, which turns on Android's Back callbacks (`android:enableOnBackInvokedCallback`). While the dock is hidden, its edge glow takes the 200 dp of the edge that Android lets an app exclude from Back, and a Back swipe below the glow, down to where the dock was, pulls the dock out (`DockletNative.setBackPull` in `MainActivity`). The playground and the recorder are built without it and keep the classic Back handling.
 
 ## Versions
 
