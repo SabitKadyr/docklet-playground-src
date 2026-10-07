@@ -881,7 +881,7 @@ carbon:{label:"Carbon",c:"cubic-bezier(0.4,0.14,0.3,1)",T:400},
 ant:{label:"Ant",c:"cubic-bezier(0.08,0.82,0.17,1)",T:300},
 };
 const DEFAULTS={
-easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"plus",labelWhere:"launcher",ctxCell:true,haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:2,ahIdle:10,edgeSat:60,appTint:false,hideSpeed:1,
+easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"plus",labelWhere:"launcher",ctxCell:true,slotMode:"menu",haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:2,ahIdle:10,edgeSat:60,appTint:false,hideSpeed:1,
 blur:7,sat:100,tintOp:0.3,tint:"8,8,8",borderOp:0.32,shadow:0.45,specular:false,specHue:200,specSat:0,
 barWidth:382,barHeight:62,radius:32,itemGap:-8,pad:4,bottom:27,pillGap:8,
 pillMode:"center",barAlign:"center",labels:true,selection:"pill",selOp:0.14,
@@ -2199,7 +2199,7 @@ const out={
 "Motion":sec([null,g["Motion"]||[]]),
 "Dock":sec([null,rename([].concat(pick("Dock shape",["Shape"]),pick("Dock",["Width","Height","Corner radius","Bottom offset"]),pick("Tab items",["Inner padding"]),pick("Dock",["Expanded (tap the pill)"])),{"Bottom offset":"Distance from bottom","Inner padding":"Padding","Expanded (tap the pill)":"Preview expanded"})],
 ["Search card",rename(pick("Dock shape",["Keyboard layout","Pill morph","Morph speed","Shape check"]),{"Keyboard layout":"Version"})]),
-"Tabs":sec([null,rename(pick("Tab items",["Labels","App menu cell","Apps icon","Item overlap","Selection tint"]),{"Item overlap":"Spacing","Selection tint":"Selection strength"})]),
+"Tabs":sec([null,rename(pick("Tab items",["Labels","Right slot","Apps icon","Item overlap","Selection tint"]),{"Item overlap":"Spacing","Selection tint":"Selection strength"})]),
 "Centre button":sec([null,rename([].concat(pick("Dock shape",["Pill","Pill morphs while typing"]),pick("Centre pill",["Icon","Position","Press-in on tap","Side","Gap to dock"])),{"Pill":"Shape","Pill morphs while typing":"Pill shape while typing"})]),
 "Button colour":sec([null,rename(pick("Centre pill",["Hue","Saturation","Brightness","Edge light saturation","Tint with open app's accent"]),{"Edge light saturation":"Rim saturation","Tint with open app's accent":"Match open app's accent"})]),
 "Material":sec([null,rename(pick("Glass",["Blur","Saturation","Tint opacity","Edge light","Shadow"]),{"Tint opacity":"Tint","Edge light":"Rim light"})],
@@ -2838,7 +2838,10 @@ const switcher=i===3;
 // the right slot is the current product's context menu, never the launcher. It shows the product's icon when that icon
 // is nowhere else in the Docklet (an open app that is not pinned, launcher closed), otherwise •••
 const curApp=activeAppDef&&s.appFg?activeAppDef:null;
-const slotIcon=switcher&&curApp&&!appsMode&&curApp.id!==s.hotApp?curApp:null;
+// Tweak → Tabs → Right slot → Keep last app: Chats and Pocket have no menu, and an app you left for them stays in the
+// slot (not highlighted, a tap goes back to it)
+const keepMode=s.slotMode==="keep",lastApp=switcher&&keepMode&&!curApp&&!appsMode&&s.active!==2?slotAppDef:null;
+const slotIcon=switcher&&curApp&&!appsMode&&curApp.id!==s.hotApp?curApp:lastApp;
 const ctx=switcher&&!slotIcon;
 const shownApp=!!slotIcon;
 // the highlight stays on the current product's icon, launcher open or not; ••• (the menu, or More) is never a product,
@@ -2872,6 +2875,8 @@ if(switcher){
 if(e&&e.stopPropagation)e.stopPropagation();
 const el=e&&e.currentTarget,host=el&&el.closest?el.closest("[data-screen]"):null;let at=null;
 if(el&&host){const hr=host.getBoundingClientRect(),r=el.getBoundingClientRect(),sc=hr.width / 402||1;at={cx:(r.left+r.width / 2 - hr.left)/ sc,top:(r.top - hr.top)/ sc,bottom:(r.bottom - hr.top)/ sc};}
+if(lastApp){this.openApp(lastApp.id,this.tune().autoHideFromDock);return;}
+if(keepMode&&!curApp&&s.active!==2)return;
 const id=curApp?curApp.id:(["@chats","@pocket","@pin"][s.active]||"@chats");
 this.haptic("notch");this.ss({menuFor:id,menuHot:!!curApp&&curApp.id===s.hotApp,menuAt:at});return;
 }
@@ -3796,7 +3801,7 @@ organic?null:{slider:this.slider("Corner radius","radius",8,44,1,"px")},
 ].filter(Boolean)},
 {title:"Tab items",items:[
 {seg:this.seg("Labels","labelSeg",[["Off","off"],["Launcher only","launcher"],["Everywhere","all"]])},
-{toggle:this.toggle("App menu cell","ctxCell")},
+{seg:this.seg("Right slot","slotMode",[["Always menu","menu"],["Keep last app","keep"]])},
 {seg:this.seg("Apps icon","appsIcon",[["More","more"],["Lines","lines"],["Grid","grid"]])},
 {slider:this.slider("Item overlap","itemGap",-16,12,1,"px")},
 {slider:this.slider("Inner padding","pad",0,12,1,"px")},

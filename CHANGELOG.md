@@ -6,6 +6,40 @@ Changes after v0.2. App versions come from `versions.json`. Downloads are on the
 
 A separate app (`com.docklet.liquid.design`) for the Liquid search flow: the centre Pill flows into a search card, and tapping the field opens text input with a keyboard. Three keyboard layouts can be switched in Tweak Docklet → Centre button → Keyboard layout. Source: `Docklet Liquid.dc.html` with `docklet-liquid.js`, built by `build_liquid.py`.
 
+### v0.2.12
+Compared to v0.2.7, so this includes v0.2.8 to v0.2.11. Measured on a Galaxy A26:
+
+Speed
+- **The app launcher opens even more smoothly:** 120–128 frames in 1.4 s instead of 89–97, longest frame 25–33 ms; closing runs at 152–153. The cause was not the icon blur. The hidden dock glass of Playground v0.5 sat under the launcher at opacity 0, and its 18 px blur was still computed every frame. It is now hidden properly.
+- **Auto-hide fades the dock by opacity only.** A blur on every element made the first frame of each auto-hide take 75–117 ms; now 33–75 ms.
+
+Gestures
+- **Launcher and hide no longer get mixed up.** On the dock, a swipe up steeper than 30° opens the launcher (on the Pill: text input). A near-horizontal swipe to the right, from 30° up to 45° down, hides the dock. Left and down do nothing.
+- **Hide from anywhere on the dock.** From the last tabs there was too little room to the edge, so the dock didn't hide. The swipe needed now shrinks with the room left: about 34 px from the last tab, 150 px from the first.
+- **Android's Back gesture is off where the dock is.** Android lets an app take 200 dp of each screen edge from its Back gesture (any 200 dp, not only the bottom). While the dock is shown, that is the bottom 200 dp across the full width. While it is hidden, the 200 dp go to the edge glow instead (new in v0.2.11).
+- **Letting go midway settles in one motion.** When you pulled a hidden dock about halfway out and let go, the dock jumped back to the edge and slid in over the whole way (554 ms). Now there is one animation, and it is faster: 90% of the way in 205–215 ms instead of 239–244.
+- **A quick flick off the edge glow brings the dock back**, even a short one (about 50–70 px).
+- **The edge glow shows only the part you can grab: the top 200 dp of the hidden dock** (new in v0.2.11). Back is off there, so you pull the dock straight from the glow, with no Back arrow. Before, the glow ran the whole length of the hidden dock, and above the bottom 200 dp it could not be pulled. The grab zone is about 47 px from the edge (it was a 24 px strip), and the glow brightens only when a touch lands there; before, any touch on the screen brightened it.
+- **Below the glow, a Back swipe also pulls the dock out** (Predictive Back, new in v0.2.10). From the glow down to where the dock was, the app takes the Back swipe: the dock follows the finger, and when Android commits the gesture the dock comes back; if it cancels, the dock tucks away again. Samsung draws its own Back arrow at the finger there.
+- **A swipe from the very edge of the screen reaches the glow** (new in v0.2.11). The prototype's screen is scaled to the height and is about 0.7 px narrower than the window. A swipe often starts in that sliver, where Chrome cancelled the touch.
+- **A Back swipe from the other edge leaves the hidden dock hidden** (new in v0.2.10). It is a plain Back. The Back key still brings the dock back when nothing else is open.
+- **A rainbow shimmer runs along the edge glow while you hold it.** Blue, violet, pink, orange, yellow, green and cyan flow along the glow, one cycle every 1.4 s, with a white core left at the screen edge. In v0.2.10 the colours are richer: the white under them is fainter and the colour reaches 24 px in from the edge. The app stays at 120 frames per second while you hold the glow.
+
+Menus and taps
+- **••• is always the context menu of the current product** (new in v0.2.11). It never opens the launcher, by tap or long press; the launcher opens only with a swipe up. The right slot shows the current product's icon when it is nowhere else in the Docklet (an open app that is not pinned, launcher closed), otherwise •••. Chats and Pocket have placeholder menus for now (Chat settings, Pocket settings). The slot no longer keeps the last app you left.
+- **Two ways for the right slot to compare** (new in v0.2.12), in Tweak Docklet → Tabs → Right slot. Always menu (the default) is the behaviour above. Keep last app: Chats and Pocket have no menu, and an app you leave for Chats or Pocket stays in the slot, not highlighted; a tap takes you back to it. Inside an app both work the same. In Keep last app, before any app was opened or with the launcher open, ••• in Chats or Pocket does nothing for now.
+- **The Hide left / Hide right menu is gone** (new in v0.2.11). It opened on a long press on the dock. Hiding is a swipe only.
+- **The highlight stays on the current product** (new in v0.2.10). With the launcher open it moved to •••; now it stays on Chats, Pocket or the open pinned app. ••• is never highlighted. An open app that is not pinned is highlighted in the launcher instead.
+- **A pinned app has the full menu**: Unpin from the dock, favourites, Refresh, but no Close. Before, it had only Unpin.
+- **Context menus open above the Pill** and above the highlighted app in the launcher.
+- **A tap on ••• right after a fast swipe opened the launcher did nothing.** Chrome sometimes delivers such a tap without a click. A short, still tap on a dock tab or a launcher app now acts even then.
+
+From the new Claude Design version
+- **Auto-hide:** the dock hides 2 s after you tap outside it and after 10 s of no touches (Tweak Docklet → Hide gesture → Behaviour: a switch and both times).
+- **Hiding the dock with the launcher open** folds the launcher away with it.
+- The Boom gate hide gesture is now called **Drawbridge**.
+- App data moved to `docklet-data.js`.
+
 ### v0.2.11
 Compared to v0.2.7, so this includes v0.2.8, v0.2.9 and v0.2.10. Measured on a Galaxy A26:
 
