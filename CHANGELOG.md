@@ -7,8 +7,31 @@ Changes after v0.2. App versions come from `versions.json`. Downloads are on the
 A separate app (`com.docklet.liquid.design`) for the Liquid search flow: the centre Pill flows into a search card, and tapping the field opens text input with a keyboard. Three keyboard layouts can be switched in Tweak Docklet → Centre button → Keyboard layout. Source: `Docklet Liquid.dc.html` with `docklet-liquid.js`, built by `build_liquid.py`.
 
 ### v0.2.9
-Compared to v0.2.8:
-- **A rainbow shimmer runs along the edge glow while you hold it.** Blue, violet, pink, orange, yellow, green and cyan flow along the glow, one cycle every 1.4 s. They brighten the white glow instead of covering it, are strongest at the screen edge and fade in over 22 px. On release the shimmer fades out over 320 ms. From the new Claude Design version. On a Galaxy A26 the app stays at 120 frames per second while you hold the glow.
+Compared to v0.2.7, so this includes v0.2.8. Measured on a Galaxy A26:
+
+Speed
+- **The app launcher opens even more smoothly:** 120–128 frames in 1.4 s instead of 89–97, longest frame 25–33 ms; closing runs at 152–153. The cause was not the icon blur. The hidden dock glass of Playground v0.5 sat under the launcher at opacity 0, and its 18 px blur was still computed every frame. It is now hidden properly.
+- **Auto-hide fades the dock by opacity only.** A blur on every element made the first frame of each auto-hide take 75–117 ms; now 33–75 ms.
+
+Gestures
+- **Launcher and hide no longer get mixed up.** On the dock, a swipe up steeper than 30° opens the launcher (on the Pill: text input). A near-horizontal swipe to the right, from 30° up to 45° down, hides the dock. Left and down do nothing.
+- **Hide from anywhere on the dock.** From the last tabs there was too little room to the edge, so the dock didn't hide. The swipe needed now shrinks with the room left: about 34 px from the last tab, 150 px from the first.
+- **Android's Back gesture is off in the bottom 200 dp** across the full width, the most Android allows. Above that, Back can't be turned off.
+- **Letting go midway settles in one motion.** When you pulled a hidden dock about halfway out and let go, the dock jumped back to the edge and slid in over the whole way (554 ms). Now there is one animation, and it is faster: 90% of the way in 205–215 ms instead of 239–244.
+- **A quick flick off the edge glow brings the dock back**, even a short one (about 50–70 px).
+- **The edge glow is easier to grab:** the grab zone is now about 47 px from the edge along the whole glow, instead of the 24 px strip. The glow brightens only when a touch lands there; before, any touch on the screen brightened it.
+- **A rainbow shimmer runs along the edge glow while you hold it** (new in v0.2.9). Blue, violet, pink, orange, yellow, green and cyan flow along the glow, one cycle every 1.4 s. They brighten the white glow instead of covering it, are strongest at the screen edge and fade in over 22 px. On release the shimmer fades out over 320 ms. From the new Claude Design version. The app stays at 120 frames per second while you hold the glow.
+
+Menus and taps
+- **A pinned app has the full menu**: Unpin from the dock, favourites, Refresh, but no Close. Before, it had only Unpin.
+- **Context menus open above the Pill** and above the highlighted app in the launcher.
+- **A tap on ••• right after a fast swipe opened the launcher did nothing.** Chrome sometimes delivers such a tap without a click. A short, still tap on a dock tab or a launcher app now acts even then.
+
+From the new Claude Design version
+- **Auto-hide:** the dock hides 2 s after you tap outside it and after 10 s of no touches (Tweak Docklet → Hide gesture → Behaviour: a switch and both times).
+- **Hiding the dock with the launcher open** folds the launcher away with it.
+- The Boom gate hide gesture is now called **Drawbridge**.
+- App data moved to `docklet-data.js`.
 
 ### v0.2.8
 Compared to v0.2.7. Measured on a Galaxy A26:
