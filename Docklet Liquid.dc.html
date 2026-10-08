@@ -567,8 +567,9 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 <sc-if value="{{ lqOn }}" hint-placeholder-val="{{ false }}">
 <div ref="{{ lqContentRef }}" onPointerDown="{{ lqSwipe }}" style="{{ lqContentStyle }}">
+<div style="position:absolute;top:6px;left:50%;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:#ffffff52;pointer-events:none"></div>
 <sc-if value="{{ lqTap }}" hint-placeholder-val="{{ true }}">
-<div style="position:absolute;left:4px;right:4px;top:4px;bottom:4px;padding:8.5px 12px 0;display:flex;flex-direction:column;align-items:center;gap:15.5px">
+<div style="position:absolute;left:4px;right:4px;top:4px;bottom:4px;padding:15px 12px 0;display:flex;flex-direction:column;align-items:center;gap:9px">
 <div style="position:relative;width:110px;height:110px;border-radius:24px;overflow:hidden;flex-shrink:0;background:#1a1b1f">
 <div class="lq-cam-sim" style="position:absolute;inset:0"></div>
 <video ref="{{ lqVidRef }}" autoPlay="{{ true }}" playsInline="{{ true }}" muted="{{ true }}" style="{{ lqVidStyle }}"></video>
@@ -580,7 +581,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 </sc-if>
 <sc-if value="{{ lqInput }}" hint-placeholder-val="{{ false }}">
-<div style="position:absolute;left:4px;right:4px;top:4px;bottom:4px;padding:8px 12px 10px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+<div style="position:absolute;left:4px;right:4px;top:4px;bottom:4px;padding:14px 12px 10px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
 <span style="padding:8px 4px 2px;font-size:12px;line-height:16px;font-weight:500;letter-spacing:0.06em;color:#8e8e96">{{ lqHead }}</span>
 <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column">
 <sc-for list="{{ lqRecents }}" as="r" hint-placeholder-count="5">
@@ -886,7 +887,7 @@ carbon:{label:"Carbon",c:"cubic-bezier(0.4,0.14,0.3,1)",T:400},
 ant:{label:"Ant",c:"cubic-bezier(0.08,0.82,0.17,1)",T:300},
 };
 const DEFAULTS={
-easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"plus",labelWhere:"launcher",ctxCell:true,slotMode:"menu",haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:2,ahIdle:10,edgeSat:60,appTint:false,hideSpeed:1,
+easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"plus",labelWhere:"launcher",ctxCell:true,slotMode:"hot",haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:2,ahIdle:10,edgeSat:60,appTint:false,hideSpeed:1,
 blur:7,sat:100,tintOp:0.3,tint:"8,8,8",borderOp:0.32,shadow:0.45,specular:false,specHue:200,specSat:0,
 barWidth:382,barHeight:62,radius:32,itemGap:-8,pad:4,bottom:27,pillGap:8,
 pillMode:"center",barAlign:"center",labels:true,selection:"pill",selOp:0.14,
@@ -1227,6 +1228,7 @@ if(auto&&!this.seenGet().autoTip&&!st.dockTipOpen&&!st.tipFly){this.seenSet("aut
 else if(!st.dockTipSeen&&!st.dockTipOpen&&!st.tipFly)this.ss({dockTipOpen:true,dockTipAuto:false});}}
 if(st.dockTipOpen&&!st.tipFly&&st.gate==="none"&&st.barRetract==="none")this.tipAway(ps.barRetract!=="none"?ps.barRetract:ps.gate);
 if(!st.launchTipSeen&&((ps.appsOpen&&!st.appsOpen)||st.menuFor))this.ss({launchTipSeen:true});
+if(st.pinPick&&ps.appsOpen&&!st.appsOpen)this.ss({pinPick:false});// closed without picking
 if(!st.tipSeen&&((ps.active===2&&st.active!==2)||(st.appsOpen&&st.active===2)))this.ss({tipSeen:true});
 const camWant=!!st.expanded&&!st.inputMode&&!st.camHold&&!st.appsOpen;
 if(!!st.camOn!==camWant){
@@ -2768,14 +2770,21 @@ const fixedIn=(rounded?s.pad*2+(10+lift0)+(s.barHeight - s.pad*2):s.barHeight+(1
 const listH=s.inputMode?Math.max(238,Math.round(SCREEN_H -(KB_H+10 - kbTuck0)- 52 - fixedIn)):238;
 const rowsH=listH - 38;
 const rowH=s.barHeight - s.pad*2;
-const shellGap=appsFading||expFading?0:(appsMode?4:10);
+// in the launcher the last row of apps keeps a little air above the Pill (it was 4 px)
+const shellGap=appsFading||expFading?0:(appsMode?12:10);
 const APP_ROW_H=s.barHeight - s.pad*2;
-const openAppsAll=APPS.filter((a)=>(s.favs||[]).indexOf(a.id)<0&&a.id!==s.hotApp);
-const favList=(s.favs||[]).map((id)=>APPS.find((a)=>a.id===id)).filter(Boolean);
+// Right slot → Hotseat: the open app, or the last one opened, unless it is pinned; nothing is filled in on its own.
+// With no app it is an Open button for the launcher. It stays in the hotseat with the launcher open too, so it is
+// left out of the launcher grid instead of showing twice
+const hotseatApp=s.slotMode==="hot"?APPS.find((a)=>a.id===[].concat(s.appFg&&s.activeApp?[s.activeApp]:[],s.slotApp?[s.slotApp]:[]).find((x)=>x&&x!==s.hotApp))||null:null;
+const notHot=(a)=>!hotseatApp||a.id!==hotseatApp.id;
+const openAppsAll=APPS.filter((a)=>(s.favs||[]).indexOf(a.id)<0&&a.id!==s.hotApp&&notHot(a));
+const favList=(s.favs||[]).map((id)=>APPS.find((a)=>a.id===id)).filter(Boolean).filter(notHot);
+// one grid, no separate favourites box: favourites come first, top left, then the rest (they keep their heart)
 const favRowChunks=[];
-for(let i=0;i<favList.length;i+=5)favRowChunks.push(favList.slice(i,i+5));
+const gridApps=favList.concat(openAppsAll);
 const appRowChunks=[];
-for(let i=0;i<openAppsAll.length;i+=5)appRowChunks.push(openAppsAll.slice(i,i+5));
+for(let i=0;i<gridApps.length;i+=5)appRowChunks.push(gridApps.slice(i,i+5));
 const favGroupH=favRowChunks.length?favRowChunks.length*APP_ROW_H+(favRowChunks.length - 1)*4+s.pad*2:0;
 const favGroupR=favGroupH?Math.min(favGroupH / 2,APP_ROW_H / 2+s.pad):0;
 const slotR=Math.max(0,Math.min(s.radius,s.barHeight / 2)- s.pad);
@@ -2798,8 +2807,9 @@ const lidFx=(delay,k)=>s.openFx==="calm"&&!expFading?"calmIn 220ms "+HC+" "+Math
 :(quick
 ?"softIn 220ms "+HC+" "+Math.round(delay / 2)+"ms both"
 :"lidOpen 560ms "+HC+" "+delay+"ms both, rowIn"+k+" 520ms "+HC+" "+delay+"ms both");
-const hTop=s.expanded&&!appsMode&&!s.inputMode?14:0;
-const contentH=appsFading||expFading?0:appsMode?appsContentH:(s.inputMode
+// the launcher keeps the grid clear of the handle at its top edge
+const hTop=s.expanded&&!appsMode&&!s.inputMode?14:appsMode?12:0;
+const contentH=appsFading||expFading?0:appsMode?appsContentH+hTop:(s.inputMode
 ?listH+shellGap+48
 :110+shellGap+48+hTop);
 const trayH=s.pad*2+contentH;
@@ -2861,21 +2871,25 @@ const curApp=activeAppDef&&s.appFg?activeAppDef:null;
 // Tweak → Tabs → Right slot → Keep last app: Chats and Pocket have no menu, and an app you left for them stays in the
 // slot (not highlighted, a tap goes back to it)
 const keepMode=s.slotMode==="keep",lastApp=switcher&&keepMode&&!curApp&&!appsMode&&s.active!==2?slotAppDef:null;
-const slotIcon=switcher&&curApp&&!appsMode&&curApp.id!==s.hotApp?curApp:lastApp;
-const ctx=switcher&&!slotIcon;
+// Right slot → Hotseat: a tap on the highlighted icon opens the current product's menu, and the slot holds the last-used
+// product that is not already in the dock (a tap opens it; once it is the highlighted one, a tap opens its menu)
+const hotMode=s.slotMode==="hot";
+// the hotseat shows hotseatApp (built with the launcher grid), with the launcher open too
+const slotIcon=hotMode?(switcher?hotseatApp:null):(switcher&&curApp&&!appsMode&&curApp.id!==s.hotApp?curApp:lastApp);
+const ctx=switcher&&!slotIcon&&!hotMode,emptySlot=hotMode&&switcher&&!slotIcon;
 const shownApp=!!slotIcon;
 // the highlight stays on the current product's icon, launcher open or not; ••• (the menu, or More) is never a product,
 // so it is never highlighted. With the launcher open, an app that is not pinned is highlighted in the launcher instead
 const on=ctx?false:(activeAppDef&&s.appFg
 ?(pinned&&pinned.id===activeAppDef.id
 ?true
-:!appsMode&&switcher&&!!shownApp&&activeAppDef.id!==s.hotApp)
+:(hotMode||!appsMode)&&switcher&&!!shownApp&&activeAppDef.id!==s.hotApp&&slotIcon.id===activeAppDef.id)
 :s.active===i&&!switcher);
 const col=on?((s.expanded||s.inputMode)?"#a5a5aa":"#f4f4f5"):"#999999";
 const shown=pinned||slotIcon;
 return{
-label:shown?shown.name:t.label,labelShown:s.labels&&s.labelWhere!=="launcher"&&!!(shown?shown.name:t.label),
-icon:shown?null:ctx?"#ic-ellipsis":(i===3&&s.appsIcon==="lines"?"#ic-lines":i===3&&s.appsIcon==="grid"?"#ic-apps":t.icon),viewBox:ctx?"0 0 20 20":t.viewBox,iconSize:t.iconSize,
+label:shown?shown.name:emptySlot?"Apps":t.label,labelShown:s.labels&&s.labelWhere!=="launcher"&&!!(shown?shown.name:emptySlot?"Apps":t.label),
+icon:shown?null:emptySlot?"#ic-apps":ctx?"#ic-ellipsis":(i===3&&s.appsIcon==="lines"?"#ic-lines":i===3&&s.appsIcon==="grid"?"#ic-apps":t.icon),viewBox:emptySlot?"0 0 24 24":ctx?"0 0 20 20":t.viewBox,iconSize:t.iconSize,
 appIcon:!!shown,
 appInitial:shown?shown.initial:"",
 appFav:!!shown&&(s.favs||[]).indexOf(shown.id)!==-1,
@@ -2887,6 +2901,17 @@ onDown:pinned?this.holdApp(pinned.id,true):null,
 onClick:(e)=>{
 if(this.dragged||this.held){this.held=false;return;}
 if(s.gate!=="none"||s.barRetract!=="none")return;
+const anchor=()=>{const el=e&&e.currentTarget,host=el&&el.closest?el.closest("[data-screen]"):null;if(!el||!host)return null;
+const hr=host.getBoundingClientRect(),r=el.getBoundingClientRect(),sc=hr.width / 402||1;return{cx:(r.left+r.width / 2 - hr.left)/ sc,top:(r.top - hr.top)/ sc,bottom:(r.bottom - hr.top)/ sc};};
+if(hotMode){
+if(e&&e.stopPropagation)e.stopPropagation();
+if(on){const id=pinned?pinned.id:switcher?slotIcon.id:(["@chats","@pocket","@pin"][i]||"@chats");
+this.haptic("notch");this.ss({menuFor:id,menuHot:!!pinned,menuAt:anchor()});return;}
+if(switcher){if(slotIcon){if(s.inputMode||s.expanded)this.ss({inputMode:false,expanded:false,query:""});this.openApp(slotIcon.id,this.tune().autoHideFromDock);return;}
+// no app in the hotseat: it opens the launcher (and closes it again)
+if(s.appsOpen&&!s.expanded&&!s.inputMode){this.collapseDock();return;}
+this.haptic("medium");this.appsAt=Date.now();this.ss({appsOpen:true,expanded:false,inputMode:false,query:"",openFx:s.inputMode||s.expanded?"soft":"lid"});return;}
+}
 if(this.chatVis()){
 if(i===0)return;
 this.ss({chatKb:false});
@@ -2977,7 +3002,11 @@ const mkApps=(list)=>list.map((a)=>{
 const on=s.activeApp===a.id;
 return{
 id:a.id,name:a.name,initial:a.initial,
-onTap:()=>{if(!this.held)this.openApp(a.id,true);this.held=false;},
+onTap:()=>{
+// picking an app for the empty Pin slot (its menu → Choose an app to pin): pin it there and open it
+if(!this.held&&this.state.pinPick&&this.state.appsOpen){const st=this.state,keepSlot=st.slotApp;clearTimeout(this.toastT);
+this.ss({hotApp:a.id,favs:(st.favs||[]).filter((x)=>x!==a.id),pinPick:false,toast:null});this.openApp(a.id,true);this.ss({active:2,hotApp:a.id,slotApp:keepSlot===a.id?null:keepSlot});this.haptic("success");this.held=false;return;}
+if(!this.held)this.openApp(a.id,true);this.held=false;},
 onDown:this.holdApp(a.id,false),
 slotStyle:{
 position:"relative",flex:"0 0 20%",minWidth:0,display:"flex",flexDirection:"column",
@@ -3022,7 +3051,7 @@ const pinnedM=s.hotApp===mId;
 const PRODUCT_MENU={
 "@chats":()=>[menuRow("Chat settings",()=>{closeMenu();this.openApp("settings",true);})],
 "@pocket":()=>[menuRow("Pocket settings",()=>{closeMenu();this.openApp("settings",true);})],
-"@pin":()=>[menuRow("Choose an app to pin",()=>closeMenu({appsOpen:true,expanded:false,inputMode:false,query:"",openFx:"lid"}))],
+"@pin":()=>[menuRow("Choose an app to pin",()=>{closeMenu({appsOpen:true,expanded:false,inputMode:false,query:"",openFx:"lid",pinPick:true});this.toast("Tap an app to pin it");})],
 };
 const menuItems=!mId?[]:PRODUCT_MENU[mId]?PRODUCT_MENU[mId]():[
 pinnedM
@@ -3322,7 +3351,7 @@ animation:s.openFx==="follow"&&appsMode?"none":quick
 appsRowStyle:{display:"flex",gap:0,alignItems:"flex-start",flexShrink:0},
 favRowsCount:favRowChunks.length,
 favGroupStyle:{
-display:"flex",flexDirection:"column",gap:4,flexShrink:0,touchAction:"none",
+display:favRowChunks.length?"flex":"none",flexDirection:"column",gap:4,flexShrink:0,touchAction:"none",
 borderRadius:favGroupR,padding:s.pad,boxSizing:"border-box",
 background:"#0808089e",
 boxShadow:"inset 0 0 0 1px #23252a",
@@ -3824,7 +3853,7 @@ organic?null:{slider:this.slider("Corner radius","radius",8,44,1,"px")},
 ].filter(Boolean)},
 {title:"Tab items",items:[
 {seg:this.seg("Labels","labelSeg",[["Off","off"],["Launcher only","launcher"],["Everywhere","all"]])},
-{seg:this.seg("Right slot","slotMode",[["Always menu","menu"],["Keep last app","keep"]])},
+{seg:this.seg("Right slot","slotMode",[["Always menu","menu"],["Keep last app","keep"],["Hotseat","hot"]])},
 {seg:this.seg("Apps icon","appsIcon",[["More","more"],["Lines","lines"],["Grid","grid"]])},
 {slider:this.slider("Item overlap","itemGap",-16,12,1,"px")},
 {slider:this.slider("Inner padding","pad",0,12,1,"px")},
