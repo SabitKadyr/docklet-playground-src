@@ -143,8 +143,14 @@
       var k = clamp((t - 0.15) / 0.3, 0, 1);
       R.x.style.transform = "translate(" + CX + "px," + n(top + h + mix(-0.882, 7.7, t)) + "px)";
       var sc = R.x.children[0], xx = R.x.children[1];
-      if (sc) { sc.style.opacity = String(n(1 - k)); sc.style.transform = "rotate(" + n(45 * k) + "deg)"; }
-      if (xx) { xx.style.opacity = String(n(k)); xx.style.transform = "rotate(" + n(-45 * (1 - k)) + "deg)"; }
+      if (R.x.getAttribute("data-x") === "0") {
+        // scan-only Pill: the same icon stays and shrinks 30 -> 22 pt as the card opens; no close mark
+        if (sc) { sc.style.opacity = "1"; sc.style.transform = "scale(" + n(mix(1, 22 / 30, clamp(t, 0, 1))) + ")"; }
+        if (xx) xx.style.opacity = "0";
+      } else {
+        if (sc) { sc.style.opacity = String(n(1 - k)); sc.style.transform = "rotate(" + n(45 * k) + "deg)"; }
+        if (xx) { xx.style.opacity = String(n(k)); xx.style.transform = "rotate(" + n(-45 * (1 - k)) + "deg)"; }
+      }
     }
     if (R.dock) {
       var a = g.away || 0, ds = R.dock.style;

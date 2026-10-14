@@ -28,7 +28,7 @@ window.__resources = {
 VENDOR = ["react.production.min.js", "react-dom.production.min.js"]
 
 # Asset folders the export reaches with a URL it assembles at runtime, so they cannot be inlined.
-SHIPPED_DIRS = ["assets/settings", "assets/pocket"]
+SHIPPED_DIRS = ["assets/settings", "assets/pocket", "assets/wallet"]
 
 # Performance patches applied to every export. Each one must remove work without changing the
 # design, and one whose anchor is gone is reported and skipped rather than failing the build.
