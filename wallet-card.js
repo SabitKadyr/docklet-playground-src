@@ -9,12 +9,13 @@
  * Attributes: src (assets folder, default ./assets/wallet/), shadow (present = draw the drop shadow and
  * leave room for it, as the native views do; absent = the card fills the element).
  * Light: DeviceMotionEvent.rotationRate on phones (Android WebView needs no permission; iOS Safari asks on
- * the first tap on the card), the pointer over the element on desktop. Renders only while on screen.
+ * the first tap on the card), the pointer over the element on desktop. Renders only while on screen, and
+ * only frames where the light moved visibly.
  */
 (function () {
   if (window.customElements && customElements.get('wallet-card')) return;
   var VERT = "#version 300 es\n// One textured quad with no vertex buffers: draw 4 vertices as a triangle strip.\n// uRect = (left, top, right, bottom) in clip space. vUv (0,0) is the texture's top-left, row 0 of the file.\nuniform vec4 uRect;\nout vec2 vUv;\nvoid main() {\n  vec2 c = vec2(float(gl_VertexID & 1), float(gl_VertexID >> 1));\n  vUv = c;\n  gl_Position = vec4(mix(uRect.x, uRect.z, c.x), mix(uRect.y, uRect.w, c.y), 0., 1.);\n}\n";
-  var FRAG = "#version 300 es\n// The \"Material\" view of Material Detector.dc.html (FRAG), ported to GLSL ES 3.00.\n// The math is unchanged; removed: region highlight (uHi), mask view (uMask), pulse (uT).\n// smoothstep() is spelled out as ss() because envC() calls it with edge0 > edge1, which is\n// undefined in GLSL and MSL; ss() is the formula WebGL drivers evaluate.\nprecision highp float;\nin vec2 vUv;\nout vec4 fragColor;\n\nuniform sampler2D uImg;   // image.png, premultiplied RGBA, LINEAR, no mipmaps\nuniform sampler2D uReg;   // regions.png, R8, NEAREST\nuniform vec2 uTex;        // image.png size in pixels\nuniform vec2 uTilt;       // smoothed tilt, x right, y up, each -1..1\nuniform float uMetal[6], uRough[6], uRelief[6], uSheen[6], uCoat[6];\nuniform float uCrease;    // params.json relief.creases: 0 = the detector's 1-texel relief, 1 = crease scale\nuniform float uGuard;     // params.json light.guard: 0 = the detector's light path, 1 = never head-on\n\nfloat ss(float e0, float e1, float x) { float t = clamp((x - e0) / (e1 - e0), 0., 1.); return t * t * (3. - 2. * t); }\nfloat lum(vec2 p) { vec4 c = texture(uImg, p); return dot(c.rgb, vec3(.3, .59, .11)) * c.a; }\nfloat alp(vec2 p) { return texture(uImg, p).a; }\n\n// The studio: a graded room, a key strip right of centre and a cooler fill on the left.\nvec3 envC(vec3 d, float r) {\n  vec3 c = mix(vec3(.16, .15, .14), vec3(1., .97, .92), ss(-.5, .8, d.y));\n  float w = .12 + r * .35;\n  c += ss(w, 0., abs(d.x - .3)) * ss(.1, .5, d.y) * mix(1.8, .35, r);\n  c += ss(w * 1.4, 0., abs(d.x + .55)) * ss(-.2, .3, d.y) * mix(.7, .15, r) * vec3(.85, .9, 1.);\n  return c;\n}\n\nvoid main() {\n  vec2 uv = vUv;\n  vec4 c = texture(uImg, uv);\n  if (c.a < .01) { fragColor = vec4(0.); return; }\n  vec3 base = c.rgb / max(c.a, .001);\n\n  // region → material; pixels outside every region keep the detector's defaults\n  float id = floor(texture(uReg, uv).r * 255. / 40. + .5) - 1.;\n  float me = 0., ro = .6, re = .5, sh = 0., co = 0.;\n  int i = int(id);\n  if (i >= 0 && i < 6) { me = uMetal[i]; ro = uRough[i]; re = uRelief[i]; sh = uSheen[i]; co = uCoat[i]; }\n\n  // normal from luminance (relief) and from alpha (the silhouette rolls off)\n  vec2 e = 1. / uTex;\n  float hx = lum(uv + vec2(e.x, 0.)) - lum(uv - vec2(e.x, 0.));\n  float hy = lum(uv + vec2(0., e.y)) - lum(uv - vec2(0., e.y));\n  // not in the detector: the same slope measured across ±3 texels and three rows, so creases and\n  // folds tilt the normal while single-pixel pores average out (they made sharp glints)\n  if (uCrease > 0.) {\n    vec2 ex = vec2(e.x * 3., 0.), ey = vec2(0., e.y * 3.), sx = vec2(e.x, 0.), sy = vec2(0., e.y);\n    float cx = (lum(uv + ex) - lum(uv - ex) + lum(uv + ex + sy) - lum(uv - ex + sy) + lum(uv + ex - sy) - lum(uv - ex - sy)) / 3.;\n    float cy = (lum(uv + ey) - lum(uv - ey) + lum(uv + ey + sx) - lum(uv - ey + sx) + lum(uv + ey - sx) - lum(uv - ey - sx)) / 3.;\n    hx = mix(hx, cx, uCrease);\n    hy = mix(hy, cy, uCrease);\n  }\n  vec2 e3 = e * 4.;\n  float ax = alp(uv + vec2(e3.x, 0.)) - alp(uv - vec2(e3.x, 0.));\n  float ay = alp(uv + vec2(0., e3.y)) - alp(uv - vec2(0., e3.y));\n  vec3 N = normalize(vec3(-hx * re * 7. - ax * 1.4, hy * re * 7. + ay * 1.4, 1.));\n\n  // tilt moves the light and the reflected studio, never the geometry\n  vec3 V = vec3(0., 0., 1.);\n  // not in the detector: with uGuard, tipping the top away lowers the light only to .3 (≈ 19° off the view axis),\n  // so the narrow highlight can never line up with the flat leather and flood the whole card\n  float ly = .6 + uTilt.y * (uTilt.y < 0. ? mix(1.5, .3, uGuard) : 1.5);\n  vec3 L = normalize(vec3(.35 - uTilt.x * 1.5, ly, .85));\n  vec3 H = normalize(L + V);\n  float ndl = max(dot(N, L), 0.), ndh = max(dot(N, H), 0.);\n  vec3 R = reflect(-V, N); R.xy += vec2(-uTilt.x, uTilt.y) * 1.1; R = normalize(R);\n\n  float shin = mix(500., 10., ro);\n  float spec = pow(ndh, shin) * (1. - ro) * (1. - ro) * 2.2;\n  vec3 dif = base * (.78 + .34 * ndl);\n  vec3 env = envC(R, ro);\n  vec3 metalC = base * .32 * (.7 + .3 * ndl) + env * base * 1.05 + spec * base * 1.8;\n  vec3 col = mix(dif + vec3(spec) * .35 * (1. - me), metalC, me * .7);\n  col += sh * pow(ndh, 5.) * .18 * (base + .4);                                   // sheen (thread, fabric)\n  col += co * (pow(ndh, 320.) * 1.1                                               // clear coat\n             + envC(reflect(-V, normalize(vec3(N.xy * .3, 1.))) + vec3(-uTilt.x, uTilt.y, 0.), .05).r * .05);\n\n  fragColor = vec4(col * c.a, c.a);\n}\n";
+  var FRAG = "#version 300 es\n// The \"Material\" view of Material Detector.dc.html (FRAG), ported to GLSL ES 3.00.\n// The math is unchanged; removed: region highlight (uHi), mask view (uMask), pulse (uT).\n// smoothstep() is spelled out as ss() because envC() calls it with edge0 > edge1, which is\n// undefined in GLSL and MSL; ss() is the formula WebGL drivers evaluate.\nprecision highp float;\nin vec2 vUv;\nout vec4 fragColor;\n\nuniform sampler2D uImg;   // image.png, premultiplied RGBA, LINEAR, no mipmaps\nuniform sampler2D uReg;   // regions.png, R8, NEAREST\nuniform vec2 uTex;        // image.png size in pixels\nuniform vec2 uTilt;       // smoothed tilt, x right, y up, each -1..1\nuniform float uMetal[6], uRough[6], uRelief[6], uSheen[6], uCoat[6];\nuniform float uCrease;    // params.json relief.creases: 0 = the detector's 1-texel relief, 1 = crease scale\nuniform float uGuard;     // params.json light.guard: 0 = the detector's light path, 1 = never head-on\nuniform sampler2D uHeight;   // height.png, R8, LINEAR: pressed-in relief (a logo); 1×1 black when there is none\nuniform float uHeightScale;  // card.json height.scale; 0 = none\n\nfloat ss(float e0, float e1, float x) { float t = clamp((x - e0) / (e1 - e0), 0., 1.); return t * t * (3. - 2. * t); }\nfloat lum(vec2 p) { vec4 c = texture(uImg, p); return dot(c.rgb, vec3(.3, .59, .11)) * c.a; }\nfloat alp(vec2 p) { return texture(uImg, p).a; }\n\n// The studio: a graded room, a key strip right of centre and a cooler fill on the left.\nvec3 envC(vec3 d, float r) {\n  vec3 c = mix(vec3(.16, .15, .14), vec3(1., .97, .92), ss(-.5, .8, d.y));\n  float w = .12 + r * .35;\n  c += ss(w, 0., abs(d.x - .3)) * ss(.1, .5, d.y) * mix(1.8, .35, r);\n  c += ss(w * 1.4, 0., abs(d.x + .55)) * ss(-.2, .3, d.y) * mix(.7, .15, r) * vec3(.85, .9, 1.);\n  return c;\n}\n\nvoid main() {\n  vec2 uv = vUv;\n  vec4 c = texture(uImg, uv);\n  if (c.a < .01) { fragColor = vec4(0.); return; }\n  vec3 base = c.rgb / max(c.a, .001);\n\n  // region → material; pixels outside every region keep the detector's defaults\n  float id = floor(texture(uReg, uv).r * 255. / 40. + .5) - 1.;\n  float me = 0., ro = .6, re = .5, sh = 0., co = 0.;\n  int i = int(id);\n  if (i >= 0 && i < 6) { me = uMetal[i]; ro = uRough[i]; re = uRelief[i]; sh = uSheen[i]; co = uCoat[i]; }\n\n  // normal from luminance (relief) and from alpha (the silhouette rolls off)\n  vec2 e = 1. / uTex;\n  float hx = lum(uv + vec2(e.x, 0.)) - lum(uv - vec2(e.x, 0.));\n  float hy = lum(uv + vec2(0., e.y)) - lum(uv - vec2(0., e.y));\n  // not in the detector: the same slope measured across ±3 texels and three rows, so creases and\n  // folds tilt the normal while single-pixel pores average out (they made sharp glints)\n  if (uCrease > 0.) {\n    vec2 ex = vec2(e.x * 3., 0.), ey = vec2(0., e.y * 3.), sx = vec2(e.x, 0.), sy = vec2(0., e.y);\n    float cx = (lum(uv + ex) - lum(uv - ex) + lum(uv + ex + sy) - lum(uv - ex + sy) + lum(uv + ex - sy) - lum(uv - ex - sy)) / 3.;\n    float cy = (lum(uv + ey) - lum(uv - ey) + lum(uv + ey + sx) - lum(uv - ey + sx) + lum(uv + ey - sx) - lum(uv - ey - sx)) / 3.;\n    hx = mix(hx, cx, uCrease);\n    hy = mix(hy, cy, uCrease);\n  }\n  vec2 e3 = e * 4.;\n  float ax = alp(uv + vec2(e3.x, 0.)) - alp(uv - vec2(e3.x, 0.));\n  float ay = alp(uv + vec2(0., e3.y)) - alp(uv - vec2(0., e3.y));\n  // not in the detector: a pressed-in shape (height.png) tilts the normal along its bevelled edge\n  vec2 dh = vec2(texture(uHeight, uv + vec2(e.x, 0.)).r - texture(uHeight, uv - vec2(e.x, 0.)).r,\n               -(texture(uHeight, uv + vec2(0., e.y)).r - texture(uHeight, uv - vec2(0., e.y)).r)) * uHeightScale;\n  vec3 N = normalize(vec3(-hx * re * 7. - ax * 1.4 + dh.x, hy * re * 7. + ay * 1.4 + dh.y, 1.));\n\n  // tilt moves the light and the reflected studio, never the geometry\n  vec3 V = vec3(0., 0., 1.);\n  // not in the detector: with uGuard, tipping the top away lowers the light only to .3 (≈ 19° off the view axis),\n  // so the narrow highlight can never line up with the flat leather and flood the whole card\n  float ly = .6 + uTilt.y * (uTilt.y < 0. ? mix(1.5, .3, uGuard) : 1.5);\n  vec3 L = normalize(vec3(.35 - uTilt.x * 1.5, ly, .85));\n  vec3 H = normalize(L + V);\n  float ndl = max(dot(N, L), 0.), ndh = max(dot(N, H), 0.);\n  vec3 R = reflect(-V, N); R.xy += vec2(-uTilt.x, uTilt.y) * 1.1; R = normalize(R);\n\n  float shin = mix(500., 10., ro);\n  float spec = pow(ndh, shin) * (1. - ro) * (1. - ro) * 2.2;\n  vec3 dif = base * (.78 + .34 * ndl);\n  vec3 env = envC(R, ro);\n  vec3 metalC = base * .32 * (.7 + .3 * ndl) + env * base * 1.05 + spec * base * 1.8;\n  vec3 col = mix(dif + vec3(spec) * .35 * (1. - me), metalC, me * .7);\n  col += sh * pow(ndh, 5.) * .18 * (base + .4);                                   // sheen (thread, fabric)\n  col += co * (pow(ndh, 320.) * 1.1                                               // clear coat\n             + envC(reflect(-V, normalize(vec3(N.xy * .3, 1.))) + vec3(-uTilt.x, uTilt.y, 0.), .05).r * .05);\n\n  fragColor = vec4(col * c.a, c.a);\n}\n";
   var SHADOW_FRAG = "#version 300 es\n// Drop shadow: the baked, blurred wallet alpha, as premultiplied black.\nprecision mediump float;\nin vec2 vUv;\nout vec4 fragColor;\nuniform sampler2D uShadow;   // shadow.png, R8, LINEAR\nuniform float uOpacity;      // card.json shadow.opacity\nvoid main() {\n  fragColor = vec4(0., 0., 0., texture(uShadow, vUv).r * uOpacity);\n}\n";
 
   // ---- motion: one shared source for every card on the page (same filter as TiltSource.swift / .kt) ----
@@ -61,19 +62,21 @@
     return this.value;
   };
 
+
   var cache = {};
   function load(base) {
     if (cache[base]) return cache[base];
     var json = function (n) { return fetch(base + n).then(function (r) { if (!r.ok) throw new Error(base + n + ': ' + r.status); return r.json(); }); };
     var image = function (n) { return new Promise(function (ok, fail) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = function () { fail(new Error(base + n)); }; i.src = base + n; }); };
     return (cache[base] = json('card.json').then(function (card) {
-      return Promise.all([json('params.json'), image(card.image.file), image(card.regions.file), image(card.shadow.file)]).then(function (r) {
+      return Promise.all([json('params.json'), image(card.image.file), image(card.regions.file), image(card.shadow.file),
+        card.height ? image(card.height.file) : null]).then(function (r) {
         // regions.png as raw bytes (an id map, not a colour)
         var c = document.createElement('canvas'); c.width = r[2].width; c.height = r[2].height;
         var cx = c.getContext('2d', { willReadFrequently: true }); cx.drawImage(r[2], 0, 0);
         var rgba = cx.getImageData(0, 0, c.width, c.height).data, reg = new Uint8Array(c.width * c.height);
         for (var i = 0; i < reg.length; i++) reg[i] = rgba[i * 4];
-        return { card: card, params: r[0], img: r[1], reg: reg, shadow: r[3] };
+        return { card: card, params: r[0], img: r[1], reg: reg, shadow: r[3], height: r[4] };
       });
     }));
   }
@@ -108,6 +111,9 @@
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     texture(gl, 2, gl.LINEAR);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, gl.RED, gl.UNSIGNED_BYTE, a.shadow);
+    texture(gl, 3, gl.LINEAR);                                           // pressed-in relief, or 1 × 1 zero
+    if (a.height) gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, gl.RED, gl.UNSIGNED_BYTE, a.height);
+    else gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, 1, 1, 0, gl.RED, gl.UNSIGNED_BYTE, new Uint8Array(1));
     var arr = function (f) { var x = new Float32Array(6); a.card.materials.forEach(function (m, i) { if (i < 6) x[i] = f(m); }); return x; };
     var R = { uMetal: arr(function (m) { return m.metal; }), uRough: arr(function (m) { return m.rough; }), uRelief: arr(function (m) { return m.relief; }),
       uSheen: arr(function (m) { return m.sheen; }), uCoat: arr(function (m) { return m.coat; }) };
@@ -132,6 +138,8 @@
       gl.uniform2f(loc(wallet, 'uTilt'), tilt[0], tilt[1]);
       gl.uniform1f(loc(wallet, 'uCrease'), a.params.relief.creases);
       gl.uniform1f(loc(wallet, 'uGuard'), a.params.light.guard);
+      gl.uniform1i(loc(wallet, 'uHeight'), 3);
+      gl.uniform1f(loc(wallet, 'uHeightScale'), a.card.height ? a.card.height.scale : 0);
       for (var k in R) gl.uniform1fv(loc(wallet, k), R[k]);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
@@ -164,7 +172,7 @@
     this.addEventListener('pointerleave', this._onLeave);
     this.addEventListener('pointerdown', this._onTap);
     c.addEventListener('webglcontextlost', function (e) { e.preventDefault(); self._draw = null; });
-    c.addEventListener('webglcontextrestored', function () { self._init(); });
+    c.addEventListener('webglcontextrestored', function () { self._drawn = null; self._init(); });
     this._visible = true;
     if ('IntersectionObserver' in window) {
       this._io = new IntersectionObserver(function (es) { self._visible = es[es.length - 1].isIntersecting; if (self._visible) self._start(); });
@@ -177,7 +185,9 @@
   WalletCard.prototype._init = function () {
     var a = this._assets, self = this;
     if (!a) return;
-    var gl = this._gl = this._canvas.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: false });
+    // preserveDrawingBuffer: frames are skipped while the light is still, so the canvas must keep its last
+    // frame when the page recomposites (without it the browser may show a cleared canvas)
+    var gl = this._gl = this._canvas.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: false, preserveDrawingBuffer: true });
     if (!gl) { console.error('wallet-card: WebGL2 is not available'); return; }
     this._draw = setUp(gl, a);
     if (!this._tilt) {
@@ -204,9 +214,15 @@
       var pw = Math.round(r.width * scale), ph = Math.round(r.height * scale);
       if (c.width !== pw || c.height !== ph) { c.width = pw; c.height = ph; }
       if (self._pointer || !motion.active) self._tilt.point(self._pointer);
-      var tilt = self._tilt.step(dt);
+      var tilt = self._tilt.step(dt), d = self._drawn, idle = p.idle;
+      // skip frames that would look the same (params.render.idle); the canvas keeps showing the last one
+      var resized = !d || d[0] !== pw || d[1] !== ph;
+      if (!resized && Math.abs(tilt[0] - d[2]) <= idle && Math.abs(tilt[1] - d[3]) <= idle) return;
+      // at most params.render.maxFps (60): on a 120 Hz screen every vsync doubles the cost for no visible gain
+      if (!resized && t - d[4] < 900 / p.maxFps) return;
       self._gl.viewport(0, 0, pw, ph);
       self._draw(c.clientWidth || r.width, c.clientHeight || r.height, self.hasAttribute('shadow'), tilt);
+      self._drawn = [pw, ph, tilt[0], tilt[1], t];
     };
     this._raf = requestAnimationFrame(frame);
   };

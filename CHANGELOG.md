@@ -6,6 +6,15 @@ Changes after v0.2. App versions come from `versions.json`. Downloads are on the
 
 A separate app (`com.docklet.liquid.design`) for the Liquid search flow: the centre Pill flows into a search card, and tapping the field opens text input with a keyboard. Three keyboard layouts can be switched in Tweak Docklet → Centre button → Keyboard layout. Source: `Docklet Liquid.dc.html` with `docklet-liquid.js`, built by `build_liquid.py`.
 
+### v0.2.17
+Pocket: the Cash wallet
+
+- **The CASH logo is pressed into the leather** and its edge catches the light as you tilt the phone, the way the creases do.
+- **The amount reads "$30 CASH"**: top right on the closed wallet, bottom left on the open one. It fades across rather than moving.
+- **Opening the wallet shows Purse.** The header reads Purse with a close button, and Get and Send sit under the wallet (for now a tap on them only gives a haptic). The close button, a tap on the wallet or Back closes it; Ready and Total Balance are gone from the card.
+- **The wallet is far lighter to run.** It draws only when the light visibly moves, and at most 60 times a second (the A26's screen runs at 120 Hz, and it used to draw on every refresh). Held in the hand on a Galaxy A26: 64 % of a CPU core instead of 133 %, 12 % of the GPU instead of 33 %; lying still it costs almost nothing.
+- **Known:** Android WebView passes the phone's motion to the page only after the first tap on it, so the light starts moving after your first touch (in practice the tap that brings you to Pocket).
+
 ### v0.2.16
 Compared to v0.2.7, so this includes v0.2.8 to v0.2.15. Measured on a Galaxy A26:
 
