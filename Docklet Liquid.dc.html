@@ -66,6 +66,10 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 0% { opacity: 0; transform: scale(0.84) translateY(6px); }
 100% { opacity: 1; transform: scale(1) translateY(0); }
 }
+@keyframes hsNudge {
+0%, 100% { transform: translateY(3px); opacity: 0.45; }
+50% { transform: translateY(-3px); opacity: 1; }
+}
 @keyframes tipIn {
 0% { opacity: 0; filter: blur(8px); transform: translateY(10px) scale(0.94); }
 60% { opacity: 1; filter: blur(0); }
@@ -301,6 +305,13 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div onClick="{{ onTipClose }}" style="{{ slotTipStyle }}">
 <span style="width:164.578px;font-weight:500;font-size:12px;line-height:16px;text-align:center;color:#0b0c0f">Swipe up on the dock to see all your apps</span>
 <svg viewBox="0 0 11.5 5" style="position:absolute;left:164px;top:72px;width:11.5px;height:5px;display:block" fill="#ffffff"><path d="M 5.381 4.445 L 0 0 L 11.5 0 L 6.694 4.411 C 6.326 4.749 5.766 4.763 5.381 4.445 Z"></path></svg>
+</div>
+</sc-if>
+<sc-if value="{{ hsTipOpen }}">
+<div data-hstip="1" onClick="{{ onHsTipClose }}" style="{{ hsTipStyle }}">
+<svg width="16" height="16" viewBox="0 0 24 24" style="flex-shrink:0;display:block;animation:hsNudge 1.1s ease-in-out infinite"><path d="M6 15l6-6 6 6" fill="none" stroke="#0b0c0f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span style="font-weight:500;font-size:12px;line-height:16px;text-align:left;color:#0b0c0f">Swipe up on the dock to see all your apps</span>
+<svg viewBox="0 0 11.5 5" style="position:absolute;left:100.5px;margin-left:-5.75px;bottom:-5px;width:11.5px;height:5px;display:block" fill="#ffffff"><path d="M 5.381 4.445 L 0 0 L 11.5 0 L 6.694 4.411 C 6.326 4.749 5.766 4.763 5.381 4.445 Z"></path></svg>
 </div>
 </sc-if>
 <sc-if value="{{ pocketOpen }}">
@@ -627,6 +638,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </sc-for>
 </div>
 <sc-for list="{{ appRows }}" as="r" hint-placeholder-count="2">
+<sc-if value="{{ r.sepBefore }}"><div data-dock-sep="1" style="{{ r.sepStyle }}"></div></sc-if>
 <div style="{{ r.rowStyle }}">
 <sc-for list="{{ r.apps }}" as="a" hint-placeholder-count="5">
 <div data-app-id="{{ a.id }}" onClick="{{ a.onTap }}" onPointerDown="{{ a.onDown }}" style="{{ a.slotStyle }}">
@@ -839,6 +851,9 @@ const HC="cubic-bezier(.24,.68,.22,1)";
 const TUNING={off:{holdLockMs:0,holdLockPx:0,flickRestore:0.35,flickHide:0,eitherSide:false,axisDeg:60,autoHideFromDock:false,hideNudge:false},
 t1:{holdLockMs:400,holdLockPx:36,flickRestore:0.8,flickHide:0.8,eitherSide:true,axisDeg:70,autoHideFromDock:true,hideNudge:true}};
 const SCREEN_W=402,SCREEN_H=874,PILL_W=72;
+// Drawbridge in the hand turns only this share of its angle (it turns about the finger, so a full turn swings the far end
+// below the screen); the release spring completes the turn
+const GATE_HAND_TURN=0.5,GATE_LIFT=200,GATE_BACK=40,GATE_PULL=56,GATE_PIVOT_HOLD=0.15,GATE_PIVOT_AT=270 / 382;
 const PRESET_KEY="tabbar-playground-presets";
 const RECENTS=["mostwanted","oceanWave.77","web3 summit","remyxolog","polkadot wiki","alex.99","coin flip","staking","fred.11","hackathon","grunge","dice"];
 const KB_H=342;
@@ -878,7 +893,7 @@ carbon:{label:"Carbon",c:"cubic-bezier(0.4,0.14,0.3,1)",T:400},
 ant:{label:"Ant",c:"cubic-bezier(0.08,0.82,0.17,1)",T:300},
 };
 const DEFAULTS={
-easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"scan",labelWhere:"launcher",ctxCell:true,slotMode:"hot",haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:0,ahIdle:3,edgeSat:60,appTint:false,hideSpeed:1,
+easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"scan",gateCue:"pull",labelWhere:"launcher",ctxCell:true,slotMode:"hot",haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:0,ahIdle:3,edgeSat:60,appTint:false,hideSpeed:1,
 blur:7,sat:100,tintOp:0.3,tint:"8,8,8",borderOp:0.32,shadow:0.45,specular:false,specHue:200,specSat:0,
 barWidth:382,barHeight:62,radius:32,itemGap:-8,pad:4,bottom:27,pillGap:8,
 pillMode:"center",barAlign:"center",labels:true,selection:"pill",selOp:0.14,
@@ -911,7 +926,7 @@ const inDock=(t)=>{if(!t||!t.closest)return false;const d=this.dockRef.current;r
 // kept the dock up); a touch on the Docklet still cancels it
 const arm=(ms)=>{if(this._ahT)return;this._ahT=setTimeout(()=>{this._ahT=0;this.autoHide(true);},ms);};
 const idle=()=>{clearTimeout(this._idleT);this._idleT=setTimeout(()=>this.autoHide(true),(this.state.ahIdle??3)*1000);};
-this._actOn=(e)=>{this._lastAct=Date.now();idle();if(inDock(e.target)||this.edgeGutter(e)){(clearTimeout(this._ahT),this._ahT=0);return;}arm((this.state.ahTap??0)*1000);};
+this._actOn=(e)=>{this._lastAct=Date.now();idle();if(e.target&&e.target.closest&&e.target.closest("[data-hstip]"))return;if(this.state.hsTipOpen)this.ss({hsTipOpen:false,hsTipSeen:true});if(inDock(e.target)||this.edgeGutter(e)){(clearTimeout(this._ahT),this._ahT=0);return;}arm((this.state.ahTap??0)*1000);};
 window.addEventListener("pointerdown",this._actOn,true);
 window.addEventListener("keydown",()=>{this._lastAct=Date.now();idle();(clearTimeout(this._ahT),this._ahT=0);},true);
 window.addEventListener("wheel",()=>{this._lastAct=Date.now();idle();arm((this.state.ahTap??0)*1000);},{capture:true,passive:true});
@@ -1110,6 +1125,20 @@ if(rv){rv.style.transition="opacity "+ez+", transform "+ez;rv.style.opacity=shut
 this._gyTo=null;
 if(shut){try{const ae=document.activeElement;if(ae&&ae.blur)ae.blur();}catch(e){}this.collapseDock();setTimeout(()=>{if(tr){tr.style.filter="";tr.style.transition="";}if(rv){rv.style.opacity="";rv.style.transform="";rv.style.transition="";}},420);}
 else{this.driveGlass();setTimeout(()=>{if(tr)tr.style.transition="";if(rv)rv.style.transition="";},360);}}
+hotseatId(s){if(!s||s.slotMode!=="hot")return null;return[].concat(s.appFg&&s.activeApp?[s.activeApp]:[],s.slotApp?[s.slotApp]:[]).find((x)=>x&&x!==s.hotApp)||null;}
+teaseLauncher(){
+// the launcher peeks out by the real swipe's path (launchMove/launchEnd) and springs back: rise, short hold, settle
+const st=this.state;if(this._tease||this._fl||this._hg||this._settle||st.appsOpen||st.expanded||st.inputMode||st.lqOpen||st.hidden||st.gate!=="none"||st.barRetract!=="none"||st.screen==="controls")return;
+this._tease=1;this.launchMove(-1);if(!this._fl){this._tease=0;return;}
+const PEAK=56,UP=300,HOLD=120,DN=520;let t0=0;
+const end=()=>{CAF(this._teaseRaf);this._teaseRaf=0;if(this._fl)this.launchEnd();setTimeout(()=>{this._tease=0;},600);};
+this._teaseStop=end;
+const step=(now)=>{if(!this._tease||!this._fl){this._teaseRaf=0;return;}if(!t0)t0=now;const t=now - t0;
+let k;if(t<UP){const u=t / UP;k=1 - Math.pow(1 - u,3);}else if(t<UP+HOLD)k=1;else{const u=Math.min(1,(t - UP - HOLD)/ DN),w=2*Math.PI / 0.36,tt=u*DN / 1000;k=(1+w*tt)*Math.exp(-w*tt)*(u<1?1:0);}
+this._evT=performance.now();this.launchMove(-PEAK*k);this._evT=0;
+if(t>=UP+HOLD+DN){end();return;}this._teaseRaf=RAF(step);};
+this._teaseRaf=RAF(()=>{this._teaseRaf=RAF(step);});
+}
 launchMove(ry){
 const st=this.state;
 if(!this._fl){
@@ -1198,6 +1227,11 @@ this.poseRun(kind,side,this._vis||0,st.gate!=="none"?(kind==="park"?this.parkEnd
 if(st.dockTipSeen&&!ps.dockTipSeen)this.seenSet("dockTip",1);
 if(st.launchTipSeen&&!ps.launchTipSeen)this.seenSet("launchTip",1);
 if(st.tipSeen&&!ps.tipSeen)this.seenSet("slotTip",1);
+if(st.hsTipSeen&&!ps.hsTipSeen)this.seenSet("hsTip",1);
+// hotseat: the first time the Apps button gives way to an app, the only way left to the launcher is the swipe up, so teach it
+{const h0=this.hotseatId(ps),h1=this.hotseatId(st);
+if(!h0&&h1&&!st.hsTipSeen&&!st.hsTipOpen){this.ss({hsTipOpen:true});clearTimeout(this._teaseT);this._teaseT=setTimeout(()=>this.teaseLauncher(),900);clearTimeout(this._hsTipT);this._hsTipT=setTimeout(()=>{if(this.state.hsTipOpen)this.ss({hsTipOpen:false,hsTipSeen:true});},6000);}
+if(st.hsTipOpen&&st.appsOpen&&!this._tease)this.ss({hsTipOpen:false,hsTipSeen:true});}
 
 {const dk=this.dockRef.current,sel=dk&&dk.querySelector("[data-sel]");
 if(sel){const r=sel.getBoundingClientRect(),sc=this.state.scale||1;
@@ -1218,7 +1252,7 @@ if(hid&&!was){const auto=this._autoHid;this._autoHid=false;
 if(auto&&!this.seenGet().autoTip&&!st.dockTipOpen&&!st.tipFly){this.seenSet("autoTip",1);this.ss({dockTipOpen:true,dockTipAuto:true});}
 else if(!st.dockTipSeen&&!st.dockTipOpen&&!st.tipFly)this.ss({dockTipOpen:true,dockTipAuto:false});}}
 if(st.dockTipOpen&&!st.tipFly&&st.gate==="none"&&st.barRetract==="none")this.tipAway(ps.barRetract!=="none"?ps.barRetract:ps.gate);
-if(!st.launchTipSeen&&((ps.appsOpen&&!st.appsOpen)||st.menuFor))this.ss({launchTipSeen:true});
+if(!st.launchTipSeen&&!this._tease&&((ps.appsOpen&&!st.appsOpen)||st.menuFor))this.ss({launchTipSeen:true});
 if(st.pinPick&&ps.appsOpen&&!st.appsOpen)this.ss({pinPick:false});// closed without picking
 if(!st.tipSeen&&((ps.active===2&&st.active!==2)||(st.appsOpen&&st.active===2)))this.ss({tipSeen:true});
 const camWant=!!st.expanded&&!st.inputMode&&!st.camHold&&!st.appsOpen;
@@ -1270,7 +1304,7 @@ window.addEventListener("popstate",()=>this.onBack());
 this._zq=()=>{if(!window.DockletNative||this._zr)return;this._zr=RAF(()=>{this._zr=0;this.sendZones();});};
 window.addEventListener("pointermove",this._zq,true);window.addEventListener("pointerup",()=>setTimeout(this._zq,400),true);window.addEventListener("resize",this._zq);
 {const sn=this.seenGet();this._tipHides=sn.dockTip?9:0;
-this.ss({dockTipSeen:!!sn.dockTip,launchTipSeen:!!sn.launchTip,tipSeen:!!sn.slotTip});}
+this.ss({dockTipSeen:!!sn.dockTip,launchTipSeen:!!sn.launchTip,tipSeen:!!sn.slotTip,hsTipSeen:!!sn.hsTip});}
 this._hitFix=(e)=>{
 const t=e.target,scr=t&&t.closest?t.closest("[data-screen]"):null;
 if(!scr||t.closest('[style*="cursor: pointer"],[style*="cursor: grab"],input,textarea,[data-nopress]')||this.state.screen==="controls"||this.state.expanded||this.state.inputMode||this.state.appsOpen||(this.dockRef.current&&this.dockRef.current.contains(t)))return;
@@ -1363,7 +1397,7 @@ values,
 this.persistPresets(list);
 }
 startDrag(target){
-return(e)=>{this._pillSwipe=(()=>{if(this.state.lqOpen)return false;const b=this.pillRect();if(!b)return false;const m=6*(this.state.scale||1);return e.clientX>=b.left - m&&e.clientX<=b.right+m&&e.clientY>=b.top - m&&e.clientY<=b.bottom+m;})();this._pillGo=0;
+return(e)=>{if(this._tease&&this._teaseStop)this._teaseStop();this._pillSwipe=(()=>{if(this.state.lqOpen)return false;const b=this.pillRect();if(!b)return false;const m=6*(this.state.scale||1);return e.clientX>=b.left - m&&e.clientX<=b.right+m&&e.clientY>=b.top - m&&e.clientY<=b.bottom+m;})();this._pillGo=0;
 if(this._settle){CAF(this._settle.raf);this._caught=this._settle;this._settle=null;}
 const sx=e.clientX,sy=e.clientY,scale=this.state.scale||1;
 const host=e.currentTarget&&e.currentTarget.closest?e.currentTarget.closest("[data-screen]"):null;
@@ -1515,10 +1549,28 @@ window.addEventListener("pointerup",tap);
 return this.startDrag("bar")(e);
 };
 }
+pivotHold(H,T,F,p,sg){
+// Edge cue "pivot": the drawbridge pivot holds still at first and the finger turns the dock about it (that follows the
+// finger up and down; a turn cannot follow it straight towards the pivot); the nearer the finger gets to the edge, the
+// more the pivot slides along with the dock, until at the edge it follows the finger fully. Release as usual.
+// the hand's pivot starts at the pin slot (GATE_PIVOT_AT of the dock's length from its far end), not at the drawbridge's
+// own pivot past the dock's end; a turn about it is the drawbridge's turn plus a slide, so the pose stays one transform
+const B=T.box,Qx=sg>0?B.L+(B.R - B.L)*GATE_PIVOT_AT:B.R -(B.R - B.L)*GATE_PIVOT_AT,Q={x:T.P.x+Qx,y:T.P.y};
+const v={x:T.v.x - Qx,y:T.v.y},P=Q,M=Math.hypot(v.x,v.y)||1,be=Math.atan2(v.y,v.x),as=Math.asin(Math.max(-1,Math.min(1,(F.y - P.y)/ M)));
+const nm=(x)=>Math.atan2(Math.sin(x),Math.cos(x)),c1=nm(as - be),c2=nm(Math.PI - as - be),th0=H.th||0;
+let a=Math.abs(c1 - th0)<Math.abs(c2 - th0)?c1:c2;a=sg>0?Math.max(-0.12,Math.min(Math.PI / 2,a)):Math.max(-Math.PI / 2,Math.min(0.12,a));H.th=a;
+const need=F.x - P.x -(Math.cos(a)*v.x - Math.sin(a)*v.y),k0=sg>0?(F.x - T.F0.x)/ Math.max(1,SCREEN_W - T.F0.x):(T.F0.x - F.x)/ Math.max(1,T.F0.x);
+const k=Math.max(0,Math.min(1,k0)),w=GATE_PIVOT_HOLD+(1 - GATE_PIVOT_HOLD)*k*k*(3 - 2*k);
+let sl=need*sg>0?need*w:-sg*((x)=>x - GATE_BACK*(1 - 1 /(1+x / GATE_BACK)))(-need*sg);
+const ca=Math.cos(a),sa=Math.sin(a);
+this._hgRot=0;this._hgAng=a*180 / Math.PI;this._hgOff={x:sl+Qx - ca*Qx - T.off*Math.pow(Math.max(0,p),3),y:-sa*Qx};
+}
+gatePt(T,v,p,sg,rk){// where a dock point (v from the pivot at rest) sits in the Drawbridge pose p (rk: share of the turn)
+const a=sg*p*(rk==null?1:rk)*Math.PI / 2,c=Math.cos(a),n=Math.sin(a);return{x:T.P.x+T.off*Math.pow(Math.max(0,p),3)+c*v.x - n*v.y,y:T.P.y+n*v.x+c*v.y};}
 hidePose(kind,side,p){
 const sg=side==="right"?1:-1;
 if(kind==="slide"){const g=this._slideGeom;return{t:"translate("+(side==="right"?g.hR:g.hL)*p+"px,"+g.y+"px) rotate(0deg)",o:null};}
-if(kind==="gate"){const g=this._gateGeom,q=Math.max(0,p);return{t:"translate("+(side==="right"?g.offR:g.offL)*q*q*q+"px,"+g.y+"px) rotate("+90*sg*p+"deg)",o:side==="right"?g.oR:g.oL};}
+if(kind==="gate"){const g=this._gateGeom,q=Math.max(0,p),rk=this._hgRot==null?1:this._hgRot;return{t:"translate("+(side==="right"?g.offR:g.offL)*q*q*q+"px,"+g.y+"px) rotate("+(90*sg*p*rk+(this._hgAng||0))+"deg)",o:side==="right"?g.oR:g.oL};}
 return kind==="park"?this.poseFor("park",side,p*this.parkEnd(side)):this.poseFor("arc",side,p);
 }
 hideApply(kind,side,p,keepInd){
@@ -1529,7 +1581,7 @@ if(rv){rv.style.transition="none";rv.style.transformOrigin="50% 100%";rv.style.o
 const q=this.hidePose(kind,side,p),el=this.dockRef.current;
 const ind=this.edgeIndRef.current;if(ind&&!keepInd){ind.style.transition="none";ind.style.opacity=String(Math.max(0,Math.min(1,p)));}
 if(!el)return;
-el.style.transform=q.t;if(q.o)el.style.transformOrigin=q.o;
+const O=kind==="gate"&&this._hgOff;el.style.transform=O?"translate("+O.x.toFixed(2)+"px,"+O.y.toFixed(2)+"px) "+q.t:q.t;if(q.o)el.style.transformOrigin=q.o;
 if(kind==="park"||kind==="arc"){this._poseStr=q.t;this._poseOrigin=q.o;this._vis=kind==="park"?p*this.parkEnd(side):p;this._visSide=side;this._poseLive=true;}
 }
 hideMove(kind,rx,ry){
@@ -1542,28 +1594,55 @@ const p0=c?c.p:(parked?1:0);
 H=this._hg={kind,side,p0,rx0:rx,ry0:ry,p:p0,smp:[],out:p0>=0.5?1:0};this.dockFade(null);
 if(p0<0.5&&(st.appsOpen||st.expanded)&&this._gyClosed!=null&&!this._hgFold){this._hgFold={y0:this._gy==null?0:this._gy,y1:this._gyClosed};this._gyHold=true;CAF(this._gyRaf);this._gyRaf=0;}
 if(kind==="gate")H.unit=Math.max(160,W_DOCK(this)*0.75);
-else if(false){
-const g=this._gateGeom,f0=this._p0||{x:0,y:0};
-H.px=(side==="right"?g.pxR:g.pxL)+(side==="right"?g.offR:g.offL)*Math.pow(Math.max(0,p0),3);
-H.fx=f0.x+rx;H.fy=f0.y+ry;H.a0=Math.atan2(H.fy - g.py,H.fx - H.px);
-}else if(!H.unit)H.unit=Math.abs(kind==="slide"?(side==="right"?this._slideGeom.hR:this._slideGeom.hL):kind==="park"?this.parkEnd(side):this.arcTxEnd(side))||1;
+else if(!H.unit)H.unit=Math.abs(kind==="slide"?(side==="right"?this._slideGeom.hR:this._slideGeom.hL):kind==="park"?this.parkEnd(side):this.arcTxEnd(side))||1;
 // hiding from the far part of the dock leaves little room to the edge (55 px from the last tab): scale the travel to
 // that room, so the same swipe hides the dock from anywhere on it
 if(p0<0.5&&this._hgX0!=null){const room=side==="right"?SCREEN_W - this._hgX0:this._hgX0;H.unit=Math.min(H.unit,Math.max(60,room*1.2));}
 this._hgX0=null;
+// Drawbridge keeps the finger on the dock: the swipe still sets the angle (p, sideways travel), and the dock slides by
+// whatever puts the grabbed point back under the finger (_hgOff), so in the hand it turns about the finger, not the far
+// pivot; the release springs that slide back to the plain pose. (Following the arc itself cannot work: at the start the
+// grabbed point moves up, at right angles to a sideways swipe.)
+// A touch that catches the dock still settling from the last swipe gets the same hold: the grabbed point is found by
+// undoing the pose on screen now (angle, slide), so nothing jumps; without it the dock fell back to the rigid turn.
+if(kind==="gate"&&p0<0.5&&this._p0&&!this._bp){const g=this._gateGeom,sgn=side==="right"?1:-1,P={x:side==="right"?g.pxR:g.pxL,y:g.py},off=side==="right"?g.offR:g.offL;
+const rk=!c?GATE_HAND_TURN:(this._hgRot!=null?this._hgRot:(Math.abs(p0)<0.02?GATE_HAND_TURN:1)),O=c&&this._hgOff?this._hgOff:{x:0,y:0};
+const a=sgn*p0*rk*Math.PI / 2+(c&&this._hgAng?this._hgAng*Math.PI / 180:0),cs=Math.cos(a),sn=Math.sin(a),wx=this._p0.x - O.x - P.x - off*Math.pow(Math.max(0,p0),3),wy=this._p0.y - O.y - P.y;
+const v={x:cs*wx+sn*wy,y:-sn*wx+cs*wy},L=g.pxL+14 - P.x,R=g.pxR - 14 - P.x,hb=this.state.barHeight / 2+16;
+if(v.x>L - 16&&v.x<R+16&&Math.abs(v.y)<hb){H.trk={F0:{x:this._p0.x,y:this._p0.y},P,v,off,rk,box:{L,R,h:this.state.barHeight / 2}};this._hgRot=rk;H.th=a;}}
 const el=this.dockRef.current;if(el)el.style.transition="none";
 }
 const sg=H.side==="right"?1:-1;
 let p;
-if(H.kind==="gate"&&H.a0!=null){
-const g=this._gateGeom;
-let d=(Math.atan2(H.fy+ry - H.ry0 - g.py,H.fx+rx - H.rx0 - H.px)- H.a0)*180 / Math.PI;
-if(d>180)d -=360;if(d<-180)d+=360;
-p=H.p0+sg*d / 90;
-}else p=H.p0+sg*(rx - H.rx0)/ H.unit;
+const T=H.trk,F=T?{x:T.F0.x+rx,y:T.F0.y+ry}:null;
+p=H.p0+sg*(rx - H.rx0)/ H.unit;
 const rb=(x)=>0.25*(1 - 1 /(1+x*0.55 / 0.25));
 p=p>1?1+rb(p - 1):(p<0?-rb(-p):p);
 H.p=p;
+if(T&&this.state.gateCue==="pivot")this.pivotHold(H,T,F,p,sg);
+else if(T){// the screen's bottom edge is a floor: when the turn would push the dock's far end through it, the dock tilts
+// less (the release still turns it all the way); only a finger dragging down past the floor makes it give like rubber,
+// and then the finger runs ahead of the grabbed point
+const B=T.box,C=[[B.L,B.h],[B.R,B.h],[B.L,-B.h],[B.R,-B.h]],lowAt=(r)=>{const o=this.gatePt(T,T.v,p,sg,r);return Math.max(...C.map(([cx,cy])=>this.gatePt(T,{x:cx,y:cy},p,sg,r).y))+F.y - o.y;};
+const cue=this.state.gateCue||"pull";
+let r=T.rk;if(cue!=="lean"&&lowAt(r)>SCREEN_H){if(lowAt(0)>=SCREEN_H)r=0;else{let lo=0,hi=r;for(let i=0;i<12;i++){const m=(lo+hi)/ 2;if(lowAt(m)>SCREEN_H)hi=m;else lo=m;}r=lo;}}
+this._hgRot=r;
+const o=this.gatePt(T,T.v,p,sg,r);let oy=F.y - o.y,ox=F.x - o.x;
+// Edge cue "pull": the dock is drawn towards the edge it hides to, running ahead of the finger more the further it goes,
+// eased in and out; never so far that the finger slips off its back end. ("lean" keeps the in-hand turn instead: the
+// floor lifts the dock rather than flattening the turn.)
+if(cue==="pull"){const q=Math.max(0,Math.min(1,p)),e=q*q*(3 - 2*q),room=Math.max(0,(sg>0?T.v.x - B.L:B.R - T.v.x)- 14);ox+=sg*Math.min(GATE_PULL*e,room);}
+// the rest of the screen is not the dock's to roam: lifted above its row, or pulled the wrong way (away from the edge
+// it hides to), it meets a force from the first pixel that grows with the distance, so it never stops dead and never
+// gets further than GATE_LIFT up or GATE_BACK back; towards the hiding edge it is free
+{const pts=C.map(([cx,cy])=>this.gatePt(T,{x:cx,y:cy},p,sg,r)),give=(d,K)=>d - K*(1 - 1 /(1+d / K));
+// (Edge cue "free" is the hold as it was before these bounds: up and back the dock follows the finger 1:1)
+if(cue!=="free"){const mid=this.gatePt(T,{x:(B.L+B.R)/ 2,y:0},p,sg,r),lift=T.P.y -(mid.y+oy);if(lift>0)oy+=give(lift,GATE_LIFT);
+if(sg>0){const back=T.P.x+B.L -(Math.min(...pts.map((q)=>q.x))+ox);if(back>0)ox+=give(back,GATE_BACK);}
+else{const back=Math.max(...pts.map((q)=>q.x))+ox -(T.P.x+B.R);if(back>0)ox -=give(back,GATE_BACK);}}
+// the floor last, so nothing above pushes the dock through it
+const ex=Math.max(...pts.map((q)=>q.y))+oy - SCREEN_H;if(ex>0)oy -=ex - 36*(1 - 1 /(1+ex / 36));}
+this._hgOff={x:ox,y:oy};}
 if(H.p0>=0.5){const te=this.tipRef&&this.tipRef.current;if(te&&!this.state.tipFly){const dx=Math.min(0,p - H.p0)*(H.unit||300)*(H.side==="left"?-1:1);this._tipX=dx;te.style.transition="none";te.style.translate=dx+"px 0";te.style.opacity=String(Math.max(0.2,1 - Math.abs(dx)/ 240));}}
 const t=this._evT||performance.now();H.smp.push({t,p});H.pk=Math.max(H.pk||0,Math.abs(p - H.p0));while(H.smp.length>2&&t - H.smp[0].t>100)H.smp.shift();
 const s0=H.smp[0],vv=H.smp.length>1?(p - s0.p)/ Math.max(1,t - s0.t):0,proj=p+vv*100;
@@ -1607,15 +1686,16 @@ const w=2*Math.PI / 0.32,x0=p - to,v0=v*1000,z=Math.abs(v0)>4?0.78:1,wd=w*Math.s
 const t0=performance.now(),S=this._settle={kind,side,p,to,raf:0};
 this.hitLive(!!to);if(this._zq)this._zq();// Back exclusion and the Back pull switch over as the dock leaves, not when it lands
 const ind=this.edgeIndRef&&this.edgeIndRef.current,fade=!to&&!!ind;if(fade){ind.style.transition="opacity 320ms cubic-bezier(.2,.8,.2,1)";ind.style.opacity="0";}
-const GD=420 /(this.state.hideSpeed||1);
+const GD=420 /(this.state.hideSpeed||1),O0=this._hgOff,R0=this._hgRot,A0=this._hgAng;
 const step=(now)=>{
 const t=(now - t0)/ 1000;
+if(O0||R0!=null||A0){const f=t>1.2?0:(1+w*t)*Math.exp(-w*t);this._hgOff=!O0||f<0.002?null:{x:O0.x*f,y:O0.y*f};this._hgRot=R0==null||f<0.002?null:1 -(1 - R0)*f;this._hgAng=!A0||f<0.002?null:A0*f;}
 if(gentle){const W=2*Math.PI /(0.42 /(this.state.hideSpeed||1)),tt=(now - t0)/ 1000,ex=Math.exp(-W*tt),e=1 -(1+W*tt)*ex,vel=W*tt*ex*Math.E,u=e>0.998?1:0;S.p=p+(to - p)*e;this.dockFade(Math.max(0,1 - 1.12*Math.pow(e,1.15)),u<1?14*vel:0);
-if(u>=1){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hitLive(!!to);this.hideCommit(kind,side,!!to);return;}
+if(u>=1){this._settle=null;this._hgOff=null;this._hgRot=null;this._hgAng=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hitLive(!!to);this.hideCommit(kind,side,!!to);return;}
 this.hideApply(kind,side,S.p,fade);S.raf=RAF(step);return;}
 const x=z>=1?(x0+(v0+w*x0)*t)*Math.exp(-w*t):Math.exp(-z*w*t)*(x0*Math.cos(wd*t)+(v0+z*w*x0)/ wd*Math.sin(wd*t));
 S.p=to+x;
-if((Math.abs(x)<0.0015&&t>0.08)||t>1.4){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hitLive(!!to);this.hideCommit(kind,side,!!to);return;}
+if(((Math.abs(x)<0.0015&&t>0.08)||t>1.4)&&!this._hgOff&&this._hgRot==null&&!this._hgAng){this._settle=null;this.hideApply(kind,side,to,fade);this.foldEnd(!!to);this.hitLive(!!to);this.hideCommit(kind,side,!!to);return;}
 this.hideApply(kind,side,S.p,fade);
 S.raf=RAF(step);
 };
@@ -1858,7 +1938,7 @@ this.autoHideT=setTimeout(()=>{if(this.state.appFg)this.autoHide();},wasExpanded
 seenGet(){try{return JSON.parse(window.localStorage.getItem("docklet.seen")||"{}")||{};}catch(e){return{};}}
 seenSet(k,v){const o=this.seenGet();o[k]=v;try{window.localStorage.setItem("docklet.seen",JSON.stringify(o));}catch(e){}}
 toast(text,undo){clearTimeout(this.toastT);this._undo=undo||null;this.ss({toast:{text,undo:!!undo}});this.toastT=setTimeout(()=>this.ss({toast:null}),3600);}
-replayOb(){try{const k="docklet.seen",sn=JSON.parse(window.localStorage.getItem(k)||"{}");delete sn.dockTip;delete sn.autoTip;delete sn.launchTip;delete sn.slotTip;delete sn.hideNudge;window.localStorage.setItem(k,JSON.stringify(sn));}catch(e){}this._tipHides=0;this.ss({dockTipSeen:false,launchTipSeen:false,tipSeen:false,screen:"chats"});this.armNudge();}
+replayOb(){try{const k="docklet.seen",sn=JSON.parse(window.localStorage.getItem(k)||"{}");delete sn.dockTip;delete sn.autoTip;delete sn.launchTip;delete sn.slotTip;delete sn.hsTip;delete sn.hideNudge;window.localStorage.setItem(k,JSON.stringify(sn));}catch(e){}this._tipHides=0;this.ss({dockTipSeen:false,launchTipSeen:false,tipSeen:false,hsTipSeen:false,hsTipOpen:false,screen:"chats"});this.armNudge();}
 armNudge(){clearTimeout(this._nudgeT);clearTimeout(this._idleT);this._nudgeArmed=false;if(!this.tune().hideNudge||this._hidOnce||this.seenGet().hideNudge)return;this._nudgeArmed=true;this._nudgeT=setTimeout(()=>this.hideNudge(),20000);this._idleT=setTimeout(()=>this.hideNudge(),8000);}
 hideNudge(){
 if(!this._nudgeArmed)return;const s=this.state,el=this.dockRef.current;
@@ -1878,7 +1958,7 @@ autoHide(rule){
 const s=this.state;
 if(!rule)return;
 if(s.gate!=="none"||s.barRetract!=="none"||s.hidden||s.autoHide===false)return;
-if(s.expanded||s.inputMode||s.appsOpen||s.lqOpen||s.screen==="controls"||s.dockMenu||s.menuFor||s.chatKb||this._hg||this._settle||this._fl||this._fc)return;
+if(s.expanded||s.inputMode||s.appsOpen||s.lqOpen||s.screen==="controls"||s.dockMenu||s.menuFor||s.chatKb||s.hsTipOpen||this._hg||this._settle||this._fl||this._fc)return;
 if(this._hg||this._settle)return;
 const side=s.leftHanded?"left":"right";
 
@@ -2206,6 +2286,7 @@ const sec=(...parts)=>{const r=[];parts.forEach(([t,items])=>{items=(items||[]).
 const out={
 "Hide gesture":sec(
 [null,[mode,this.gestureIllus(this.state.mode),notes[notes.length - 1]]],
+["While you drag",pick("Gestures",["Edge cue"])],
 ["When hidden",pick("Gestures",["Show at the edge","Indicator","Peek"])],
 ["Behaviour",[].concat(rename(pick("Gestures",["Auto-hide","Swipe on empty","Southpaw"]),{"Swipe on empty":"Bring back by swiping empty space"}),notes.length>1?[notes[0]]:[],this.state.autoHide===false?[]:[{slider:Object.assign(this.slider("Hide after tapping elsewhere","ahTap",0,2,0.1,"s"),{display:(this.state.ahTap??0).toFixed(1)+" s"})},{slider:Object.assign(this.slider("Hide when idle","ahIdle",2,30,1,"s"),{display:(this.state.ahIdle??3)+" s"})}],[{slider:Object.assign(this.slider("Animation speed","hideSpeed",0.5,2,0.05,"x"),{display:(this.state.hideSpeed||1).toFixed(2)+"\u00d7"})}])]),
 // one choice of curve across three families, then speed
@@ -2780,15 +2861,17 @@ const hotseatApp=s.slotMode==="hot"?APPS.find((a)=>a.id===[].concat(s.appFg&&s.a
 const notHot=(a)=>!hotseatApp||a.id!==hotseatApp.id;
 const openAppsAll=APPS.filter((a)=>(s.favs||[]).indexOf(a.id)<0&&a.id!==s.hotApp&&notHot(a));
 const favList=(s.favs||[]).map((id)=>APPS.find((a)=>a.id===id)).filter(Boolean).filter(notHot);
-// one grid, no separate favourites box: favourites come first, top left, then the rest (they keep their heart)
+// one grid, no separate favourites box: favourites come first, top left, then a thin separator and the rest (no hearts:
+// the position says it)
 const favRowChunks=[];
-const gridApps=favList.concat(openAppsAll);
-const appRowChunks=[];
-for(let i=0;i<gridApps.length;i+=5)appRowChunks.push(gridApps.slice(i,i+5));
+const appRowChunks=[],sepAt=favList.length&&openAppsAll.length?Math.ceil(favList.length / 5):-1;
+for(let i=0;i<favList.length;i+=5)appRowChunks.push(favList.slice(i,i+5));
+for(let i=0;i<openAppsAll.length;i+=5)appRowChunks.push(openAppsAll.slice(i,i+5));
+const SEP_H=sepAt>0?9:0;
 const favGroupH=favRowChunks.length?favRowChunks.length*APP_ROW_H+(favRowChunks.length - 1)*4+s.pad*2:0;
 const favGroupR=favGroupH?Math.min(favGroupH / 2,APP_ROW_H / 2+s.pad):0;
 const slotR=Math.max(0,Math.min(s.radius,s.barHeight / 2)- s.pad);
-const appsContentH=(favRowChunks.length?favRowChunks.length*APP_ROW_H+(favRowChunks.length - 1)*4+s.pad*2+2:0)+appRowChunks.length*APP_ROW_H+(appRowChunks.length - 1)*4;
+const appsContentH=(favRowChunks.length?favRowChunks.length*APP_ROW_H+(favRowChunks.length - 1)*4+s.pad*2+2:0)+appRowChunks.length*APP_ROW_H+(appRowChunks.length - 1)*4+SEP_H;
 const quick=s.openFx==="soft";
 const depthRow=(idx)=>{
 const k=Math.min(4,idx);
@@ -2892,7 +2975,7 @@ label:shown?shown.name:emptySlot?"Apps":t.label,labelShown:s.labels&&s.labelWher
 icon:shown?null:emptySlot?"#ic-apps":ctx?"#ic-ellipsis":(i===3&&s.appsIcon==="lines"?"#ic-lines":i===3&&s.appsIcon==="grid"?"#ic-apps":t.icon),viewBox:emptySlot?"0 0 24 24":ctx?"0 0 20 20":t.viewBox,iconSize:t.iconSize,
 appIcon:!!shown,
 appInitial:shown?shown.initial:"",
-appFav:!!shown&&(s.favs||[]).indexOf(shown.id)!==-1,
+appFav:false,
 appBoxStyle:shown?{position:"relative",width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center"}:null,
 appIconHref:shown?shown.icon:"",
 appSvgStyle:shown?{width:28,height:28,color:col,display:"block",transition:"color 280ms "+HC,animation:on?"iconPop 420ms cubic-bezier(.34,1.4,.64,1) both":"iconSettle 280ms "+HC+" both"}:null,
@@ -3023,7 +3106,7 @@ width:28,height:28,position:"relative",
 display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,
 },
 iconHref:a.icon,
-isFav:(s.favs||[]).indexOf(a.id)!==-1,
+isFav:false,
 svgStyle:{width:28,height:28,color:on?"#f4f4f5":"#999999",display:"block",transition:"color 280ms "+HC},
 labelStyle:{
 fontSize:11,fontWeight:600,lineHeight:"100%",textAlign:"center",whiteSpace:"nowrap",
@@ -3231,7 +3314,7 @@ boxShadow:"0 10px 30px #00000073",
 transformOrigin:"50% 100%",
 animation:"tipIn 900ms cubic-bezier(.22,1,.36,1) 420ms both",
 },
-launchTipOpen:appsMode&&!s.launchTipSeen&&!s.menuFor&&s.screen!=="controls",
+launchTipOpen:appsMode&&!s.launchTipSeen&&!this._tease&&!s.menuFor&&s.screen!=="controls",
 onLaunchTipClose:(e)=>{if(e)e.stopPropagation();this.ss({launchTipSeen:true});},
 launchTipStyle:{
 position:"absolute",left:12,bottom:bottomOffset+shellH+13,width:212.578,minHeight:56,zIndex:6,
@@ -3240,6 +3323,10 @@ padding:"12px 24px",boxSizing:"border-box",cursor:"pointer",
 boxShadow:"0 10px 30px #00000073",
 animation:"dockFade 360ms "+HC+" 460ms both",
 },
+hsTipOpen:!!s.hsTipOpen&&!s.hidden&&s.gate==="none"&&s.barRetract==="none"&&(!s.appsOpen||!!this._tease)&&!s.expanded&&!s.inputMode&&!s.lqOpen&&!s.menuFor&&s.screen!=="controls",
+onHsTipClose:()=>this.ss({hsTipOpen:false,hsTipSeen:true}),
+hsTipStyle:{position:"absolute",left:100.5,bottom:s.bottom+s.barHeight+20,width:201,zIndex:75,borderRadius:9999,background:"#ffffff",display:"flex",alignItems:"center",gap:8,
+padding:"10px 18px 10px 14px",boxSizing:"border-box",cursor:"pointer",boxShadow:"0 10px 30px #00000073",transformOrigin:"50% 100%",animation:"tipIn 900ms cubic-bezier(.22,1,.36,1) 300ms both"},
 slotTipStyle:{
 position:"absolute",right:12.643,bottom:s.bottom+s.barHeight+13,width:212.578,height:72,zIndex:4,
 borderRadius:9999,background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",
@@ -3357,7 +3444,7 @@ background:"#0808089e",
 boxShadow:"inset 0 0 0 1px #23252a",
 },
 favRows:favRowChunks.map((c,i)=>({apps:mkApps(c),rowStyle:depthRow(i)})),
-appRows:appRowChunks.map((c,i)=>({apps:mkApps(c),rowStyle:depthRow(favRowChunks.length+i)})),
+appRows:appRowChunks.map((c,i)=>({apps:mkApps(c),rowStyle:depthRow(favRowChunks.length+i),sepBefore:i===sepAt,sepStyle:{height:1,margin:"0 "+(s.pad+14)+"px",flexShrink:0,background:"#ffffff1f",marginBottom:4,animation:depthRow(favRowChunks.length+i).animation}})),
 menuShown:!!s.menuFor,
 menuTitle:({"@chats":"Chats","@pocket":"Pocket","@pin":"Pin"})[s.menuFor]||(APPS.find((a)=>a.id===s.menuFor)||{}).name||"",
 onCloseMenu:()=>{if(this.held&&this._retarget){this.held=this._retarget=false;return;}this.held=this._retarget=false;this.ss({menuFor:null});},
@@ -3915,6 +4002,7 @@ s.haptics?{seg:this.seg("Intensity","hapticLevel",[["Soft","soft"],["Medium","me
 {toggle:this.toggle("Southpaw","leftHanded")},
 {toggle:this.toggle("Auto-hide","autoHide")},
 {note:s.leftHanded?"The dock hides to the left edge.":"The dock hides to the right edge."},
+gateMode?{seg:this.seg("Edge cue","gateCue",[["Pull","pull"],["Pivot","pivot"],["Lean","lean"],["Free","free"],["Off","off"]])}:null,
 {seg:this.seg("Show at the edge",gateMode?"gatePeek":"slidePeek",[["Edge",true],["Indicator",false]])},
 (gateMode?!s.gatePeek:s.slidePeek===false)?{seg:this.seg("Indicator","hiddenMark",[["Edge glow","glow"],["Short glow","soft"],["Bar","bar"],["None","none"]])}:null,
 (gateMode?s.gatePeek:s.slidePeek!==false)?{slider:this.slider("Peek","peek",4,40,1,"px")}:null,

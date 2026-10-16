@@ -15,6 +15,60 @@ Pocket: the Cash wallet
 - **The wallet is far lighter to run.** It draws only when the light visibly moves, and at most 60 times a second (the A26's screen runs at 120 Hz, and it used to draw on every refresh). Held in the hand on a Galaxy A26: 64 % of a CPU core instead of 133 %, 12 % of the GPU instead of 33 %; lying still it costs almost nothing.
 - **Known:** Android WebView passes the phone's motion to the page only after the first tap on it, so the light starts moving after your first touch (in practice the tap that brings you to Pocket).
 
+### v0.2.18
+Compared to v0.2.7, so this includes v0.2.8 to v0.2.17. Measured on a Galaxy A26:
+
+Speed
+- **The app launcher opens even more smoothly:** 120–128 frames in 1.4 s instead of 89–97, longest frame 25–33 ms; closing runs at 152–153. The cause was not the icon blur. The hidden dock glass of Playground v0.5 sat under the launcher at opacity 0, and its 18 px blur was still computed every frame. It is now hidden properly.
+- **Auto-hide fades the dock by opacity only.** A blur on every element made the first frame of each auto-hide take 75–117 ms; now 33–75 ms.
+
+Gestures
+- **Your finger stays on the dock while you hide it** (new in v0.2.18). The dock follows the finger the whole way, also when you swipe right and then down: while you hold it, it turns about your finger instead of the far pivot, and the full drawbridge turn finishes after you let go. The bottom of the screen is a floor: the dock tilts less rather than sink below it. A touch that catches the dock while it is still settling from the last swipe now holds it the same way; before, it fell back to the rigid turn.
+- **The dock can't be dragged all over the screen** (new in v0.2.18). Lifted, it meets a force that grows the higher it goes: a finger 300 px up lifts it about 120 px, never more than about 200. Pulled the wrong way, away from the edge it hides to, it gives even less (150 px of finger, 31 px of dock). Towards the edge it is free.
+- **Edge cue: how the dock shows it is heading for the edge** (new in v0.2.18), in Tweak Docklet → Hide gesture → While you drag. Pull (the default): the further you drag, the more the dock runs ahead of your finger towards the edge, up to 56 px. Pivot: the pivot starts at the pin slot and you turn the dock about it; as your finger nears the edge the pivot slides along with the dock. Lean: the drawbridge tilt shows while you hold it (the grabbed point lags the finger). Free: as before the bounds above, 1:1 up and back. Off: no cue.
+- **Launcher and hide no longer get mixed up.** On the dock, a swipe up steeper than 30° opens the launcher (on the Pill: text input). A near-horizontal swipe to the right, from 30° up to 45° down, hides the dock. Left and down do nothing.
+- **Hide from anywhere on the dock.** From the last tabs there was too little room to the edge, so the dock didn't hide. The swipe needed now shrinks with the room left: about 34 px from the last tab, 150 px from the first.
+- **Android's Back gesture is off where the dock is.** Android lets an app take 200 dp of each screen edge from its Back gesture (any 200 dp, not only the bottom). While the dock is shown, that is the bottom 200 dp across the full width. While it is hidden, the 200 dp go to the edge glow instead (new in v0.2.11).
+- **Letting go midway settles in one motion.** When you pulled a hidden dock about halfway out and let go, the dock jumped back to the edge and slid in over the whole way (554 ms). Now there is one animation, and it is faster: 90% of the way in 205–215 ms instead of 239–244.
+- **A quick flick off the edge glow brings the dock back**, even a short one (about 50–70 px).
+- **The edge glow shows only the part you can grab: the top 200 dp of the hidden dock** (new in v0.2.11). Back is off there, so you pull the dock straight from the glow, with no Back arrow. Before, the glow ran the whole length of the hidden dock, and above the bottom 200 dp it could not be pulled. The grab zone is about 47 px from the edge (it was a 24 px strip), and the glow brightens only when a touch lands there; before, any touch on the screen brightened it.
+- **Below the glow, a Back swipe also pulls the dock out** (Predictive Back, new in v0.2.10). From the glow down to where the dock was, the app takes the Back swipe: the dock follows the finger, and when Android commits the gesture the dock comes back; if it cancels, the dock tucks away again. Samsung draws its own Back arrow at the finger there.
+- **A swipe from the very edge of the screen reaches the glow** (new in v0.2.11). The prototype's screen is scaled to the height and is about 0.7 px narrower than the window. A swipe often starts in that sliver, where Chrome cancelled the touch.
+- **Quick swipes there and back no longer trigger Android's Back** (new in v0.2.13). While the dock was still flying to the edge, the app treated it as shown, so a fast swipe back from the edge went to the system. Now the glow, its grab zone and the Back pull switch over as soon as the dock leaves, and a swipe back catches the dock where it is.
+- **A Back swipe from the other edge leaves the hidden dock hidden** (new in v0.2.10). It is a plain Back. The Back key still brings the dock back when nothing else is open.
+- **A rainbow shimmer runs along the edge glow while you hold it.** Blue, violet, pink, orange, yellow, green and cyan flow along the glow, one cycle every 1.4 s, with a white core left at the screen edge. In v0.2.10 the colours are richer: the white under them is fainter and the colour reaches 24 px in from the edge. The app stays at 120 frames per second while you hold the glow.
+
+Menus and taps
+- **The right slot is a hotseat, and a menu opens from the highlighted icon** (new in v0.2.15, the default). A tap on the highlighted icon, the current product, opens its context menu. The right slot holds the open app, or the last one you opened unless it is pinned; a tap takes you back to it. With no app there (on first start, or after you pin the app from it) it is an Apps button that opens the launcher; nothing is filled in on its own. With the launcher open, the hotseat app stays in the slot and is left out of the grid. The other modes are in Tweak Docklet → Tabs → Right slot: Always menu (••• is always the current product's context menu and never opens the launcher; Chats and Pocket have placeholder menus) and Keep last app (no menu for Chats and Pocket; an app you leave for them stays in the slot).
+- **Choose an app to pin** (the empty Pin slot's menu) now pins the app you tap and opens it (new in v0.2.15). Before, it just opened the launcher and the app landed in the right slot.
+- **The Hide left / Hide right menu is gone** (new in v0.2.11). It opened on a long press on the dock. Hiding is a swipe only.
+- **The highlight stays on the current product** (new in v0.2.10). With the launcher open it moved to •••; now it stays on Chats, Pocket or the open pinned app. ••• is never highlighted. With the launcher open, an open app that is not pinned stays highlighted in the hotseat (in the other Right slot modes, in the launcher).
+- **A pinned app has the full menu**: Unpin from the dock, favourites, Refresh, but no Close. Before, it had only Unpin.
+- **Context menus open above the Pill** and above the highlighted app in the launcher.
+- **A tap on ••• right after a fast swipe opened the launcher did nothing.** Chrome sometimes delivers such a tap without a click. A short, still tap on a dock tab or a launcher app now acts even then.
+
+Launcher, search and Tweak
+- **The Pill shows only the scan icon, and it never turns into ✕** (new in v0.2.16). The plus is gone. When the search card opens, the same scan icon shrinks from 30 to 22 px and moves down into the card's bulge under the field; a tap on it still closes the card, and on close it grows back in the dock. The old frame with a plus that turns into ✕ is still in Tweak Docklet → Centre button → Icon → Plus.
+- **Favourites are part of the grid** (new in v0.2.15): no separate box any more, they come first, top left. A thin line now separates them from the other apps, and they have no hearts any more (new in v0.2.18).
+- **A tip for the swipe up in hotseat mode** (new in v0.2.18). The first time the Apps button in the hotseat gives way to an app, a tip says "Swipe up on the dock to see all your apps" and the expanded view peeks up 56 px and springs back. The dock does not auto-hide while the tip is up; a tap on it, a touch anywhere else or 6 s closes it.
+- **More air in the launcher** (new in v0.2.15): the grid keeps 12 px below the handle at the top and 12 px above the Pill (was 4).
+- **The search card has the same handle** on both steps, camera and text input (new in v0.2.15).
+- **Tweak is redrawn** (new in v0.2.14). The category rail stays at the top with a line on what the category is for, and only the settings below scroll. Calmer rows on one grid, thinner sliders that fill up to the thumb with a mark at the default, iOS-style segments, and explanations under the cards. The header reads Tweak and Done. Motion groups its curves into House & Material, iOS spring and Other systems; in Dock, Version is now Keyboard layout. Same categories in the same order.
+
+Pocket
+- **The Cash card is a leather wallet that catches the light as you tilt the phone** (new in v0.2.16). Leather, stitching and a brass stud each reflect the light in their own way, following the phone's gyroscope (no permission needed on Android).
+- **The CASH logo is pressed into the leather** and its edge catches the light as you tilt the phone, the way the creases do (new in v0.2.17).
+- **The amount reads "$30 CASH"**: top right on the closed wallet, bottom left on the open one; it fades across rather than moving (new in v0.2.17).
+- **Opening the wallet shows Purse** (new in v0.2.17). The header reads Purse with a close button, and Get and Send sit under the wallet (for now a tap on them only gives a haptic). The close button, a tap on the wallet or Back closes it.
+- **The wallet is far lighter to run** (new in v0.2.17). It draws only when the light visibly moves, at most 60 times a second. Held in the hand on a Galaxy A26: 64 % of a CPU core instead of 133 %, 12 % of the GPU instead of 33 %.
+- **Known:** Android WebView passes the phone's motion to the page only after the first tap on it, so the light starts moving after your first touch.
+
+From the new Claude Design version
+- **Auto-hide:** the dock hides as soon as you tap outside it and after 3 s of no touches (new in v0.2.16; it was 2 s and 10 s). Both times and a switch are in Tweak Docklet → Hide gesture → Behaviour. New in v0.2.14: the count starts at the first tap outside the Docklet; more taps no longer push it back. The first time the dock hides on its own, a tip says so: "Docklet tucked itself away" (once).
+- **Hiding the dock with the launcher open** folds the launcher away with it.
+- The Boom gate hide gesture is now called **Drawbridge**.
+- App data moved to `docklet-data.js`.
+
 ### v0.2.16
 Compared to v0.2.7, so this includes v0.2.8 to v0.2.15. Measured on a Galaxy A26:
 
