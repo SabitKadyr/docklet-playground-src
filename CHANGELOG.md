@@ -6,6 +6,12 @@ Changes after v0.2. App versions come from `versions.json`. Downloads are on the
 
 A separate app (`com.docklet.liquid.design`) for the Liquid search flow: the centre Pill flows into a search card, and tapping the field opens text input with a keyboard. Three keyboard layouts can be switched in Tweak Docklet → Centre button → Keyboard layout. Source: `Docklet Liquid.dc.html` with `docklet-liquid.js`, built by `build_liquid.py`.
 
+### v0.2.19
+Pocket: the Cash wallet
+
+- **The shade under the flap stays dark.** With the phone tipped back and the light from above, the edge of the photo's own shadows read as a steep slope and caught the light: the shade under the flap and the rim beside it lit up. Highlights now stay out of the photo's shadows and the 7 px around them, where the relief is also flattened. Measured across every tilt you reach in the hand: the shade at most 31 instead of 96 (0–255, the photo has under 22 there), the rim beside it at most 27 above the photo instead of 72. Creases away from shadows catch the light as before.
+- Costs about 1–2 points more GPU while the light moves (13 % of the A26's GPU instead of 11–12 % with the open wallet drawing every frame); nothing while it is still.
+
 ### v0.2.17
 Pocket: the Cash wallet
 
