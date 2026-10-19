@@ -21,20 +21,48 @@
 <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&amp;display=swap" rel="stylesheet">
 <style>
 .lq-cam-sim { background: url(./assets/camera-sim.jpg) center / cover no-repeat; }
-html, body { margin: 0; padding: 0; background: #141416; overscroll-behavior: none; }
+html, body { margin: 0; padding: 0; background: var(--bgSurfaceContainer); overscroll-behavior: none; }
 /* nothing pans at page level (lists scroll in their own containers): an edge swipe in the sliver beside the scaled
    screen started a pan there and Chrome cancelled the touch */
 body { touch-action: none; }
+/* no shadow under the Docklet in any theme */
+[data-dockshadow] { display: none !important; }
+/* Liquid glass on a light theme gets the light system material under its wash, as the native bar does
+   (DSTabBarVariableBlur: systemUltraThinMaterial at 35 % for the bar, 60 % for the centre, 30 % for the dim) */
+/* A theme switch is instant: no colour transitions start from it (WebView kept stale theme colours on them) */
+[data-theming] *, [data-theming] *::before, [data-theming] *::after { transition: none !important; }
+[data-glass="liquid"] [data-lqglass="dock"] { background-color: var(--matBar) !important; }
+[data-glass="liquid"] [data-lqglass="card"] { background-color: var(--matCenter) !important; }
+/* Liquid on the light themes: drop the Night grey tint and dark inner shadows, frost with white instead */
+[data-glass="liquid"]:not([data-theme="berlinNight"]) [data-lqglass] { background-image: none !important; box-shadow: inset 0 0.5px 0 #FFFFFFB3 !important; }
+[data-glass="liquid"]:not([data-theme="berlinNight"]) path[stroke="#000"] { opacity: 0 !important; }
+/* Light themes: the dock and its shells get an outline about 10 % darker than the dock, in the theme hue: bgSurfaceContainerInverted at 12 % over the glass (--dockRim) */
+[data-screen]:not([data-theme="berlinNight"]) path[stroke="url(#lqRimV)"], [data-screen]:not([data-theme="berlinNight"]) path[stroke="url(#lqCardRim)"], [data-screen]:not([data-theme="berlinNight"]) path[stroke="url(#lqNotch)"] { stroke: var(--dockRim) !important; }
+/* Glass: Tokens = the native tab bar below iOS 26 (DSGlassBackgroundView): bgSurfaceContainer at 70 % over a blur,
+   a strokePrimary outline, no white rim, lens or specular. Liquid = the prototype's own glass, untouched */
+[data-glass="tokens"] [data-lqglass] { background: color-mix(in srgb, var(--bgSurfaceContainer) 70%, transparent) !important; -webkit-backdrop-filter: blur(20px) saturate(1.2) !important; backdrop-filter: blur(20px) saturate(1.2) !important; }
+[data-glass="tokens"] path[stroke="url(#lqRimV)"] { stroke: var(--strokePrimary) !important; stroke-width: 1.6px !important; }
+[data-glass="tokens"] path[stroke="url(#lqCardRim)"] { stroke: var(--strokePrimary) !important; stroke-width: 0.8px !important; }
+[data-glass="tokens"] path[stroke="url(#lqNotch)"], [data-glass="tokens"] path[fill="url(#lqLens)"], [data-glass="tokens"] path[stroke="#000"], [data-glass="tokens"] path[stroke="#fff"] { opacity: 0 !important; }
+/* Polkadot app themes (polkadot-app-design-system-ios v0.0.24). The screen root carries data-theme; Tweak keeps
+   Berlin Night whatever the theme, so the tool around the prototype never changes */
+[data-screen],[data-screen][data-theme="berlinNight"],[data-tweak]{--fgPrimary:#F4F4F5;--fgSecondary:#8C8F98;--fgTertiary:#585B62;--fgDisabled:#585B62;--fgPrimaryInverted:#0B0C0F;--fgLink:#4D8DFF;--bgSurfaceMain:#0B0C0F;--bgSurfaceContainer:#1A1B20;--bgSurfaceNested:#23252A;--bgSurfaceContainerInverted:#FFFFFF;--bgSurfaceNestedInverted:#F4F4F5;--bgActionPrimary:#DADBE0;--bgActionSecondary:#404249;--bgActionTertiary:#2C2E34;--strokePrimary:#23252A;--strokeSecondary:#404249;--strokeTertiary:#8C8F98;--kbBg:#1B1B1B;--chatField:#404249;--matBar:transparent;--matCenter:transparent;--matDim:transparent;--kbKey:#707070;--kbGlyph:#F4F4F5;--bgAccent:#4D8DFF;--bgSurfaceOverlay:#0000007A;--shadowSoft:#0000003D;}
+[data-screen][data-theme="berlinDay"]{--dockRim:#1A1A1A1F;--fgPrimary:#0B0C0F;--fgSecondary:#585B62;--fgTertiary:#8C8F98;--fgDisabled:#8C8F98;--fgPrimaryInverted:#F4F4F5;--fgLink:#2F6FEA;--bgSurfaceMain:#F7F7F8;--bgSurfaceContainer:#FFFFFF;--bgSurfaceNested:#F7F7F8;--bgSurfaceContainerInverted:#1A1A1A;--bgSurfaceNestedInverted:#23252A;--bgActionPrimary:#0B0C0F;--bgActionSecondary:#C9CAD0;--bgActionTertiary:#F4F4F5;--strokePrimary:#DADBE0;--strokeSecondary:#DADBE0;--strokeTertiary:#A9ABB3;--kbBg:#D1D3D9;--chatField:var(--bgSurfaceContainer);--matBar:#FFFFFF80;--matCenter:#FFFFFFB3;--matDim:#FFFFFF2E;--kbKey:#FFFFFF;--kbGlyph:#000000;--bgAccent:#4D8DFF;--bgSurfaceOverlay:#0000007A;--shadowSoft:#0000003D;}
+[data-screen][data-theme="tokyo"]{--dockRim:#9F12391F;--fgPrimary:#4C0519;--fgSecondary:#881337;--fgTertiary:#D14967;--fgDisabled:#FDA4AF;--fgPrimaryInverted:#F4F4F5;--fgLink:#9F1239;--bgSurfaceMain:#FFE4E6;--bgSurfaceContainer:#FFF5F6;--bgSurfaceNested:#FFE4E6;--bgSurfaceContainerInverted:#9F1239;--bgSurfaceNestedInverted:#D9576D;--bgActionPrimary:#9F1239;--bgActionSecondary:#FDA4AF;--bgActionTertiary:#FFE4E6;--strokePrimary:#FECDD3;--strokeSecondary:#FDA4AF;--strokeTertiary:#FB7185;--kbBg:#D1D3D9;--chatField:var(--bgSurfaceContainer);--matBar:#FFFFFF80;--matCenter:#FFFFFFB3;--matDim:#FFFFFF2E;--kbKey:#FFFFFF;--kbGlyph:#000000;--bgAccent:#4D8DFF;--bgSurfaceOverlay:#0000007A;--shadowSoft:#0000003D;}
+[data-screen][data-theme="malta"]{--dockRim:#065F461F;--fgPrimary:#022C22;--fgSecondary:#064E3B;--fgTertiary:#059669;--fgDisabled:#34D399;--fgPrimaryInverted:#F4F4F5;--fgLink:#065F46;--bgSurfaceMain:#D1FAE5;--bgSurfaceContainer:#F5FFFA;--bgSurfaceNested:#D1FAE5;--bgSurfaceContainerInverted:#065F46;--bgSurfaceNestedInverted:#10B981;--bgActionPrimary:#065F46;--bgActionSecondary:#6EE7B7;--bgActionTertiary:#D1FAE5;--strokePrimary:#A7F3D0;--strokeSecondary:#6EE7B7;--strokeTertiary:#34D399;--kbBg:#D1D3D9;--chatField:var(--bgSurfaceContainer);--matBar:#FFFFFF80;--matCenter:#FFFFFFB3;--matDim:#FFFFFF2E;--kbKey:#FFFFFF;--kbGlyph:#000000;--bgAccent:#4D8DFF;--bgSurfaceOverlay:#0000007A;--shadowSoft:#0000003D;}
+[data-screen][data-theme="lisbon"]{--dockRim:#9A34121F;--fgPrimary:#431407;--fgSecondary:#7C2D12;--fgTertiary:#C24C1B;--fgDisabled:#ED9853;--fgPrimaryInverted:#F4F4F5;--fgLink:#9A3412;--bgSurfaceMain:#FFEDD5;--bgSurfaceContainer:#FFFBF5;--bgSurfaceNested:#FFEDD5;--bgSurfaceContainerInverted:#9A3412;--bgSurfaceNestedInverted:#D96C21;--bgActionPrimary:#D96C21;--bgActionSecondary:#FDBA74;--bgActionTertiary:#FFEDD5;--strokePrimary:#FED7AA;--strokeSecondary:#FDBA74;--strokeTertiary:#ED9853;--kbBg:#D1D3D9;--chatField:var(--bgSurfaceContainer);--matBar:#FFFFFF80;--matCenter:#FFFFFFB3;--matDim:#FFFFFF2E;--kbKey:#FFFFFF;--kbGlyph:#000000;--bgAccent:#4D8DFF;--bgSurfaceOverlay:#0000007A;--shadowSoft:#0000003D;}
+[data-screen] [data-tweak]{--fgPrimary:#F4F4F5;--fgSecondary:#8C8F98;--fgTertiary:#585B62;--fgDisabled:#585B62;--fgPrimaryInverted:#0B0C0F;--fgLink:#4D8DFF;--bgSurfaceMain:#0B0C0F;--bgSurfaceContainer:#1A1B20;--bgSurfaceNested:#23252A;--bgSurfaceContainerInverted:#FFFFFF;--bgSurfaceNestedInverted:#F4F4F5;--bgActionPrimary:#DADBE0;--bgActionSecondary:#404249;--bgActionTertiary:#2C2E34;--strokePrimary:#23252A;--strokeSecondary:#404249;--strokeTertiary:#8C8F98;--kbBg:#1B1B1B;--chatField:#404249;--matBar:transparent;--matCenter:transparent;--matDim:transparent;--kbKey:#707070;--kbGlyph:#F4F4F5;--bgAccent:#4D8DFF;--bgSurfaceOverlay:#0000007A;--shadowSoft:#0000003D;}
+
 * { -webkit-tap-highlight-color: transparent; }
 body, body * { -webkit-user-select: none; user-select: none; }
 input { -webkit-user-select: auto; user-select: auto; }
 body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
-a { color: #f4f4f5; text-decoration: none; }
+a { color: var(--fgPrimary); text-decoration: none; }
 a:hover { color: #ffffff; }
 input[type="range"] { -webkit-appearance: none; appearance: none; height: 36px; background: transparent; touch-action: pan-y; }
-input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: #ffffff1f; }
+input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--bgSurfaceContainerInverted) 12%, transparent); }
 input[type="range"].plain::-webkit-slider-runnable-track { background: transparent; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: #f4f4f5; box-shadow: 0 1px 4px #00000099, 0 0 0 0.5px #0000004d; position: relative; z-index: 1; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: var(--bgSurfaceNestedInverted); box-shadow: 0 1px 4px #00000099, 0 0 0 0.5px #0000004d; position: relative; z-index: 1; }
 ::-webkit-scrollbar { width: 0; height: 0; }
 @keyframes dockFade {
 0% { opacity: 0; transform: translateY(6px) scale(0.992); }
@@ -106,28 +134,28 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="{{ stageStyle }}">
 <div style="{{ headerStyle }}">
 <span style="font-size:13px;font-weight:600;letter-spacing:0.02em">Docklet</span>
-<span style="font-size:11.5px;color:#8c8f98">tabbar playground</span>
+<span style="font-size:11.5px;color:var(--fgSecondary)">tabbar playground</span>
 </div>
 <div style="{{ fitStyle }}">
 <div style="{{ scaleStyle }}">
-<div data-screen="1" style="position:relative; width:402px; height:874px; border-radius:{{ screenRadius }}px; overflow:hidden; background:#0b0c0f; box-shadow:0 40px 120px #00000099, 0 0 0 1px #ffffff0f; flex-shrink:0">
+<div data-screen="1" data-theme="{{ themeId }}" data-glass="{{ glassMode }}" style="position:relative; width:402px; height:874px; border-radius:{{ screenRadius }}px; overflow:hidden; background:var(--bgSurfaceMain); box-shadow:0 40px 120px #00000099, 0 0 0 1px #ffffff0f; flex-shrink:0">
 <div style="position:relative;z-index:3;height:52px;flex-shrink:0;pointer-events:none"></div>
 <div style="{{ headerStyle2 }}">
 <sc-if value="{{ titleShown }}" hint-placeholder-val="{{ true }}">
-<span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:600;line-height:24px;color:#f4f4f5">{{ screenTitle }}</span>
+<span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:600;line-height:24px;color:var(--fgPrimary)">{{ screenTitle }}</span>
 </sc-if>
 <div onClick="{{ onSwitchScreen }}" style="{{ screenBtnStyle }}">{{ screenBtnLabel }}</div>
 <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);display:flex;gap:4px;align-items:center">
 <sc-if value="{{ headerIcons }}">
-<div style="position:relative;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px #404249;display:flex;align-items:center;justify-content:center;overflow:hidden">
-<svg width="8.171" height="9.25" viewBox="0 0 8.171 9.25" style="color:#f4f4f5;position:relative;top:0.6px"><use href="#ic-person"></use></svg>
+<div style="position:relative;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--strokeSecondary);display:flex;align-items:center;justify-content:center;overflow:hidden">
+<svg width="8.171" height="9.25" viewBox="0 0 8.171 9.25" style="color:var(--fgPrimary);position:relative;top:0.6px"><use href="#ic-person"></use></svg>
 </div>
-<div style="position:relative;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px #404249;display:flex;align-items:center;justify-content:center">
+<div style="position:relative;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--strokeSecondary);display:flex;align-items:center;justify-content:center">
 <svg width="9" height="18" viewBox="0 0 9 18" style="position:absolute;left:1px;top:1px"><use href="#ic-halfring"></use></svg>
 <img src="assets/hub-chain.svg" alt="" style="width:10px;height:10px;filter:invert(1)">
 </div>
-<div style="position:relative;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px #404249;display:flex;align-items:center;justify-content:center">
-<svg width="8.139" height="7.049" viewBox="0 0 8.139 7.049" style="color:#585b62"><use href="#ic-folder"></use></svg>
+<div style="position:relative;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--strokeSecondary);display:flex;align-items:center;justify-content:center">
+<svg width="8.139" height="7.049" viewBox="0 0 8.139 7.049" style="color:var(--fgTertiary)"><use href="#ic-folder"></use></svg>
 </div>
 </sc-if>
 <sc-if value="{{ showActions }}">
@@ -146,20 +174,20 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 <div style="flex:1;min-width:0;height:60px;display:flex;flex-direction:column">
 <div style="height:24px;display:flex;gap:8px;align-items:flex-end">
-<span style="font-size:16px;font-weight:600;line-height:24px;color:#f4f4f5;white-space:nowrap">{{ row.name }}</span>
+<span style="font-size:16px;font-weight:600;line-height:24px;color:var(--fgPrimary);white-space:nowrap">{{ row.name }}</span>
 <sc-if value="{{ row.muted }}">
-<div style="position:relative;width:18.344px;height:15px;color:#585b62;flex-shrink:0;margin-bottom:3px">
+<div style="position:relative;width:18.344px;height:15px;color:var(--fgTertiary);flex-shrink:0;margin-bottom:3px">
 <svg width="9.711" height="15" viewBox="0 0 9.711 15" style="position:absolute;left:0;top:0"><use href="#ic-speaker"></use></svg>
 <svg width="6.474" height="6.429" viewBox="0 0 6.474 6.429" style="position:absolute;left:11.87px;top:4.286px"><use href="#ic-x"></use></svg>
 </div>
 </sc-if>
 <div style="flex:1"></div>
-<span style="font-size:14px;font-weight:500;line-height:20px;color:#585b62;white-space:nowrap">{{ row.time }}</span>
+<span style="font-size:14px;font-weight:500;line-height:20px;color:var(--fgTertiary);white-space:nowrap">{{ row.time }}</span>
 </div>
 <div style="display:flex;gap:8px;align-items:flex-start;height:36px">
 <div style="flex:1;min-width:0;max-height:36px;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;gap:6px">
 <sc-if value="{{ row.text }}" hint-placeholder-val="{{ true }}">
-<span style="font-size:14px;font-weight:400;line-height:18px;color:#8c8f98">{{ row.text }}</span>
+<span style="font-size:14px;font-weight:400;line-height:18px;color:var(--fgSecondary)">{{ row.text }}</span>
 </sc-if>
 <sc-if value="{{ row.redact }}">
 <div style="height:14px; border-radius:2px; background:#8c8f98; width:{{ row.redact }}"></div>
@@ -167,25 +195,25 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 <div style="display:flex;gap:8px;align-items:center;padding:4px 0;flex-shrink:0">
 <sc-if value="{{ row.heartSolid }}">
-<div style="width:20px;height:20px;border-radius:9999px;background:#dadbe0;display:flex;align-items:center;justify-content:center">
-<svg width="13.344" height="12.008" viewBox="0 0 13.344 12.008" style="color:#0b0c0f"><use href="#ic-heart"></use></svg>
+<div style="width:20px;height:20px;border-radius:9999px;background:var(--bgActionPrimary);display:flex;align-items:center;justify-content:center">
+<svg width="13.344" height="12.008" viewBox="0 0 13.344 12.008" style="color:var(--fgPrimaryInverted)"><use href="#ic-heart"></use></svg>
 </div>
 </sc-if>
 <sc-if value="{{ row.heartGhost }}">
-<div style="width:20px;height:20px;border-radius:9999px;background:#23252a;display:flex;align-items:center;justify-content:center">
-<svg width="13.344" height="12.008" viewBox="0 0 13.344 12.008" style="color:#585b62"><use href="#ic-heart"></use></svg>
+<div style="width:20px;height:20px;border-radius:9999px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center">
+<svg width="13.344" height="12.008" viewBox="0 0 13.344 12.008" style="color:var(--fgTertiary)"><use href="#ic-heart"></use></svg>
 </div>
 </sc-if>
 <sc-if value="{{ row.count }}">
-<div style="height:20px;padding:0 8px;border-radius:9999px;background:#23252a;display:flex;align-items:center">
-<span style="font-size:12px;font-weight:600;color:#8c8f98">{{ row.count }}</span>
+<div style="height:20px;padding:0 8px;border-radius:9999px;background:var(--bgSurfaceNested);display:flex;align-items:center">
+<span style="font-size:12px;font-weight:600;color:var(--fgSecondary)">{{ row.count }}</span>
 </div>
 </sc-if>
 </div>
 </div>
 </div>
 </div>
-<div style="height:1px;background:#23252a;margin:0 12px"></div>
+<div style="height:1px;background:var(--bgSurfaceNested);margin:0 12px"></div>
 </div>
 </sc-for>
 <div style="height:150px"></div>
@@ -210,14 +238,14 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 </sc-if>
 <sc-if value="{{ slotEmptyOpen }}">
-<div style="position:absolute;left:0;right:0;top:98px;bottom:0;z-index:2;background:#0b0c0f;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px 160px;box-sizing:border-box">
+<div style="position:absolute;left:0;right:0;top:98px;bottom:0;z-index:2;background:var(--bgSurfaceMain);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px 160px;box-sizing:border-box">
 <div style="display:flex;flex-direction:column;align-items:center;gap:24px;width:270.276px">
-<div style="width:80px;height:80px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 28 28" style="width:64px;height:64px;display:block;color:#8c8f98"><use href="#ic-pin-empty"></use></svg></div>
+<div style="width:80px;height:80px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 28 28" style="width:64px;height:64px;display:block;color:var(--fgSecondary)"><use href="#ic-pin-empty"></use></svg></div>
 <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:270.276px">
-<span style="font-weight:600;font-size:24px;line-height:32px;text-align:center;color:#f4f4f5;text-wrap:balance">Pin an app here</span>
-<span style="font-weight:400;font-size:16px;line-height:21px;text-align:center;color:#8c8f98;text-wrap:pretty">Press and hold any app in your launcher, then choose Pin to dock. It will live in this spot, one tap away.</span>
+<span style="font-weight:600;font-size:24px;line-height:32px;text-align:center;color:var(--fgPrimary);text-wrap:balance">Pin an app here</span>
+<span style="font-weight:400;font-size:16px;line-height:21px;text-align:center;color:var(--fgSecondary);text-wrap:pretty">Press and hold any app in your launcher, then choose Pin to dock. It will live in this spot, one tap away.</span>
 </div>
-<div onClick="{{ onSlotOpenApps }}" style="min-height:48px;padding:0 22px;border-radius:24px;background:#f4f4f5;color:#0b0c0f;display:flex;align-items:center;font-size:15px;font-weight:600;cursor:pointer" style-active="transform:scale(0.97)">Open launcher</div>
+<div onClick="{{ onSlotOpenApps }}" style="min-height:48px;padding:0 22px;border-radius:24px;background:var(--bgSurfaceNestedInverted);color:var(--fgPrimaryInverted);display:flex;align-items:center;font-size:15px;font-weight:600;cursor:pointer" style-active="transform:scale(0.97)">Open launcher</div>
 </div>
 </div>
 </sc-if>
@@ -250,34 +278,34 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 </sc-for>
 </div>
-<div style="position:absolute;left:0;right:0;top:0;height:78px;background:linear-gradient(180deg,#0b0c0ff2 40%,#0b0c0f00);pointer-events:none"></div>
+<div style="position:absolute;left:0;right:0;top:0;height:78px;background:linear-gradient(180deg,color-mix(in srgb, var(--bgSurfaceMain) 95%, transparent) 40%,color-mix(in srgb, var(--bgSurfaceMain) 0%, transparent));pointer-events:none"></div>
 <div style="position:absolute;left:0;right:0;top:8px;height:60px;display:flex;flex-direction:row;gap:10px;padding:8px 16px;box-sizing:border-box;align-items:center">
 <div style="width:98px;align-self:stretch;display:flex;gap:10px;align-items:center;flex-shrink:0">
-<div onClick="{{ onChatBack }}" style="width:44px;height:44px;border-radius:296px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;color:#f4f4f5;background:#212227;box-shadow:inset 0 0.5px 0 #ffffff2e,inset 0 0 0 0.5px #ffffff14">
+<div onClick="{{ onChatBack }}" style="width:44px;height:44px;border-radius:296px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;color:var(--fgPrimary);background:var(--bgSurfaceNested);box-shadow:inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent),inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)">
 <svg viewBox="0 0 24 24" style="width:28px;height:28px;display:block"><use href="#ci-back"></use></svg>
 </div>
 <div style="{{ chatAvatarStyle }}">{{ chatInitial }}</div>
 </div>
 <div style="flex:1;min-width:0;height:38px;display:flex;flex-direction:column;justify-content:center;padding:1px 2px;box-sizing:border-box">
-<span style="font-weight:700;font-size:18px;line-height:24px;color:#f4f4f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ chatName }}</span>
+<span style="font-weight:700;font-size:18px;line-height:24px;color:var(--fgPrimary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ chatName }}</span>
 </div>
-<div style="width:112px;height:44px;flex-shrink:0;border-radius:296px;display:flex;gap:24px;padding:0 16px;box-sizing:border-box;align-items:center;color:#f4f4f5;background:#212227;box-shadow:inset 0 0.5px 0 #ffffff2e,inset 0 0 0 0.5px #ffffff14">
+<div style="width:112px;height:44px;flex-shrink:0;border-radius:296px;display:flex;gap:24px;padding:0 16px;box-sizing:border-box;align-items:center;color:var(--fgPrimary);background:var(--bgSurfaceNested);box-shadow:inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent),inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)">
 <svg viewBox="0 0 24 24" style="width:28px;height:28px;display:block"><use href="#ci-video"></use></svg>
 <svg viewBox="0 0 24 24" style="width:28px;height:28px;display:block"><use href="#ci-phone"></use></svg>
 </div>
 </div>
-<div style="position:absolute;left:0;right:0;bottom:0;height:98px;background:linear-gradient(180deg,#0b0c0f00 0%,#0b0c0fd9 45%,#0b0c0f 100%);pointer-events:none"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:98px;background:linear-gradient(180deg,color-mix(in srgb, var(--bgSurfaceMain) 0%, transparent) 0%,color-mix(in srgb, var(--bgSurfaceMain) 85%, transparent) 45%,var(--bgSurfaceMain) 100%);pointer-events:none"></div>
 <div style="{{ chatBarStyle }}">
-<div style="width:48px;height:48px;border-radius:9999px;background:#404249;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#f4f4f5;cursor:pointer">
+<div style="width:48px;height:48px;border-radius:9999px;background:var(--chatField);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fgPrimary);cursor:pointer">
 <svg viewBox="0 0 24 24" style="width:24px;height:24px;display:block"><use href="#ci-plus"></use></svg>
 </div>
-<div style="width:48px;height:48px;border-radius:9999px;background:#404249;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#f4f4f5;cursor:pointer">
+<div style="width:48px;height:48px;border-radius:9999px;background:var(--chatField);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--fgPrimary);cursor:pointer">
 <svg viewBox="0 0 24 24" style="width:24px;height:24px;display:block"><use href="#ci-image"></use></svg>
 </div>
-<div style="flex:1;min-width:0;height:48px;border-radius:24px;background:#404249;display:flex;align-items:center;padding:0 6px 0 16px;box-sizing:border-box;gap:8px">
-<input value="{{ chatDraft }}" onInput="{{ onChatDraft }}" onKeyDown="{{ onChatKey }}" onFocus="{{ onChatFocus }}" inputMode="none" placeholder="Write a message..." style="flex:1;min-width:0;background:transparent;border:none;outline:none;font-family:inherit;font-size:16px;line-height:20px;color:#f4f4f5;caret-color:#f4f4f5;padding:0">
+<div style="flex:1;min-width:0;height:48px;border-radius:24px;background:var(--chatField);display:flex;align-items:center;padding:0 6px 0 16px;box-sizing:border-box;gap:8px">
+<input value="{{ chatDraft }}" onInput="{{ onChatDraft }}" onKeyDown="{{ onChatKey }}" onFocus="{{ onChatFocus }}" inputMode="none" placeholder="Write a message..." style="flex:1;min-width:0;background:transparent;border:none;outline:none;font-family:inherit;font-size:16px;line-height:20px;color:var(--fgPrimary);caret-color:var(--fgPrimary);padding:0">
 <sc-if value="{{ chatCanSend }}">
-<div onClick="{{ onChatSend }}" style="width:36px;height:36px;border-radius:9999px;background:#f4f4f5;color:#0b0c0f;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer">
+<div onClick="{{ onChatSend }}" style="width:36px;height:36px;border-radius:9999px;background:var(--bgSurfaceNestedInverted);color:var(--fgPrimaryInverted);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer">
 <svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block"><use href="#ci-send"></use></svg>
 </div>
 </sc-if>
@@ -291,31 +319,31 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-if value="{{ dockTipOpen }}">
 <div ref="{{ tipRef }}" onPointerDown="{{ onDockTipDown }}" style="{{ dockTipStyle }}">
 <div style="{{ dockTipPillStyle }}">
-<span style="font-weight:500;font-size:12px;line-height:16px;text-align:center;color:#0b0c0f"><b style="font-weight:600">{{ dockTipTitle }}</b><br>{{ dockTipLine }}</span>
+<span style="font-weight:500;font-size:12px;line-height:16px;text-align:center;color:var(--fgPrimaryInverted)"><b style="font-weight:600">{{ dockTipTitle }}</b><br>{{ dockTipLine }}</span>
 </div>
 </div>
 </sc-if>
 <sc-if value="{{ launchTipOpen }}">
 <div onClick="{{ onLaunchTipClose }}" style="{{ launchTipStyle }}">
-<span style="width:164.578px;font-weight:500;font-size:12px;line-height:16px;text-align:center;color:#0b0c0f">Press and hold an app to pin it to your dock or manage favourites</span>
-<svg viewBox="0 0 11.5 5" style="position:absolute;left:37.5px;bottom:-5px;width:11.5px;height:5px;display:block" fill="#ffffff"><path d="M 5.381 4.445 L 0 0 L 11.5 0 L 6.694 4.411 C 6.326 4.749 5.766 4.763 5.381 4.445 Z"></path></svg>
+<span style="width:164.578px;font-weight:500;font-size:12px;line-height:16px;text-align:center;color:var(--fgPrimaryInverted)">Press and hold an app to pin it to your dock or manage favourites</span>
+<svg viewBox="0 0 11.5 5" style="position:absolute;left:37.5px;bottom:-5px;width:11.5px;height:5px;display:block" fill="var(--fgPrimary)"><path d="M 5.381 4.445 L 0 0 L 11.5 0 L 6.694 4.411 C 6.326 4.749 5.766 4.763 5.381 4.445 Z"></path></svg>
 </div>
 </sc-if>
 <sc-if value="{{ slotTipOpen }}">
 <div onClick="{{ onTipClose }}" style="{{ slotTipStyle }}">
-<span style="width:164.578px;font-weight:500;font-size:12px;line-height:16px;text-align:center;color:#0b0c0f">Swipe up on the dock to see all your apps</span>
-<svg viewBox="0 0 11.5 5" style="position:absolute;left:164px;top:72px;width:11.5px;height:5px;display:block" fill="#ffffff"><path d="M 5.381 4.445 L 0 0 L 11.5 0 L 6.694 4.411 C 6.326 4.749 5.766 4.763 5.381 4.445 Z"></path></svg>
+<span style="width:164.578px;font-weight:500;font-size:12px;line-height:16px;text-align:center;color:var(--fgPrimaryInverted)">Swipe up on the dock to see all your apps</span>
+<svg viewBox="0 0 11.5 5" style="position:absolute;left:164px;top:72px;width:11.5px;height:5px;display:block" fill="var(--fgPrimary)"><path d="M 5.381 4.445 L 0 0 L 11.5 0 L 6.694 4.411 C 6.326 4.749 5.766 4.763 5.381 4.445 Z"></path></svg>
 </div>
 </sc-if>
 <sc-if value="{{ hsTipOpen }}">
 <div data-hstip="1" onClick="{{ onHsTipClose }}" style="{{ hsTipStyle }}">
-<svg width="16" height="16" viewBox="0 0 24 24" style="flex-shrink:0;display:block;animation:hsNudge 1.1s ease-in-out infinite"><path d="M6 15l6-6 6 6" fill="none" stroke="#0b0c0f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-<span style="font-weight:500;font-size:12px;line-height:16px;text-align:left;color:#0b0c0f">Swipe up on the dock to see all your apps</span>
-<svg viewBox="0 0 11.5 5" style="position:absolute;left:100.5px;margin-left:-5.75px;bottom:-5px;width:11.5px;height:5px;display:block" fill="#ffffff"><path d="M 5.381 4.445 L 0 0 L 11.5 0 L 6.694 4.411 C 6.326 4.749 5.766 4.763 5.381 4.445 Z"></path></svg>
+<svg width="16" height="16" viewBox="0 0 24 24" style="flex-shrink:0;display:block;animation:hsNudge 1.1s ease-in-out infinite"><path d="M6 15l6-6 6 6" fill="none" stroke="var(--fgPrimaryInverted)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span style="font-weight:500;font-size:12px;line-height:16px;text-align:left;color:var(--fgPrimaryInverted)">Swipe up on the dock to see all your apps</span>
+<svg viewBox="0 0 11.5 5" style="position:absolute;left:157px;margin-left:-5.75px;bottom:-5px;width:11.5px;height:5px;display:block" fill="var(--fgPrimary)"><path d="M 5.381 4.445 L 0 0 L 11.5 0 L 6.694 4.411 C 6.326 4.749 5.766 4.763 5.381 4.445 Z"></path></svg>
 </div>
 </sc-if>
 <sc-if value="{{ pocketOpen }}">
-<div style="position:absolute;left:0;right:0;top:98px;bottom:0;z-index:2;background:#0b0c0f;overflow-y:{{ pocketScroll }};scrollbar-width:none;padding:16px 15.115px 210px;box-sizing:border-box">
+<div style="position:absolute;left:0;right:0;top:98px;bottom:0;z-index:2;background:var(--bgSurfaceMain);overflow-y:{{ pocketScroll }};scrollbar-width:none;padding:16px 15.115px 210px;box-sizing:border-box">
 <div style="position:relative;display:flex;flex-direction:column;gap:0">
 <div onClick="{{ onOpenCash }}" style="position:relative;height:232px;flex-shrink:0;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;padding:16px 24px;box-sizing:border-box;cursor:pointer">
 <wallet-card src="./assets/wallet/" style="position:absolute;inset:0;display:block"></wallet-card>
@@ -340,23 +368,23 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div></div>
 </div>
 </div>
-<div style="{{ purseHeaderStyle }}"><div onPointerDown="{{ onCashClose }}" aria-label="Close" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#ffffff0f;box-shadow:inset 0 0 0 1px #ffffff1f;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#f4f4f5"><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div><span style="font-size:18px;font-weight:600;line-height:24px;color:#f4f4f5">Purse</span></div>
+<div style="{{ purseHeaderStyle }}"><div onPointerDown="{{ onCashClose }}" aria-label="Close" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--bgSurfaceContainerInverted) 12%, transparent);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div><span style="font-size:18px;font-weight:600;line-height:24px;color:var(--fgPrimary)">Purse</span></div>
 </sc-if>
 
 
 <sc-if value="{{ settingsOpen }}">
 <div style="{{ setViewStyle }}">
-<span style="font-size:34px;line-height:41px;font-weight:700;letter-spacing:0.4px;color:#f4f4f5;padding:0 1px">Settings</span>
-<div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6a6a6a">Appearance</span><div style="background:#1a1b20;border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div onClick="{{ onSetTheme }}" style="cursor:pointer"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-theme"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Theme</span></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span style="font-size:16px;line-height:24px;color:#8c8f98">{{ setTheme }}</span><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:#8c8f98;flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div><div style="height:1px;background:#23252a;margin-left:58px"></div><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-labels"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Tab bar labels</span></div><div onClick="{{ onSetLabels }}" style="{{ setSwitchStyle }}"><div style="{{ setKnobStyle }}"></div></div></div></div></div>
+<span style="font-size:34px;line-height:41px;font-weight:700;letter-spacing:0.4px;color:var(--fgPrimary);padding:0 1px">Settings</span>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fgTertiary)">Appearance</span><div style="background:var(--bgSurfaceContainer);border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div onClick="{{ onSetTheme }}" style="cursor:pointer"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-theme"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Theme</span></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span style="font-size:16px;line-height:24px;color:var(--fgSecondary)">{{ setTheme }}</span><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div><div style="height:1px;background:var(--bgSurfaceNested);margin-left:58px"></div><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-labels"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Tab bar labels</span></div><div onClick="{{ onSetLabels }}" style="{{ setSwitchStyle }}"><div style="{{ setKnobStyle }}"></div></div></div></div></div>
 <div style="display:flex;flex-direction:column;gap:12px">
-<span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6a6a6a">Security &amp; Privacy</span>
-<div style="background:#1a1b20;border-radius:16px;overflow:hidden;display:flex;flex-direction:column">
+<span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fgTertiary)">Security &amp; Privacy</span>
+<div style="background:var(--bgSurfaceContainer);border-radius:16px;overflow:hidden;display:flex;flex-direction:column">
 <div style="display:flex;flex-direction:column;padding:0 16px 8px">
-<div style="height:44px;display:flex;align-items:center"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-privacy"></use></svg></div></div><span style="font-size:16px;line-height:24px;color:#f4f4f5">Payments Privacy Mode</span></div>
+<div style="height:44px;display:flex;align-items:center"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-privacy"></use></svg></div></div><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Payments Privacy Mode</span></div>
 <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0 8px">
 <div style="position:relative;height:78px">
 <div style="position:absolute;left:50%;top:18.975px;width:324.338px;height:40.05px;margin-left:-162.169px">
-<div style="position:absolute;left:0;top:0.05px;width:324.338px;height:40px;border-radius:33px;background:#14151b;box-shadow:0px -1px 1px 0px #292b30,0px 1px 1px 0px #2a2b30,inset 0px 3px 6px 0px #00000080,inset 0px 7px 5px 0px #00000073"></div>
+<div style="position:absolute;left:0;top:0.05px;width:324.338px;height:40px;border-radius:33px;background:var(--bgSurfaceContainer);box-shadow:0px -1px 1px 0px #292b30,0px 1px 1px 0px #2a2b30,inset 0px 3px 6px 0px #00000080,inset 0px 7px 5px 0px #00000073"></div>
 <div style="position:absolute;left:19.7px;top:16.85px;width:286px;height:6.295px;background:linear-gradient(90deg,#f59e0b 0%,#4fd05c 49.04%,#0e5cd1 72.6%,#6930c9 100%);-webkit-mask:url(./assets/settings/ticks.svg) center / 100% 100% no-repeat;mask:url(./assets/settings/ticks.svg) center / 100% 100% no-repeat"></div>
 <div style="{{ privGlowStyle }}"></div>
 <div onPointerDown="{{ onPrivDown }}" style="{{ privFrameStyle }}"></div>
@@ -365,34 +393,34 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div onClick="{{ onPrivMax }}" onPointerDown="{{ onPrivDown }}" style="{{ privDisc_max }}"><div style="{{ privGlyph_max }}"></div></div>
 </div>
 </div>
-<div style="height:66px;border-radius:12px;background:#23252a;display:flex;flex-direction:column;justify-content:center;padding:12px 16px;box-sizing:border-box">
-<span style="font-size:16px;line-height:24px;font-weight:600;color:#f4f4f5">{{ privTitle }}</span>
-<span style="font-size:14px;line-height:18px;color:#8c8f98">{{ privDesc }}</span>
+<div style="height:66px;border-radius:12px;background:var(--bgSurfaceNested);display:flex;flex-direction:column;justify-content:center;padding:12px 16px;box-sizing:border-box">
+<span style="font-size:16px;line-height:24px;font-weight:600;color:var(--fgPrimary)">{{ privTitle }}</span>
+<span style="font-size:14px;line-height:18px;color:var(--fgSecondary)">{{ privDesc }}</span>
 </div>
 </div>
 </div>
-<div style="height:1px;background:#23252a;margin-left:0"></div>
-<div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-backup"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Backup</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:#8c8f98;flex-shrink:0"><use href="#si-chev"></use></svg></div><div style="height:1px;background:#23252a;margin-left:58px"></div>
-<div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-perm"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Permissions</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:#8c8f98;flex-shrink:0"><use href="#si-chev"></use></svg></div><div style="height:1px;background:#23252a;margin-left:58px"></div>
-<div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-block"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Blocked contacts</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:#8c8f98;flex-shrink:0"><use href="#si-chev"></use></svg></div><div style="height:1px;background:#23252a;margin-left:58px"></div>
-<div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-devices"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Connected devices</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:#8c8f98;flex-shrink:0"><use href="#si-chev"></use></svg></div>
+<div style="height:1px;background:var(--bgSurfaceNested);margin-left:0"></div>
+<div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-backup"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Backup</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div><div style="height:1px;background:var(--bgSurfaceNested);margin-left:58px"></div>
+<div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-perm"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Permissions</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div><div style="height:1px;background:var(--bgSurfaceNested);margin-left:58px"></div>
+<div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-block"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Blocked contacts</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div><div style="height:1px;background:var(--bgSurfaceNested);margin-left:58px"></div>
+<div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-devices"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Connected devices</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div>
 </div>
 </div>
-<div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6a6a6a">Legal &amp; Support</span><div style="background:#1a1b20;border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-legal"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Legal &amp; Support</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:#8c8f98;flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div>
-<div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6a6a6a">Payments</span><div style="background:#1a1b20;border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-reclaim"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Reclaim payments</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:#8c8f98;flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div>
-<div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6a6a6a">Other</span><div style="background:#1a1b20;border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:#23252a;display:flex;align-items:center;justify-content:center;color:#c8cad0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-merchant"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:#f4f4f5">Merchant mode</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:#8c8f98;flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fgTertiary)">Legal &amp; Support</span><div style="background:var(--bgSurfaceContainer);border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-legal"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Legal &amp; Support</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fgTertiary)">Payments</span><div style="background:var(--bgSurfaceContainer);border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-reclaim"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Reclaim payments</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fgTertiary)">Other</span><div style="background:var(--bgSurfaceContainer);border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-merchant"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Merchant mode</span></div><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div>
 <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:16px 0">
-<div style="width:116.386px;height:28px;background:#ffffff;-webkit-mask:url(./assets/settings/polkadot.svg) center / contain no-repeat;mask:url(./assets/settings/polkadot.svg) center / contain no-repeat"></div>
-<span style="font-size:14px;line-height:20px;text-align:center;color:#585b62;white-space:pre-line">App Version v1.0.0
+<div style="width:116.386px;height:28px;background:var(--bgSurfaceContainerInverted);-webkit-mask:url(./assets/settings/polkadot.svg) center / contain no-repeat;mask:url(./assets/settings/polkadot.svg) center / contain no-repeat"></div>
+<span style="font-size:14px;line-height:20px;text-align:center;color:var(--fgTertiary);white-space:pre-line">App Version v1.0.0
 2026</span>
 </div>
 </div>
 </sc-if>
 <sc-if value="{{ controlsScreen }}">
-<div style="{{ panelStyle }}">
+<div data-tweak="1" style="{{ panelStyle }}">
 <sc-if value="{{ hasPresets }}">
 <div style="flex-shrink:0;display:flex;flex-direction:column;gap:10px">
-<span style="font-size:12.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#8c8f98;padding:0 6px">Presets</span>
+<span style="font-size:12.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--fgSecondary);padding:0 6px">Presets</span>
 <div style="display:flex;flex-wrap:wrap;gap:8px">
 <sc-for list="{{ presets }}" as="p" hint-placeholder-count="2">
 <div style="{{ p.chipStyle }}">
@@ -400,7 +428,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="{{ p.swatchStyle }}"></div>
 <span>{{ p.name }}</span>
 </div>
-<div onClick="{{ p.onDelete }}" style="color:#8c8f98;font-size:17px;line-height:1;padding:0 2px">×</div>
+<div onClick="{{ p.onDelete }}" style="color:var(--fgSecondary);font-size:17px;line-height:1;padding:0 2px">×</div>
 </div>
 </sc-for>
 </div>
@@ -415,15 +443,15 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="{{ twScrollStyle }}">
 <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="2">
 <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-<sc-if value="{{ sec.head }}"><span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#8c8f98;padding:0 16px">{{ sec.head }}</span></sc-if>
+<sc-if value="{{ sec.head }}"><span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--fgSecondary);padding:0 16px">{{ sec.head }}</span></sc-if>
 <div style="{{ sec.cardStyle }}">
 <sc-for list="{{ sec.items }}" as="i" hint-placeholder-count="3">
 <div style="{{ i.rowStyle }}">
 <sc-if value="{{ i.slider }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex;flex-direction:column;gap:2px">
 <div style="display:flex;justify-content:space-between;align-items:baseline">
-<span style="font-size:15px;color:#f4f4f5">{{ i.slider.label }}</span>
-<span style="font-size:14px;font-variant-numeric:tabular-nums;color:#8c8f98">{{ i.slider.display }}</span>
+<span style="font-size:15px;color:var(--fgPrimary)">{{ i.slider.label }}</span>
+<span style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--fgSecondary)">{{ i.slider.display }}</span>
 </div>
 <div style="position:relative;height:36px">
 <div style="{{ i.slider.barStyle }}"></div>
@@ -437,9 +465,9 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="display:flex;flex-direction:column;gap:8px">
 <div style="display:flex;justify-content:space-between;align-items:baseline">
 <span style="font-size:15px; color:{{ i.seg.color }}">{{ i.seg.label }}</span>
-<span style="font-size:13px;color:#8c8f98">{{ i.seg.hint }}</span>
+<span style="font-size:13px;color:var(--fgSecondary)">{{ i.seg.hint }}</span>
 </div>
-<div style="display:flex;flex-wrap:wrap;gap:2px;padding:3px;background:#ffffff0d;border-radius:12px">
+<div style="display:flex;flex-wrap:wrap;gap:2px;padding:3px;background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 5%, transparent);border-radius:12px">
 <sc-for list="{{ i.seg.options }}" as="o" hint-placeholder-count="3">
 <div onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</div>
 </sc-for>
@@ -448,21 +476,21 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </sc-if>
 <sc-if value="{{ i.toggle }}">
 <div onClick="{{ i.toggle.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;min-height:44px">
-<span style="font-size:15px;color:#f4f4f5">{{ i.toggle.label }}</span>
+<span style="font-size:15px;color:var(--fgPrimary)">{{ i.toggle.label }}</span>
 <div style="{{ i.toggle.trackStyle }}"><div style="{{ i.toggle.knobStyle }}"></div></div>
 </div>
 </sc-if>
 <sc-if value="{{ i.illus }}">
 <div style="{{ i.illusStyle }}"></div>
 </sc-if>
-<sc-if value="{{ i.btn }}"><div onClick="{{ i.btn }}" style="min-height:44px;border-radius:12px;background:#ffffff12;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#f4f4f5;cursor:pointer">{{ i.btnLabel }}</div></sc-if>
+<sc-if value="{{ i.btn }}"><div onClick="{{ i.btn }}" style="min-height:44px;border-radius:12px;background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 7%, transparent);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--fgPrimary);cursor:pointer">{{ i.btnLabel }}</div></sc-if>
 <sc-if value="{{ i.note }}">
-<span style="font-size:13px;line-height:19px;color:#8c8f98;display:block">{{ i.note }}</span>
+<span style="font-size:13px;line-height:19px;color:var(--fgSecondary);display:block">{{ i.note }}</span>
 </sc-if>
 </div>
 </sc-for>
 </div>
-<sc-if value="{{ sec.foot }}"><span style="font-size:12.5px;line-height:17px;color:#8c8f98;padding:0 16px;text-wrap:pretty">{{ sec.foot }}</span></sc-if>
+<sc-if value="{{ sec.foot }}"><span style="font-size:12.5px;line-height:17px;color:var(--fgSecondary);padding:0 16px;text-wrap:pretty">{{ sec.foot }}</span></sc-if>
 </div>
 </sc-for>
 </div>
@@ -471,9 +499,9 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-if value="{{ dockMenuOpen }}">
 <div onClick="{{ onDockMenuClose }}" style="position:absolute;inset:0;z-index:90"></div>
 <div style="{{ dockMenuStyle }}">
-<div onClick="{{ onHideLeft }}" style="min-height:48px;display:flex;align-items:center;padding:0 18px;font-size:16px;color:#f4f4f5;cursor:pointer">Hide left</div>
-<div style="height:0.5px;background:#ffffff1f;margin:0 14px"></div>
-<div onClick="{{ onHideRight }}" style="min-height:48px;display:flex;align-items:center;padding:0 18px;font-size:16px;color:#f4f4f5;cursor:pointer">Hide right</div>
+<div onClick="{{ onHideLeft }}" style="min-height:48px;display:flex;align-items:center;padding:0 18px;font-size:16px;color:var(--fgPrimary);cursor:pointer">Hide left</div>
+<div style="height:0.5px;background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 12%, transparent);margin:0 14px"></div>
+<div onClick="{{ onHideRight }}" style="min-height:48px;display:flex;align-items:center;padding:0 18px;font-size:16px;color:var(--fgPrimary);cursor:pointer">Hide right</div>
 </div>
 </sc-if>
 <sc-if value="{{ slideRestore }}">
@@ -533,12 +561,12 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 </sc-if>
 <sc-if value="{{ toastOpen }}">
-<div style="{{ toastStyle }}"><span style="flex:1;font-size:15px;line-height:20px;color:#f4f4f5">{{ toastText }}</span><sc-if value="{{ toastUndo }}"><div onClick="{{ onToastUndo }}" style="min-height:48px;padding:0 12px;display:flex;align-items:center;font-size:15px;font-weight:600;color:#f4f4f5;cursor:pointer">Undo</div></sc-if></div>
+<div style="{{ toastStyle }}"><span style="flex:1;font-size:15px;line-height:20px;color:var(--fgPrimary)">{{ toastText }}</span><sc-if value="{{ toastUndo }}"><div onClick="{{ onToastUndo }}" style="min-height:48px;padding:0 12px;display:flex;align-items:center;font-size:15px;font-weight:600;color:var(--fgPrimary);cursor:pointer">Undo</div></sc-if></div>
 </sc-if>
 <sc-if value="{{ menuShown }}">
 <div onClick="{{ onCloseMenu }}" onPointerDown="{{ onMenuBackdropDown }}" style="{{ menuBackdropStyle }}"></div>
 <div style="{{ menuStyle }}">
-<div style="padding:12px 16px 10px;font-size:13px;font-weight:600;line-height:16px;color:#8c8f98">{{ menuTitle }}</div>
+<div style="padding:12px 16px 10px;font-size:13px;font-weight:600;line-height:16px;color:var(--fgSecondary)">{{ menuTitle }}</div>
 <sc-for list="{{ menuItems }}" as="m" hint-placeholder-count="4">
 <div onClick="{{ m.onTap }}" style="{{ m.style }}">{{ m.label }}</div>
 </sc-for>
@@ -551,9 +579,9 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div ref="{{ lqBoxCb }}" style="position:absolute;left:0;top:0;width:0;height:0">
 <div style="position:absolute;left:0;top:0;width:402px;height:874px">
 <div style="position:absolute;left:0;top:0;width:402px;height:874px;transform-origin:201.06px 807px">
-<div ref="{{ lqBodyRef }}" style="position:absolute;left:0;top:0;width:0;height:0;border-radius:32px;pointer-events:none;-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);display:none"></div>
-<div ref="{{ lqLobeRef }}" style="position:absolute;left:0;top:0;width:87.334px;height:31.618px;pointer-events:none;-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);display:none"></div>
-<div ref="{{ lqGlassRef }}" onPointerDown="{{ lqSwipe }}" style="{{ lqGlassStyle }}"></div>
+<div ref="{{ lqBodyRef }}" data-lqglass="card" style="position:absolute;left:0;top:0;width:0;height:0;border-radius:32px;pointer-events:none;-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);display:none"></div>
+<div ref="{{ lqLobeRef }}" data-lqglass="card" style="position:absolute;left:0;top:0;width:87.334px;height:31.618px;pointer-events:none;-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);display:none"></div>
+<div ref="{{ lqGlassRef }}" data-lqglass="card" onPointerDown="{{ lqSwipe }}" style="{{ lqGlassStyle }}"></div>
 <svg width="402" height="874" viewBox="0 0 402 874" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none">
 <defs ref="{{ lqDefsRef }}"></defs>
 <path ref="{{ lqRimRef }}" fill="none" stroke="url(#lqCardRim)" stroke-width="1"></path>
@@ -561,7 +589,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <path ref="{{ lqDarkRef }}" fill="none" stroke="#000" stroke-opacity="0.3" stroke-width="1"></path>
 </svg>
 <div ref="{{ lqXRef }}" data-x="{{ lqXSwap }}" aria-label="Close search" onPointerDown="{{ lqXDown }}" onPointerUp="{{ lqXUp }}" onClick="{{ lqClose }}" style="{{ lqIconStyle }}">
-<div style="position:absolute;left:9px;top:9px;width:30px;height:30px;color:#8c8f98;pointer-events:none"><svg viewBox="0 0 24 24" width="30" height="30" style="position:absolute;left:0;top:0"><use href="#ic-frame"></use></svg><sc-if value="{{ lqPlus }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="30" height="30" style="position:absolute;left:0;top:0"><use href="#ic-plus"></use></svg></sc-if></div>
+<div style="position:absolute;left:9px;top:9px;width:30px;height:30px;color:var(--fgSecondary);pointer-events:none"><svg viewBox="0 0 24 24" width="30" height="30" style="position:absolute;left:0;top:0"><use href="#ic-frame"></use></svg><sc-if value="{{ lqPlus }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="30" height="30" style="position:absolute;left:0;top:0"><use href="#ic-plus"></use></svg></sc-if></div>
 <div style="position:absolute;left:9px;top:9px;width:30px;height:30px;opacity:0;pointer-events:none"><div style="position:absolute;left:13.5px;top:6.05px;width:3px;height:17.9px;border-radius:22px;background:#999;transform:rotate(45deg)"></div><div style="position:absolute;left:13.5px;top:6.05px;width:3px;height:17.9px;border-radius:22px;background:#999;transform:rotate(-45deg)"></div></div>
 </div>
 </div>
@@ -569,33 +597,33 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 <sc-if value="{{ lqOn }}" hint-placeholder-val="{{ false }}">
 <div ref="{{ lqContentRef }}" onPointerDown="{{ lqSwipe }}" style="{{ lqContentStyle }}">
-<div style="position:absolute;top:6px;left:50%;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:#ffffff52;pointer-events:none"></div>
+<div style="position:absolute;top:6px;left:50%;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 32%, transparent);pointer-events:none"></div>
 <sc-if value="{{ lqTap }}" hint-placeholder-val="{{ true }}">
 <div style="position:absolute;left:4px;right:4px;top:4px;bottom:4px;padding:15px 12px 0;display:flex;flex-direction:column;align-items:center;gap:9px">
-<div style="position:relative;width:110px;height:110px;border-radius:24px;overflow:hidden;flex-shrink:0;background:#1a1b1f">
+<div style="position:relative;width:110px;height:110px;border-radius:24px;overflow:hidden;flex-shrink:0;background:var(--bgSurfaceContainer)">
 <div class="lq-cam-sim" style="position:absolute;inset:0"></div>
 <video ref="{{ lqVidRef }}" autoPlay="{{ true }}" playsInline="{{ true }}" muted="{{ true }}" style="{{ lqVidStyle }}"></video>
 </div>
-<div onClick="{{ lqFocus }}" style="width:350px;height:48px;flex-shrink:0;border-radius:24px;display:flex;align-items:center;gap:8px;padding:0 14px;box-sizing:border-box;cursor:pointer;background:#ffffff0f;box-shadow:inset 0 0.5px 0 #ffffff2e, inset 0 0 0 0.5px #ffffff14">
-<svg width="20" height="20" viewBox="0 0 20 20" style="color:#ececec;flex-shrink:0"><use href="#ic-search"></use></svg>
-<span style="flex:1;text-align:center;font-size:14px;line-height:20px;color:#999;margin-right:28px">Search</span>
+<div onClick="{{ lqFocus }}" style="width:350px;height:48px;flex-shrink:0;border-radius:24px;display:flex;align-items:center;gap:8px;padding:0 14px;box-sizing:border-box;cursor:pointer;background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent);box-shadow:inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent), inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)">
+<svg width="20" height="20" viewBox="0 0 20 20" style="color:var(--fgPrimary);flex-shrink:0"><use href="#ic-search"></use></svg>
+<span style="flex:1;text-align:center;font-size:14px;line-height:20px;color:var(--fgSecondary);margin-right:28px">Search</span>
 </div>
 </div>
 </sc-if>
 <sc-if value="{{ lqInput }}" hint-placeholder-val="{{ false }}">
 <div style="position:absolute;left:4px;right:4px;top:4px;bottom:4px;padding:14px 12px 10px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
-<span style="padding:8px 4px 2px;font-size:12px;line-height:16px;font-weight:500;letter-spacing:0.06em;color:#8e8e96">{{ lqHead }}</span>
+<span style="padding:8px 4px 2px;font-size:12px;line-height:16px;font-weight:500;letter-spacing:0.06em;color:var(--fgSecondary)">{{ lqHead }}</span>
 <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column">
 <sc-for list="{{ lqRecents }}" as="r" hint-placeholder-count="5">
-<div onClick="{{ r.tap }}" style="{{ r.row }}"><div style="{{ r.av }}">{{ r.i }}</div><span style="font-size:16px;line-height:22px;font-weight:600;color:#f4f4f5">{{ r.n }}</span></div>
+<div onClick="{{ r.tap }}" style="{{ r.row }}"><div style="{{ r.av }}">{{ r.i }}</div><span style="font-size:16px;line-height:22px;font-weight:600;color:var(--fgPrimary)">{{ r.n }}</span></div>
 </sc-for>
 </div>
 <div style="height:48px;flex-shrink:0;display:flex;gap:10px;align-items:center">
-<div onClick="{{ lqToTap }}" style="width:48px;height:48px;border-radius:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#ececec;background:#ffffff0f;box-shadow:inset 0 0.5px 0 #ffffff2e, inset 0 0 0 0.5px #ffffff14"><svg width="24" height="24" viewBox="0 0 24 24"><use href="#ic-frame"></use></svg></div>
-<div style="width:292px;height:48px;border-radius:24px;display:flex;align-items:center;gap:8px;padding:0 8px 0 14px;box-sizing:border-box;background:#ffffff0f;box-shadow:inset 0 0.5px 0 #ffffff2e, inset 0 0 0 0.5px #ffffff14">
-<svg width="22" height="22" viewBox="0 0 20 20" style="color:#ececec;flex-shrink:0"><use href="#ic-search"></use></svg>
-<div style="flex:1;min-width:0;display:flex;align-items:center;overflow:hidden"><span style="font-size:16px;line-height:22px;color:#f4f4f5;white-space:pre">{{ lqQuery }}</span><div style="width:2px;height:22px;border-radius:1px;background:#0a84ff;flex-shrink:0;animation:caretBlink 1s steps(1) infinite"></div></div>
-<div onClick="{{ lqClear }}" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><div style="width:22px;height:22px;border-radius:11px;background:#3a3a3c;color:#e5e5ea;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:12px;height:12px;display:block"><use href="#pi-x"></use></svg></div></div>
+<div onClick="{{ lqToTap }}" style="width:48px;height:48px;border-radius:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fgPrimary);background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent);box-shadow:inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent), inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)"><svg width="24" height="24" viewBox="0 0 24 24"><use href="#ic-frame"></use></svg></div>
+<div style="width:292px;height:48px;border-radius:24px;display:flex;align-items:center;gap:8px;padding:0 8px 0 14px;box-sizing:border-box;background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent);box-shadow:inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent), inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)">
+<svg width="22" height="22" viewBox="0 0 20 20" style="color:var(--fgPrimary);flex-shrink:0"><use href="#ic-search"></use></svg>
+<div style="flex:1;min-width:0;display:flex;align-items:center;overflow:hidden"><span style="font-size:16px;line-height:22px;color:var(--fgPrimary);white-space:pre">{{ lqQuery }}</span><div style="width:2px;height:22px;border-radius:1px;background:var(--bgAccent);flex-shrink:0;animation:caretBlink 1s steps(1) infinite"></div></div>
+<div onClick="{{ lqClear }}" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><div style="width:22px;height:22px;border-radius:11px;background:var(--bgActionSecondary);color:var(--fgPrimary);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:12px;height:12px;display:block"><use href="#pi-x"></use></svg></div></div>
 </div>
 </div>
 </div>
@@ -611,10 +639,10 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </svg>
 </sc-if>
 <div ref="{{ dockRef }}" style="{{ dockStyle }}">
-<div style="{{ dockShadowStyle }}"></div>
-<div style="{{ lqDockStyle }}"><div ref="{{ lqDockGlassRef }}" style="{{ lqDockGlassStyle }}"></div><svg ref="{{ lqRimCb }}" width="100%" height="100%" style="position:absolute;left:0;top:0;overflow:visible"></svg><canvas ref="{{ lqRimCvRef }}" style="position:absolute;left:0;bottom:0;width:100%;height:0;pointer-events:none;display:none"></canvas></div>
+<div data-dockshadow="1" style="{{ dockShadowStyle }}"></div>
+<div style="{{ lqDockStyle }}"><div ref="{{ lqDockGlassRef }}" data-lqglass="dock" style="{{ lqDockGlassStyle }}"></div><svg ref="{{ lqRimCb }}" width="100%" height="100%" style="position:absolute;left:0;top:0;overflow:visible"></svg><canvas ref="{{ lqRimCvRef }}" style="position:absolute;left:0;bottom:0;width:100%;height:0;pointer-events:none;display:none"></canvas></div>
 <div style="{{ glassLayerStyle }}">
-<div ref="{{ glassFillRef }}" style="{{ glassFillStyle }}"></div>
+<div ref="{{ glassFillRef }}" data-lqglass="dock" style="{{ glassFillStyle }}"></div>
 <div ref="{{ glassRimRef }}" style="{{ glassRimStyle }}"></div>
 <div style="{{ glassEdgeStyle }}"></div>
 <div ref="{{ trayRideRef }}" style="{{ trayRideStyle }}">
@@ -630,7 +658,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-for list="{{ r.apps }}" as="a" hint-placeholder-count="5">
 <div data-app-id="{{ a.id }}" onClick="{{ a.onTap }}" onPointerDown="{{ a.onDown }}" style="{{ a.slotStyle }}">
 <sc-if value="{{ a.selShown }}"><div style="{{ a.selStyle }}"></div></sc-if>
-<div style="{{ a.iconStyle }}"><svg viewBox="0 0 24 24" style="{{ a.svgStyle }}"><use href="{{ a.iconHref }}"></use></svg><sc-if value="{{ a.isFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:#0b0c0f;display:flex;align-items:center;justify-content:center;color:#c8cad0;pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div>
+<div style="{{ a.iconStyle }}"><svg viewBox="0 0 24 24" style="{{ a.svgStyle }}"><use href="{{ a.iconHref }}"></use></svg><sc-if value="{{ a.isFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:var(--bgSurfaceMain);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary);pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div>
 <sc-if value="{{ a.labelShown }}" hint-placeholder-val="{{ true }}"><span style="{{ a.labelStyle }}">{{ a.name }}</span></sc-if>
 </div>
 </sc-for>
@@ -643,7 +671,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-for list="{{ r.apps }}" as="a" hint-placeholder-count="5">
 <div data-app-id="{{ a.id }}" onClick="{{ a.onTap }}" onPointerDown="{{ a.onDown }}" style="{{ a.slotStyle }}">
 <sc-if value="{{ a.selShown }}"><div style="{{ a.selStyle }}"></div></sc-if>
-<div style="{{ a.iconStyle }}"><svg viewBox="0 0 24 24" style="{{ a.svgStyle }}"><use href="{{ a.iconHref }}"></use></svg><sc-if value="{{ a.isFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:#0b0c0f;display:flex;align-items:center;justify-content:center;color:#c8cad0;pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div>
+<div style="{{ a.iconStyle }}"><svg viewBox="0 0 24 24" style="{{ a.svgStyle }}"><use href="{{ a.iconHref }}"></use></svg><sc-if value="{{ a.isFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:var(--bgSurfaceMain);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary);pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div>
 <sc-if value="{{ a.labelShown }}" hint-placeholder-val="{{ true }}"><span style="{{ a.labelStyle }}">{{ a.name }}</span></sc-if>
 </div>
 </sc-for>
@@ -656,13 +684,13 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="{{ resultsPanelStyle }}">
 <div style="{{ camVeilStyle }}"></div>
 <div style="height:16px;display:flex;align-items:center;padding:0 6px;flex-shrink:0">
-<span style="font-size:12px;font-weight:500;line-height:16px;letter-spacing:0.08em;text-transform:uppercase;color:#8c8f98">{{ listLabel }}</span>
+<span style="font-size:12px;font-weight:500;line-height:16px;letter-spacing:0.08em;text-transform:uppercase;color:var(--fgSecondary)">{{ listLabel }}</span>
 </div>
 <div style="{{ listScrollStyle }}">
 <sc-if value="{{ showRecents }}">
 <sc-for list="{{ recents }}" as="r" hint-placeholder-count="4">
-<div onClick="{{ r.onTap }}" style="{{ r.rowStyle }}" style-hover="background:#ffffff12">
-<div style="width:40px;height:40px;border-radius:14px;background:#ffffff0f;box-shadow:inset 0 0 0 0.5px #ffffff14;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#a0a2aa">
+<div onClick="{{ r.onTap }}" style="{{ r.rowStyle }}" style-hover="background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 7%, transparent)">
+<div style="width:40px;height:40px;border-radius:14px;background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent);box-shadow:inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#a0a2aa">
 <svg width="20" height="20" viewBox="0 0 24 24" style="display:block"><use href="#ic-clock"></use></svg>
 </div>
 <span style="flex:1;min-width:0;font-size:16px;font-weight:500;line-height:22px;color:#e4e5e9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.label }}</span>
@@ -672,15 +700,15 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </sc-if>
 <sc-if value="{{ noResults }}">
 <div style="height:56px;display:flex;align-items:center;padding:8px 6px;box-sizing:border-box">
-<span style="font-size:14px;line-height:20px;color:#8c8f98">No people match that name</span>
+<span style="font-size:14px;line-height:20px;color:var(--fgSecondary)">No people match that name</span>
 </div>
 </sc-if>
 <sc-for list="{{ results }}" as="p" hint-placeholder-count="4">
-<div onClick="{{ p.onTap }}" style="{{ p.rowStyle }}" style-hover="background:#ffffff12">
+<div onClick="{{ p.onTap }}" style="{{ p.rowStyle }}" style-hover="background:color-mix(in srgb, var(--bgSurfaceContainerInverted) 7%, transparent)">
 <div style="{{ p.avatarStyle }}"><span style="{{ p.initialStyle }}">{{ p.initial }}</span></div>
 <div style="flex:1;min-width:0;display:flex;flex-direction:column">
-<span style="font-size:16px;font-weight:600;line-height:21px;color:#f4f4f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
-<span style="font-size:13px;line-height:17px;color:#8c8f98">{{ p.tag }}</span>
+<span style="font-size:16px;font-weight:600;line-height:21px;color:var(--fgPrimary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+<span style="font-size:13px;line-height:17px;color:var(--fgSecondary)">{{ p.tag }}</span>
 </div>
 <svg width="18" height="18" viewBox="0 0 24 24" style="display:block;color:#5a5c64;flex-shrink:0;margin-right:4px"><use href="#ic-chev"></use></svg>
 </div>
@@ -694,20 +722,20 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <video ref="{{ camRef }}" autoPlay="{{ true }}" playsInline="{{ true }}" muted="{{ true }}" style="{{ camVideoStyle }}"></video>
 </sc-if>
 <sc-if value="{{ camIdle }}">
-<svg width="30" height="30" viewBox="0 0 24 24" style="color:#8c8f98;display:block"><use href="#ic-cam-frame"></use></svg>
+<svg width="30" height="30" viewBox="0 0 24 24" style="color:var(--fgSecondary);display:block"><use href="#ic-cam-frame"></use></svg>
 </sc-if>
 <sc-if value="{{ camLoading }}">
-<div style="position:absolute;width:24px;height:24px;border-radius:9999px;border:2px solid #f4f4f52e;border-top-color:#f4f4f5;box-sizing:border-box;animation:camSpin 800ms linear infinite"></div>
+<div style="position:absolute;width:24px;height:24px;border-radius:9999px;border:2px solid color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent);border-top-color:var(--bgSurfaceContainerInverted);box-sizing:border-box;animation:camSpin 800ms linear infinite"></div>
 </sc-if>
 <sc-if value="{{ camBtn }}">
-<svg width="22" height="22" viewBox="0 0 24 24" style="color:#f4f4f5;display:block"><use href="#ic-cam-frame"></use></svg>
+<svg width="22" height="22" viewBox="0 0 24 24" style="color:var(--fgPrimary);display:block"><use href="#ic-cam-frame"></use></svg>
 </sc-if>
 </div>
 </sc-if>
 <sc-if value="{{ shellSearch }}">
 <div onClick="{{ onOpenInput }}" style="{{ searchBarStyle }}">
-<svg width="20" height="20" viewBox="0 0 20 20" style="color:#ececec;flex-shrink:0"><use href="#ic-search"></use></svg>
-<span style="font-size:14px;font-weight:400;line-height:20px;color:#8c8f98">Search</span>
+<svg width="20" height="20" viewBox="0 0 20 20" style="color:var(--fgPrimary);flex-shrink:0"><use href="#ic-search"></use></svg>
+<span style="font-size:14px;font-weight:400;line-height:20px;color:var(--fgSecondary)">Search</span>
 <div style="width:20px;height:20px;flex-shrink:0"></div>
 </div>
 </sc-if>
@@ -719,14 +747,14 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="{{ fieldStyle }}">
 <svg width="20" height="20" viewBox="0 0 20 20" style="{{ fieldGlassStyle }}"><use href="#ic-search"></use></svg>
 <div style="flex:1;min-width:0;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;overflow:hidden">
-<span style="font-size:17px;font-weight:400;line-height:22px;color:#f4f4f5;white-space:pre;letter-spacing:-0.2px">{{ query }}</span>
+<span style="font-size:17px;font-weight:400;line-height:22px;color:var(--fgPrimary);white-space:pre;letter-spacing:-0.2px">{{ query }}</span>
 <div style="{{ cursorStyle }}"></div>
 <sc-if value="{{ queryEmpty }}" hint-placeholder-val="{{ true }}">
-<span style="font-size:17px;font-weight:400;line-height:22px;color:#8c8f98;letter-spacing:-0.2px;margin-left:1px">Search</span>
+<span style="font-size:17px;font-weight:400;line-height:22px;color:var(--fgSecondary);letter-spacing:-0.2px;margin-left:1px">Search</span>
 </sc-if>
 </div>
 <sc-if value="{{ queryEmpty }}" hint-placeholder-val="{{ true }}">
-<svg width="22" height="22" viewBox="0 0 24 24" style="color:#8c8f98;flex-shrink:0;animation:softIn 160ms ease-out both"><use href="#ic-mic"></use></svg>
+<svg width="22" height="22" viewBox="0 0 24 24" style="color:var(--fgSecondary);flex-shrink:0;animation:softIn 160ms ease-out both"><use href="#ic-mic"></use></svg>
 </sc-if>
 <sc-if value="{{ queryFilled }}">
 <div onClick="{{ onClearQuery }}" style="width:22px;height:22px;border-radius:9999px;background:#767880;color:#1c1d21;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;animation:softIn 160ms ease-out both">
@@ -751,7 +779,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-if value="{{ tab.selStyle }}">
 <div data-sel="1" style="{{ tab.selStyle }}"></div>
 </sc-if>
-<sc-if value="{{ tab.icon }}"><svg width="{{ tab.iconSize }}" height="{{ tab.iconSize }}" viewBox="{{ tab.viewBox }}" style="{{ tab.iconStyle }}"><use href="{{ tab.icon }}"></use></svg></sc-if><sc-if value="{{ tab.appIcon }}"><div style="{{ tab.appBoxStyle }}"><svg viewBox="0 0 24 24" style="{{ tab.appSvgStyle }}"><use href="{{ tab.appIconHref }}"></use></svg><sc-if value="{{ tab.appFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:#0b0c0f;display:flex;align-items:center;justify-content:center;color:#c8cad0;pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div></sc-if>
+<sc-if value="{{ tab.icon }}"><svg width="{{ tab.iconSize }}" height="{{ tab.iconSize }}" viewBox="{{ tab.viewBox }}" style="{{ tab.iconStyle }}"><use href="{{ tab.icon }}"></use></svg></sc-if><sc-if value="{{ tab.appIcon }}"><div style="{{ tab.appBoxStyle }}"><svg viewBox="0 0 24 24" style="{{ tab.appSvgStyle }}"><use href="{{ tab.appIconHref }}"></use></svg><sc-if value="{{ tab.appFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:var(--bgSurfaceMain);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary);pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div></sc-if>
 <sc-if value="{{ tab.labelShown }}" hint-placeholder-val="{{ true }}">
 <span style="{{ tab.labelStyle }}">{{ tab.label }}</span>
 </sc-if>
@@ -769,7 +797,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-if value="{{ tab.selStyle }}">
 <div data-sel="1" style="{{ tab.selStyle }}"></div>
 </sc-if>
-<sc-if value="{{ tab.icon }}"><svg width="{{ tab.iconSize }}" height="{{ tab.iconSize }}" viewBox="{{ tab.viewBox }}" style="{{ tab.iconStyle }}"><use href="{{ tab.icon }}"></use></svg></sc-if><sc-if value="{{ tab.appIcon }}"><div style="{{ tab.appBoxStyle }}"><svg viewBox="0 0 24 24" style="{{ tab.appSvgStyle }}"><use href="{{ tab.appIconHref }}"></use></svg><sc-if value="{{ tab.appFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:#0b0c0f;display:flex;align-items:center;justify-content:center;color:#c8cad0;pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div></sc-if>
+<sc-if value="{{ tab.icon }}"><svg width="{{ tab.iconSize }}" height="{{ tab.iconSize }}" viewBox="{{ tab.viewBox }}" style="{{ tab.iconStyle }}"><use href="{{ tab.icon }}"></use></svg></sc-if><sc-if value="{{ tab.appIcon }}"><div style="{{ tab.appBoxStyle }}"><svg viewBox="0 0 24 24" style="{{ tab.appSvgStyle }}"><use href="{{ tab.appIconHref }}"></use></svg><sc-if value="{{ tab.appFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:var(--bgSurfaceMain);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary);pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div></sc-if>
 <sc-if value="{{ tab.labelShown }}" hint-placeholder-val="{{ true }}">
 <span style="{{ tab.labelStyle }}">{{ tab.label }}</span>
 </sc-if>
@@ -790,7 +818,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-if value="{{ tab.selStyle }}">
 <div data-sel="1" style="{{ tab.selStyle }}"></div>
 </sc-if>
-<sc-if value="{{ tab.icon }}"><svg width="{{ tab.iconSize }}" height="{{ tab.iconSize }}" viewBox="{{ tab.viewBox }}" style="{{ tab.iconStyle }}"><use href="{{ tab.icon }}"></use></svg></sc-if><sc-if value="{{ tab.appIcon }}"><div style="{{ tab.appBoxStyle }}"><svg viewBox="0 0 24 24" style="{{ tab.appSvgStyle }}"><use href="{{ tab.appIconHref }}"></use></svg><sc-if value="{{ tab.appFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:#0b0c0f;display:flex;align-items:center;justify-content:center;color:#c8cad0;pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div></sc-if>
+<sc-if value="{{ tab.icon }}"><svg width="{{ tab.iconSize }}" height="{{ tab.iconSize }}" viewBox="{{ tab.viewBox }}" style="{{ tab.iconStyle }}"><use href="{{ tab.icon }}"></use></svg></sc-if><sc-if value="{{ tab.appIcon }}"><div style="{{ tab.appBoxStyle }}"><svg viewBox="0 0 24 24" style="{{ tab.appSvgStyle }}"><use href="{{ tab.appIconHref }}"></use></svg><sc-if value="{{ tab.appFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:var(--bgSurfaceMain);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary);pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div></sc-if>
 <sc-if value="{{ tab.labelShown }}" hint-placeholder-val="{{ true }}">
 <span style="{{ tab.labelStyle }}">{{ tab.label }}</span>
 </sc-if>
@@ -815,7 +843,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-if value="{{ tab.selStyle }}">
 <div data-sel="1" style="{{ tab.selStyle }}"></div>
 </sc-if>
-<sc-if value="{{ tab.icon }}"><svg width="{{ tab.iconSize }}" height="{{ tab.iconSize }}" viewBox="{{ tab.viewBox }}" style="{{ tab.iconStyle }}"><use href="{{ tab.icon }}"></use></svg></sc-if><sc-if value="{{ tab.appIcon }}"><div style="{{ tab.appBoxStyle }}"><svg viewBox="0 0 24 24" style="{{ tab.appSvgStyle }}"><use href="{{ tab.appIconHref }}"></use></svg><sc-if value="{{ tab.appFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:#0b0c0f;display:flex;align-items:center;justify-content:center;color:#c8cad0;pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div></sc-if>
+<sc-if value="{{ tab.icon }}"><svg width="{{ tab.iconSize }}" height="{{ tab.iconSize }}" viewBox="{{ tab.viewBox }}" style="{{ tab.iconStyle }}"><use href="{{ tab.icon }}"></use></svg></sc-if><sc-if value="{{ tab.appIcon }}"><div style="{{ tab.appBoxStyle }}"><svg viewBox="0 0 24 24" style="{{ tab.appSvgStyle }}"><use href="{{ tab.appIconHref }}"></use></svg><sc-if value="{{ tab.appFav }}"><div style="position:absolute;right:-4.5px;top:-4.5px;width:14.3px;height:14.3px;border-radius:9999px;background:var(--bgSurfaceMain);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary);pointer-events:none"><svg viewBox="0 0 12 12" style="width:9.9px;height:9.9px;display:block"><use href="#ic-fav-heart"></use></svg></div></sc-if></div></sc-if>
 <sc-if value="{{ tab.labelShown }}" hint-placeholder-val="{{ true }}">
 <span style="{{ tab.labelStyle }}">{{ tab.label }}</span>
 </sc-if>
@@ -857,8 +885,8 @@ const GATE_HAND_TURN=0.5,GATE_LIFT=200,GATE_BACK=40,GATE_PULL=56,GATE_PIVOT_HOLD
 const PRESET_KEY="tabbar-playground-presets";
 const RECENTS=["mostwanted","oceanWave.77","web3 summit","remyxolog","polkadot wiki","alex.99","coin flip","staking","fred.11","hackathon","grunge","dice"];
 const KB_H=342;
-const KEY_FACE={height:42,borderRadius:8.5,background:"#707070",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 1px 0 #00000059"};
-const KEY_GLYPH={fontFamily:'"SF Compact", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',fontWeight:457,fontSize:25,lineHeight:"30px",textAlign:"center",color:"#f4f4f5"};
+const KEY_FACE={height:42,borderRadius:8.5,background:"var(--kbKey)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 1px 0 #00000059"};
+const KEY_GLYPH={fontFamily:'"SF Compact", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',fontWeight:457,fontSize:25,lineHeight:"30px",textAlign:"center",color:"var(--kbGlyph)"};
 const KEY_ROWS=[["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["z","x","c","v","b","n","m"]];
 const HUE_BAR="linear-gradient(90deg, hsl(0 90% 55%), hsl(60 90% 55%), hsl(120 90% 55%), hsl(180 90% 55%), hsl(240 90% 55%), hsl(300 90% 55%), hsl(360 90% 55%))";
 function springCurve(opt){
@@ -893,7 +921,7 @@ carbon:{label:"Carbon",c:"cubic-bezier(0.4,0.14,0.3,1)",T:400},
 ant:{label:"Ant",c:"cubic-bezier(0.08,0.82,0.17,1)",T:300},
 };
 const DEFAULTS={
-easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"scan",gateCue:"pull",labelWhere:"launcher",ctxCell:true,slotMode:"hot",haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:0,ahIdle:3,edgeSat:60,appTint:false,hideSpeed:1,
+easing:"smooth",speed:1,motionOff:false,pillMorph:"Liquid",kbLayout:"v1",morphSpeed:1.7,shapeCheck:false,appsIcon:"more",pillGlyph:"scan",gateCue:"pull",themeId:"berlinNight",glassMode:"liquid",labelWhere:"launcher",ctxCell:true,slotMode:"hot",haptics:true,hapticLevel:"medium",pillShape:"round",pillPress:false,ahTap:0,ahIdle:3,edgeSat:60,appTint:false,hideSpeed:1,
 blur:7,sat:100,tintOp:0.3,tint:"8,8,8",borderOp:0.32,shadow:0.45,specular:false,specHue:200,specSat:0,
 barWidth:382,barHeight:62,radius:32,itemGap:-8,pad:4,bottom:27,pillGap:8,
 pillMode:"center",barAlign:"center",labels:true,selection:"pill",selOp:0.14,
@@ -911,7 +939,7 @@ const SERIF='"Instrument Serif", Georgia, serif';
 const BRIC='"Bricolage Grotesque", Inter, sans-serif';
 const W_DOCK=(c)=>(c._gateGeom?c._gateGeom.pxR - c._gateGeom.pxL - 28:378);
 const RAF=(f)=>requestAnimationFrame(f),CAF=(i)=>cancelAnimationFrame(i);
-const GLOW_STOPS=Array.from({length:17},(_,i)=>{const x=i*1.5,a=0.5*Math.exp(-x / 4.2)+0.06*Math.exp(-x / 14)*(1 - x / 24);return "rgba(255,255,255,"+Math.max(0,a).toFixed(4)+") "+x.toFixed(1)+"px";}).join(", ");
+const GLOW_STOPS=Array.from({length:17},(_,i)=>{const x=i*1.5,a=0.5*Math.exp(-x / 4.2)+0.06*Math.exp(-x / 14)*(1 - x / 24);return "color-mix(in srgb, var(--bgSurfaceContainerInverted) "+(Math.max(0,a)*100).toFixed(2)+"%, transparent) "+x.toFixed(1)+"px";}).join(", ");
 const GLOW_MASK="linear-gradient(to bottom, "+Array.from({length:9},(_,i)=>{const t=i / 8,a=t*t*(3 - 2*t);return "rgba(0,0,0,"+a.toFixed(3)+") "+(t*22).toFixed(1)+"px";}).join(", ")+", #000 calc(100% - 22px), "+Array.from({length:9},(_,i)=>{const t=1 - i / 8,a=t*t*(3 - 2*t);return "rgba(0,0,0,"+a.toFixed(3)+") calc(100% - "+((1 - i / 8)*22).toFixed(1)+"px)";}).join(", ")+")";
 class Component extends DCLogic {
 ss(a,b){return this.setState(a,b);}
@@ -966,7 +994,12 @@ window.addEventListener("pointerup",(e)=>{const p=T;T=null;if(!p||e.pointerId!==
 let tm=0;const got=()=>{clearTimeout(tm);window.removeEventListener("click",got,true);};window.addEventListener("click",got,true);
 tm=setTimeout(()=>{window.removeEventListener("click",got,true);if(p.el.isConnected&&!this.dragged&&!this.held)p.el.click();},120);},true);}
 this.glassFillRef=React.createRef();
-this.dockRef=React.createRef();setTimeout(()=>this.lqFollow(),0);["lqGlassRef","lqBodyRef","lqLobeRef","lqRimCvRef","lqRimRef","lqXRef","lqContentRef","lqVidRef","lqDefsRef","lqDimRef","lqDockGlassRef","lqSpecRef","lqDarkRef"].forEach((k)=>{this[k]=React.createRef();});
+this.dockRef=React.createRef();setTimeout(()=>this.lqFollow(),0);
+setTimeout(()=>{const root=document.querySelector("[data-screen]");if(!root||this._thObs||typeof MutationObserver==="undefined")return;
+this._thObs=new MutationObserver(()=>{root.setAttribute("data-theming","1");
+try{document.getAnimations().forEach((a)=>{if(typeof CSSTransition!=="undefined"&&a instanceof CSSTransition&&/color|background|fill|stroke|border|shadow/i.test(a.transitionProperty))a.finish();});}catch(e){}
+cancelAnimationFrame(this._thRaf);this._thRaf=requestAnimationFrame(()=>{this._thRaf=requestAnimationFrame(()=>root.removeAttribute("data-theming"));});});
+this._thObs.observe(root,{attributes:true,attributeFilter:["data-theme","data-glass"]});},0);["lqGlassRef","lqBodyRef","lqLobeRef","lqRimCvRef","lqRimRef","lqXRef","lqContentRef","lqVidRef","lqDefsRef","lqDimRef","lqDockGlassRef","lqSpecRef","lqDarkRef"].forEach((k)=>{this[k]=React.createRef();});
 this.trayRideRef=React.createRef();
 this.glassRimRef=React.createRef();
 this.scrimRef=React.createRef();
@@ -1079,7 +1112,8 @@ if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;cv.style.height=HM+"px";}
 const now=performance.now(),nt=h>80?0:1,na=this._lqNA==null?nt:this._lqNA,dt=Math.min(100,now-(this._lqNT||now));
 this._lqNT=now;this._lqNA=nt>na?Math.min(nt,na+dt / 200):Math.max(nt,na - dt / 200);
 const c=cv.getContext("2d"),P=new Path2D(d),NP=nd?new Path2D(nd):P,svg=cv.previousElementSibling,L=(w+h)/ 2;
-const paint=(v)=>{const m=/url\(#([^)]+)\)/.exec(v||"");if(!m)return null;const e=document.getElementById(m[1]);if(!e||e.tagName.toLowerCase()!=="lineargradient")return null;
+const th=(cv.closest("[data-screen]")||cv).getAttribute("data-theme");if(this._rimTh!==th){this._rimTh=th;this._rimC=getComputedStyle(cv).getPropertyValue("--dockRim").trim();}
+const paint=(v)=>{const m=/url\(#([^)]+)\)/.exec(v||"");if(!m)return null;if(this._rimC&&/^lq(RimV|Notch|CardRim)$/.test(m[1]))return this._rimC;const e=document.getElementById(m[1]);if(!e||e.tagName.toLowerCase()!=="lineargradient")return null;
 const A=(k,dv)=>{const x=e.getAttribute(k);return x==null?dv:parseFloat(x);};let x1=A("x1",0),y1=A("y1",0),x2=A("x2",1),y2=A("y2",0);
 if(m[1]==="lqRimV"){x1=y1=0;x2=y2=L;}else if(m[1]==="lqNotch"){const b=nb||[0,0,w,h];x1=b[0];y1=b[1];x2=b[0]+b[2];y2=b[1]+b[3];}
 else if(e.getAttribute("gradientUnits")!=="userSpaceOnUse"){x1*=w;x2*=w;y1*=h;y2*=h;}
@@ -1485,14 +1519,14 @@ background:Math.abs(v - def)<1e-9?"#f4f4f5":"#f4f4f566",
 }:{display:"none"},
 bar:!!bar,cls:bar?"plain":"",
 barStyle:bar?{position:"absolute",left:0,right:0,top:15,height:6,borderRadius:3,background:bar,pointerEvents:"none"}:{display:"none"},
-fillStyle:bar?{display:"none"}:{position:"absolute",left:0,top:16,height:4,borderRadius:2,background:"#f4f4f5",pointerEvents:"none",
+fillStyle:bar?{display:"none"}:{position:"absolute",left:0,top:16,height:4,borderRadius:2,background:"var(--bgSurfaceNestedInverted)",pointerEvents:"none",
 width:"calc(11px + (100% - 22px) * "+Math.max(0,Math.min(1,(v - min)/(max - min))).toFixed(4)+")"},
 };
 }
 seg(label,key,opts,disabled){
 const cur=key==="labelSeg"?(this.state.labels?(this.state.labelWhere==="launcher"?"launcher":"all"):"off"):this.state[key];
 return{
-label,color:disabled?"#585b62":"#dadbe0",
+label,color:disabled?"var(--fgTertiary)":"var(--fgPrimary)",
 hint:disabled?"not in this mode":"",
 options:opts.map((o)=>({
 label:o[0],
@@ -1501,8 +1535,8 @@ style:{
 flex:1,minWidth:0,textAlign:"center",padding:"8px 4px",borderRadius:9,lineHeight:"18px",
 fontSize:opts.length>3?12.5:13,fontWeight:500,cursor:disabled?"default":"pointer",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",
 opacity:disabled?0.4:1,
-background:cur===o[1]?"#f4f4f5":"transparent",boxShadow:cur===o[1]?"0 1px 3px #00000059":"none",
-color:cur===o[1]?"#111111":"#a1a1a6",
+background:cur===o[1]?"var(--bgSurfaceNestedInverted)":"transparent",boxShadow:cur===o[1]?"0 1px 3px #00000059":"none",
+color:cur===o[1]?"#111111":"var(--fgSecondary)",
 transition:"background 240ms "+HC+", color 240ms "+HC,
 },
 })),
@@ -1512,14 +1546,14 @@ modeSeg(){
 const cur=this.state.mode;
 const pick=(m)=>()=>this.ss(Object.assign({mode:m,gate:"none",barRetract:"none",hidden:false},m==="gate"?{anchored:false}:{}));
 return{
-label:"Gesture mode",color:"#dadbe0",hint:"",
+label:"Gesture mode",color:"var(--fgPrimary)",hint:"",
 options:[["Slide","slide"],["Reverse Park","arc"],["Drawbridge","gate"],["Pivot Turn","park"]].map((o)=>({
 label:o[0],onClick:pick(o[1]),
 style:{
 flex:"1 1 calc(50% - 2px)",minWidth:0,boxSizing:"border-box",textAlign:"center",padding:"8px 4px",lineHeight:"18px",borderRadius:9,
 fontSize:13,fontWeight:500,cursor:"pointer",whiteSpace:"nowrap",
-background:cur===o[1]?"#f4f4f5":"transparent",boxShadow:cur===o[1]?"0 1px 3px #00000059":"none",
-color:cur===o[1]?"#111111":"#a1a1a6",
+background:cur===o[1]?"var(--bgSurfaceNestedInverted)":"transparent",boxShadow:cur===o[1]?"0 1px 3px #00000059":"none",
+color:cur===o[1]?"#111111":"var(--fgSecondary)",
 transition:"background 240ms "+HC+", color 240ms "+HC,
 },
 })),
@@ -1530,7 +1564,7 @@ const on=inv?!this.state[key]:!!this.state[key];
 return{
 label,
 onClick:()=>this.set(key,inv?on:!on),
-trackStyle:{width:51,height:31,borderRadius:999,padding:2,boxSizing:"border-box",background:on?"#f4f4f5":"#ffffff1a",transition:"background 260ms "+HC},
+trackStyle:{width:51,height:31,borderRadius:999,padding:2,boxSizing:"border-box",background:on?"var(--bgSurfaceNestedInverted)":"color-mix(in srgb, var(--bgSurfaceContainerInverted) 10%, transparent)",transition:"background 260ms "+HC},
 knobStyle:{width:27,height:27,borderRadius:999,background:on?"#111111":"#8c8f98",transform:on?"translateX(20px)":"translateX(0)",transition:"transform 300ms "+HC},
 };
 }
@@ -1912,9 +1946,9 @@ height:o.h||58,display:"flex",alignItems:"center",justifyContent:"center",
 borderRadius:o.r===undefined?(T.r!=null?T.r:18):o.r,cursor:"pointer",userSelect:"none",
 fontSize:o.fs||T.keyFs||20,fontWeight:T.font===SERIF?400:600,lineHeight:"1",
 fontFamily:T.font===SERIF?SERIF:(T.font===MONO?MONO:undefined),fontStyle:T.italic&&T.font===SERIF?"italic":undefined,
-background:o.accent?(T.accent||"#f4f4f5"):(o.tint||T.keyTint||(T.accent?"color-mix(in oklab, "+T.accent+" 13%, transparent)":"#ffffff12")),
-color:o.accent?(T.onAccent||"#111111"):(o.fg||(T.accent?"color-mix(in oklab, "+T.accent+" 35%, #f4f4f5)":"#f4f4f5")),
-boxShadow:o.accent?"0 8px 24px -8px "+(T.accent||"transparent"):"inset 0 0 0 1px "+(T.accent?"color-mix(in oklab, "+T.accent+" 18%, transparent)":"#ffffff0f"),
+background:o.accent?(T.accent||"var(--bgSurfaceNestedInverted)"):(o.tint||T.keyTint||(T.accent?"color-mix(in oklab, "+T.accent+" 13%, transparent)":"color-mix(in srgb, var(--bgSurfaceContainerInverted) 7%, transparent)")),
+color:o.accent?(T.onAccent||"#111111"):(o.fg||(T.accent?"color-mix(in oklab, "+T.accent+" 35%, var(--fgPrimary))":"var(--fgPrimary)")),
+boxShadow:o.accent?"0 8px 24px -8px "+(T.accent||"transparent"):"inset 0 0 0 1px "+(T.accent?"color-mix(in oklab, "+T.accent+" 18%, transparent)":"color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent)"),
 },T.keyH&&!o.h?{height:T.keyH}:{},o.span?{gridColumn:"span "+o.span}:{},o.style||{}),
 };
 }
@@ -2254,20 +2288,20 @@ cells:[K("Shake",()=>this.appPatch({a8:answers[Math.floor(Math.random()*answers.
 };
 }
 gestureIllus(mode){
-const bar='<rect x="40" y="88" width="220" height="20" rx="10" fill="#ffffff24" stroke="#ffffff66"/>';
-const ghost=(tf)=>'<g transform="'+tf+'"><rect x="40" y="88" width="220" height="20" rx="10" fill="none" stroke="#ffffff47" stroke-dasharray="4 4"/></g>';
-const arrow=(d)=>'<path d="'+d+'" fill="none" stroke="#f4f4f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#h)"/>';
-const dot=(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="7" fill="#f4f4f540" stroke="#f4f4f5" stroke-width="1.5"/>';
-const defs='<defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f4f4f5" stop-opacity="0"/><stop offset="1" stop-color="#f4f4f5"/></linearGradient><marker id="g" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#ffffff73" stroke-width="1.6" stroke-linecap="round"/></marker><marker id="h" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#f4f4f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>';
-const path=(d)=>'<path d="'+d+'" fill="none" stroke="#ffffff59" stroke-width="1.5" stroke-dasharray="3 4" stroke-linecap="round" marker-end="url(#g)"/>';
-const swipe=(x1,y1,x2,y2)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="url(#t)" stroke-width="10" stroke-linecap="round" opacity="0.35"/>'+'<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" fill="none" stroke="#f4f4f5" stroke-width="2.5" stroke-linecap="round" marker-end="url(#h)"/>'+dot(x1,y1)+'<circle cx="'+x1+'" cy="'+y1+'" r="12" fill="none" stroke="#f4f4f559"/>';
+const bar='<rect x="40" y="88" width="220" height="20" rx="10" fill="color-mix(in srgb, var(--fgPrimary) 14%, transparent)" stroke="color-mix(in srgb, var(--fgPrimary) 40%, transparent)"/>';
+const ghost=(tf)=>'<g transform="'+tf+'"><rect x="40" y="88" width="220" height="20" rx="10" fill="none" stroke="color-mix(in srgb, var(--fgPrimary) 28%, transparent)" stroke-dasharray="4 4"/></g>';
+const arrow=(d)=>'<path d="'+d+'" fill="none" stroke="var(--fgPrimary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#h)"/>';
+const dot=(x,y)=>'<circle cx="'+x+'" cy="'+y+'" r="7" fill="color-mix(in srgb, var(--fgPrimary) 25%, transparent)" stroke="var(--fgPrimary)" stroke-width="1.5"/>';
+const defs='<defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f4f4f5" stop-opacity="0"/><stop offset="1" stop-color="#f4f4f5"/></linearGradient><marker id="g" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="color-mix(in srgb, var(--fgPrimary) 45%, transparent)" stroke-width="1.6" stroke-linecap="round"/></marker><marker id="h" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="var(--fgPrimary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>';
+const path=(d)=>'<path d="'+d+'" fill="none" stroke="color-mix(in srgb, var(--fgPrimary) 35%, transparent)" stroke-width="1.5" stroke-dasharray="3 4" stroke-linecap="round" marker-end="url(#g)"/>';
+const swipe=(x1,y1,x2,y2)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="url(#t)" stroke-width="10" stroke-linecap="round" opacity="0.35"/>'+'<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" fill="none" stroke="var(--fgPrimary)" stroke-width="2.5" stroke-linecap="round" marker-end="url(#h)"/>'+dot(x1,y1)+'<circle cx="'+x1+'" cy="'+y1+'" r="12" fill="none" stroke="color-mix(in srgb, var(--fgPrimary) 35%, transparent)"/>';
 const scenes={
 slide:ghost("translate(190 0)")+bar+path("M150 116 H280")+swipe(120,98,190,98),
-gate:ghost("rotate(90 274 98)")+'<circle cx="274" cy="98" r="3" fill="#f4f4f5"/>'+bar+path("M44 84 A230 230 0 0 1 262 -4")+swipe(150,98,196,56),
+gate:ghost("rotate(90 274 98)")+'<circle cx="274" cy="98" r="3" fill="var(--fgPrimary)"/>'+bar+path("M44 84 A230 230 0 0 1 262 -4")+swipe(150,98,196,56),
 park:ghost("translate(208 -40) rotate(-75 60 98)")+bar+path("M60 116 C170 116 232 100 276 40")+swipe(66,98,136,98),
 arc:ghost("translate(222 -70) rotate(-90 60 98)")+bar+path("M60 116 C190 116 240 112 280 26")+swipe(66,98,136,98),
 };
-const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 120">'+defs+'<rect x="0.5" y="0.5" width="299" height="119" rx="14" fill="#ffffff08" stroke="#ffffff14"/>'+(scenes[mode]||scenes.slide)+'</svg>';
+const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 120">'+defs+'<rect x="0.5" y="0.5" width="299" height="119" rx="14" fill="color-mix(in srgb, var(--fgPrimary) 3%, transparent)" stroke="color-mix(in srgb, var(--fgPrimary) 8%, transparent)"/>'+(scenes[mode]||scenes.slide)+'</svg>';
 return{illus:true,illusStyle:{width:"100%",marginTop:-10,aspectRatio:"300 / 120",background:'url("data:image/svg+xml;utf8,'+encodeURIComponent(svg)+'") center / contain no-repeat'}};
 }
 regroup(g){
@@ -2296,7 +2330,7 @@ const out={
 "Tabs":sec([null,rename(pick("Tab items",["Labels","Right slot","Apps icon","Item overlap","Selection tint"]),{"Item overlap":"Spacing","Selection tint":"Selection strength"})]),
 "Centre button":sec([null,rename([].concat(pick("Dock shape",["Pill","Pill morphs while typing"]),pick("Centre pill",["Icon","Position","Press-in on tap","Side","Gap to dock"])),{"Pill":"Shape","Pill morphs while typing":"Pill shape while typing"})]),
 "Button colour":sec([null,rename(pick("Centre pill",["Hue","Saturation","Brightness","Edge light saturation","Tint with open app's accent"]),{"Edge light saturation":"Rim saturation","Tint with open app's accent":"Match open app's accent"})]),
-"Material":sec([null,rename(pick("Glass",["Blur","Saturation","Tint opacity","Edge light","Shadow"]),{"Tint opacity":"Tint","Edge light":"Rim light"})],
+"Material":sec(["Theme",rename(pick("Glass",["Theme","Glass"]),{"Theme":"Theme (Berlin Night, Berlin Day, Tokyo, Malta, Lisbon)"})],[null,rename(pick("Glass",["Blur","Saturation","Tint opacity","Edge light","Shadow"]),{"Tint opacity":"Tint","Edge light":"Rim light"})],
 ["Specular",rename(pick("Glass",["Specular highlight","Specular hue","Specular saturation"]),{"Specular highlight":"Specular","Specular hue":"Hue","Specular saturation":"Saturation"})]),
 "Haptics":sec([null,g["Haptics"]||[]]),
 "Pressed glow":sec([null,g["Pill icon"]||[]]),
@@ -2505,7 +2539,7 @@ const list=q?pool.filter((p)=>p.name.toLowerCase().indexOf(q)>-1):names.map((n,k
 if(q&&!list.some((p)=>p.name.toLowerCase()===q))list.push({name:s.query.trim(),initial:s.query.trim()[0].toUpperCase(),bg:"#2a2b30",fg:"#f4f4f5",fresh:true});
 return list.slice(0,8);})().map((p,i)=>({n:p.fresh?"Message “"+p.name+"”":p.name,i:p.initial||p.name[0].toUpperCase(),tap:()=>{this.lqTo(0);this.ss({query:""});this.openChatWith(p);},
 row:{height:kb==="v2"?52:64,display:"flex",alignItems:"center",gap:12,padding:"0 4px",cursor:"pointer",flexShrink:0},
-av:{width:40,height:40,borderRadius:20,background:p.bg||cols[i%cols.length],color:p.fg||"#f4f4f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,fontWeight:600,flexShrink:0}})),
+av:{width:40,height:40,borderRadius:20,background:p.bg||cols[i%cols.length],color:p.fg||"var(--fgPrimary)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,fontWeight:600,flexShrink:0}})),
 lqHead:(s.query||"").trim()?"RESULTS":"RECENTS",lqQuery:s.query||"",lqQEmpty:!s.query,lqQFilled:!!s.query,
 lqClear:(e)=>{if(e)e.stopPropagation();this.ss({query:""});},
 lqXDown:(e)=>{e.stopPropagation();this._xd=[e.clientX,e.clientY];this.xDrag(e);},
@@ -2518,7 +2552,7 @@ lqDockStyle:{position:"absolute",left:0,right:0,bottom:0,height:s.barHeight,poin
 lqRimCb:(el)=>{if(!el||!L)return;const m=L.rimMarkup(s.barWidth,s.barHeight,s.barWidth / 2,22,32);if(el._m!==m){el.innerHTML=m;el._m=m;}},lqDockGlassRef:this.lqDockGlassRef,lqRimCvRef:this.lqRimCvRef,
 lqDockGlassStyle:{position:"absolute",left:0,top:0,width:"100%",height:"100%",...(()=>{if(!L)return{};const m="url(\"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+s.barWidth+'" height="'+s.barHeight+'"><path d="'+L.dockPath(s.barWidth,s.barHeight)+'"/></svg>')+"\")";return{WebkitMaskImage:m,maskImage:m,WebkitMaskSize:"100% 100%",maskSize:"100% 100%",WebkitMaskRepeat:"no-repeat",maskRepeat:"no-repeat"};})(),
 background:"radial-gradient(169.988px 61.872px at 50% 0%, #91919133, #2b2b2b33)",backdropFilter:"blur(10px) saturate(150%)",WebkitBackdropFilter:"blur(10px) saturate(150%)"},
-lqDimStyle:{position:"absolute",left:0,top:0,width:402,height:874,zIndex:chat?71:3,pointerEvents:"none",opacity:0,backdropFilter:"blur(8px) brightness(0.7)",WebkitBackdropFilter:"blur(8px) brightness(0.7)"},lqDimRef:this.lqDimRef,
+lqDimStyle:{position:"absolute",left:0,top:0,width:402,height:874,zIndex:chat?71:3,pointerEvents:"none",opacity:0,background:"linear-gradient(#0000004D,#0000004D), var(--matDim)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"},lqDimRef:this.lqDimRef,
 };
 }
 typeKey(ch){
@@ -2549,7 +2583,7 @@ const N=29,cell=1;let r="";
 let seed=7;const rnd=()=>(seed=(seed*16807)% 2147483647)/ 2147483647;
 const finder=(x,y)=>{const f=[[0,0],[N-7,0],[0,N-7]];for(const[fx,fy]of f){if(x>=fx&&x<fx+7&&y>=fy&&y<fy+7){const dx=x - fx,dy=y - fy;return(dx===0||dx===6||dy===0||dy===6||(dx>=2&&dx<=4&&dy>=2&&dy<=4))?1:0;}if(x>=fx - 1&&x<=fx+7&&y>=fy - 1&&y<=fy+7)return 0;}return -1;};
 for(let y=0;y<N;y++)for(let x=0;x<N;x++){const fv=finder(x,y);const on=fv===-1?rnd()>0.52:fv===1;if(on)r+='<rect x="'+x+'" y="'+y+'" width="1.02" height="1.02"/>';}
-this._qr="data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+N+' '+N+'" fill="#0b0c0f" shape-rendering="crispEdges">'+r+"</svg>");
+this._qr="data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+N+' '+N+'" fill="var(--fgPrimaryInverted)" shape-rendering="crispEdges">'+r+"</svg>");
 return this._qr;
 }
 pocketVals(miniDef){
@@ -2569,14 +2603,14 @@ pocketScroll:card==="cash"?"hidden":"auto",
 cashTopStyle:{position:"absolute",right:24,top:16,height:35.081,display:"flex",alignItems:"baseline",gap:8,opacity:card==="cash"?0:1,transition:"opacity 220ms ease",pointerEvents:"none"},
 cashBottomStyle:{position:"absolute",left:24,bottom:22,display:"flex",alignItems:"baseline",gap:8,opacity:card==="cash"?1:0,transition:"opacity 220ms ease",pointerEvents:"none"},
 cashTilesStyle:{position:"absolute",left:0,right:0,top:244,display:"flex",gap:8,opacity:card==="cash"?1:0,transform:card==="cash"?"none":"translateY(12px)",transition:"opacity 260ms ease, transform 360ms "+HC,pointerEvents:card==="cash"?"auto":"none"},
-purseHeaderStyle:{position:"absolute",left:0,right:0,top:52,height:46,zIndex:4,background:"#0b0c0f",display:"flex",alignItems:"center",justifyContent:"center",opacity:card==="cash"?1:0,transition:"opacity 220ms ease",pointerEvents:card==="cash"?"auto":"none"},
+purseHeaderStyle:{position:"absolute",left:0,right:0,top:52,height:46,zIndex:4,background:"var(--bgSurfaceMain)",display:"flex",alignItems:"center",justifyContent:"center",opacity:card==="cash"?1:0,transition:"opacity 220ms ease",pointerEvents:card==="cash"?"auto":"none"},
 onCashClose:()=>{this.haptic("light");clearTimeout(this.cardT);this.ss({cardOpen:null,cardClosing:null});},
 onCashGet:()=>this.haptic("light"),
 onCashSend:()=>this.haptic("light"),
 cardOpenCash:shown==="cash",
 cardOpenId:shown==="id",
 cardViewStyle:{
-position:"absolute",left:0,right:0,top:52,bottom:0,zIndex:50,background:"#0b0c0f",overflow:"hidden",
+position:"absolute",left:0,right:0,top:52,bottom:0,zIndex:50,background:"var(--bgSurfaceMain)",overflow:"hidden",
 animation:card?"cardIn 420ms "+HC+" both":"cardOut 280ms cubic-bezier(.4,0,.6,1) both",
 willChange:"transform, opacity",contain:"layout paint style",
 },
@@ -2656,26 +2690,26 @@ sender:!mine&&m[5]?m[5]:"",
 rowStyle:{display:"flex",justifyContent:mine?"flex-end":"flex-start",paddingLeft:mine?48:0,paddingRight:mine?0:48,marginBottom:nextSame?0:8},
 bubbleStyle:{
 position:"relative",maxWidth:310,padding:4,boxSizing:"border-box",display:"flex",flexDirection:"column",
-background:mine?"#ffffff":"#1a1b20",
+background:mine?"var(--bgSurfaceContainerInverted)":"var(--bgSurfaceContainer)",
 borderRadius:mine?(nextSame?16:"16px 16px 8px 16px"):(nextSame?16:"16px 16px 16px 8px"),
 },
 quoteStyle:{
 display:"flex",flexDirection:"column",gap:2,padding:"8px 12px",borderRadius:12,overflow:"hidden",
-background:mine?"#f0f0f2":"#23252a",
-boxShadow:"inset 3px 0 0 "+(mine?"#8c8f98":"#585b62"),
+background:mine?"color-mix(in srgb, var(--fgPrimaryInverted) 8%, transparent)":"var(--bgSurfaceNested)",
+boxShadow:"inset 3px 0 0 "+(mine?"color-mix(in srgb, var(--fgPrimaryInverted) 45%, transparent)":"var(--fgTertiary)"),
 },
-quoteNameStyle:{fontSize:14,lineHeight:"18px",fontWeight:600,color:mine?"#0b0c0f":"#f4f4f5"},
-quoteTextStyle:{fontSize:14,lineHeight:"18px",color:mine?"#404249":"#8c8f98",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"},
-textStyle:{fontSize:16,lineHeight:"20px",color:mine?"#0b0c0f":"#f4f4f5",whiteSpace:"pre-wrap",wordBreak:"break-word"},
+quoteNameStyle:{fontSize:14,lineHeight:"18px",fontWeight:600,color:mine?"var(--fgPrimaryInverted)":"var(--fgPrimary)"},
+quoteTextStyle:{fontSize:14,lineHeight:"18px",color:mine?"color-mix(in srgb, var(--fgPrimaryInverted) 75%, transparent)":"var(--fgSecondary)",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"},
+textStyle:{fontSize:16,lineHeight:"20px",color:mine?"var(--fgPrimaryInverted)":"var(--fgPrimary)",whiteSpace:"pre-wrap",wordBreak:"break-word"},
 spacerStyle:{display:"inline-block",width:(meta.length*6.6)+(mine?22:8),height:12},
-metaStyle:{position:"absolute",right:8,bottom:6,display:"flex",alignItems:"center",gap:4,fontSize:12,lineHeight:"16px",fontWeight:500,color:mine?"#6f727a":"#585b62"},
+metaStyle:{position:"absolute",right:8,bottom:6,display:"flex",alignItems:"center",gap:4,fontSize:12,lineHeight:"16px",fontWeight:500,color:mine?"color-mix(in srgb, var(--fgPrimaryInverted) 55%, transparent)":"var(--fgTertiary)"},
 };
 });
 return{
 chatOpen:(open&&s.active===0&&!s.appFg)||!!s.chatClosing,
 chatScrollRef:this.chatScrollRef,
 chatViewStyle:{
-position:"absolute",left:0,right:0,top:52,bottom:0,zIndex:50,background:"#0b0c0f",
+position:"absolute",left:0,right:0,top:52,bottom:0,zIndex:50,background:"var(--bgSurfaceMain)",
 fontFamily:"Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
 animation:open?(s.chatFresh?"bwFade 240ms ease-out both":"none"):"bwFadeOut 200ms ease-in both",
 willChange:"transform",backfaceVisibility:"hidden",contain:"layout paint style",
@@ -2719,8 +2753,8 @@ this.chatT=setTimeout(()=>this.ss({chatClosing:false}),320);
 pressWrap(st){
 if(!st)return st;
 const gloss=(on)=>on?{
-background:"linear-gradient(180deg, #ffffff33 0%, #ffffff0f 38%, #ffffff00 60%), "+(st.background||"transparent"),
-boxShadow:"inset 0 1px 0 #ffffff59, inset 0 -1px 1px #0000002e"+(st.boxShadow?", "+st.boxShadow:""),
+background:"linear-gradient(180deg, color-mix(in srgb, var(--bgSurfaceContainerInverted) 20%, transparent) 0%, color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent) 38%, color-mix(in srgb, var(--bgSurfaceContainerInverted) 0%, transparent) 60%), "+(st.background||"transparent"),
+boxShadow:"inset 0 1px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 35%, transparent), inset 0 -1px 1px #0000002e"+(st.boxShadow?", "+st.boxShadow:""),
 }:{};
 if(this.state.pillPress===false){
 const tap=!!this.state.pillDown;
@@ -2733,7 +2767,7 @@ const tr=down
 :"scale 320ms "+HC+", box-shadow 360ms "+HC+", filter 360ms "+HC;
 return Object.assign({},st,down?{
 scale:"0.9",
-boxShadow:"inset 0 4px 10px #00000099, inset 0 1px 2px #00000080, inset 0 -0.5px 0 #ffffff1a, 0 0 0 0.5px #ffffff0d, inset 0 0 10px 3px hsl("+this.state.pillHue+" "+Math.round(this.state.pillSat*(this.state.edgeSat / 100))+"% 78% / 0.8), inset 0 0 2px 1px hsl("+this.state.pillHue+" "+Math.round(this.state.pillSat*(this.state.edgeSat / 100))+"% 88% / 0.55)",
+boxShadow:"inset 0 4px 10px #00000099, inset 0 1px 2px #00000080, inset 0 -0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 10%, transparent), 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 5%, transparent), inset 0 0 10px 3px hsl("+this.state.pillHue+" "+Math.round(this.state.pillSat*(this.state.edgeSat / 100))+"% 78% / 0.8), inset 0 0 2px 1px hsl("+this.state.pillHue+" "+Math.round(this.state.pillSat*(this.state.edgeSat / 100))+"% 88% / 0.55)",
 filter:"brightness(0.82)",
 }:Object.assign(gloss(true),{scale:"1",filter:"brightness(1)"}),{touchAction:"none",transition:st.transition?st.transition+", "+tr:tr});
 }
@@ -2921,7 +2955,7 @@ offL:s.gatePeek?s.peek - s.barHeight / 2 -(dockLeft - 14):-(dockLeft+s.barHeight
 const iconHue=s.iconLink?((s.pillHue+s.iconOffset)% 360+360)% 360:s.iconHue;
 const iconSat=s.iconLink?Math.max(0,Math.min(100,s.pillSat+s.iconSatOffset)):s.iconSat;
 const accent="hsl("+iconHue+" "+iconSat+"% "+s.iconLum+"%)";
-const pillIconCol=(s.expanded||s.pillDown)?"#f4f4f5":"#999999";
+const pillIconCol=(s.expanded||s.pillDown)?"var(--fgPrimary)":"var(--fgSecondary)";
 const spec=(a)=>"hsla("+s.specHue+" "+s.specSat+"% "+(s.specSat>0?72:100)+"% / "+a+")";
 const pillFill=(extra)=>"hsla("+s.pillHue+" "+s.pillSat+"% "+s.pillLum+"% / "+Math.min(1,s.tintOp+extra)+")";
 const organicPillW=78;
@@ -2968,7 +3002,7 @@ const on=ctx?false:(activeAppDef&&s.appFg
 ?true
 :(hotMode||!appsMode)&&switcher&&!!shownApp&&activeAppDef.id!==s.hotApp&&slotIcon.id===activeAppDef.id)
 :s.active===i&&!switcher);
-const col=on?((s.expanded||s.inputMode)?"#a5a5aa":"#f4f4f5"):"#999999";
+const col=on?((s.expanded||s.inputMode)?"var(--fgSecondary)":"var(--fgPrimary)"):"var(--fgSecondary)";
 const shown=pinned||slotIcon;
 return{
 label:shown?shown.name:emptySlot?"Apps":t.label,labelShown:s.labels&&s.labelWhere!=="launcher"&&!!(shown?shown.name:emptySlot?"Apps":t.label),
@@ -2978,7 +3012,7 @@ appInitial:shown?shown.initial:"",
 appFav:false,
 appBoxStyle:shown?{position:"relative",width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center"}:null,
 appIconHref:shown?shown.icon:"",
-appSvgStyle:shown?{width:28,height:28,color:col,display:"block",transition:"color 280ms "+HC,animation:on?"iconPop 420ms cubic-bezier(.34,1.4,.64,1) both":"iconSettle 280ms "+HC+" both"}:null,
+appSvgStyle:shown?{width:28,height:28,color:col,display:"block",transition:"color 280ms "+HC,animation:on?"iconPop 420ms cubic-bezier(.34,1.4,.64,1) backwards":"iconSettle 280ms "+HC+" backwards"}:null,
 appId:pinned?pinned.id:"",
 onDown:pinned?this.holdApp(pinned.id,true):null,
 onClick:(e)=>{
@@ -3021,11 +3055,11 @@ justifyContent:"center",gap:1,cursor:"pointer",
 marginLeft:isFirstOfGroup?0:s.itemGap,
 },FIGT?{flex:"0 0 "+FIGT[i].w+"px",width:FIGT[i].w,minWidth:FIGT[i].w,marginLeft:FIGT[i].ml,left:FIGT[i].tx||0}:{}),
 selStyle:on&&s.selection==="pill"
-?Object.assign({position:"absolute",inset:"4px 6px",borderRadius:Math.max(0,innerR - 4),opacity:(s.expanded||s.inputMode)?0.15:1,background:"rgba(255,255,255,"+s.selOp+")",boxShadow:"inset 0 0.5px 0 rgba(255,255,255,"+(s.selOp*1.6).toFixed(3)+")",animation:"selIn 380ms cubic-bezier(.34,1.4,.64,1) both"},FIGT?{inset:"auto",left:FIGT[i].sl,top:0,width:FIGT[i].sw,height:"100%",borderRadius:27,background:"#ffffff1a",boxShadow:"inset 0 0.5px 0 #ffffff14"}:{})
+?Object.assign({position:"absolute",inset:"4px 6px",borderRadius:Math.max(0,innerR - 4),opacity:(s.expanded||s.inputMode)?0.15:1,background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) "+Math.round(s.selOp*120)+"%, transparent)",animation:"selIn 380ms cubic-bezier(.34,1.4,.64,1) backwards"},FIGT?{inset:"auto",left:FIGT[i].sl,top:0,width:FIGT[i].sw,height:"100%",borderRadius:27,background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 12%, transparent)"}:{})
 :(on&&s.selection==="dot"
-?{position:"absolute",left:"50%",bottom:2,width:4,height:4,marginLeft:-2,borderRadius:4,background:"#f4f4f5"}
+?{position:"absolute",left:"50%",bottom:2,width:4,height:4,marginLeft:-2,borderRadius:4,background:"var(--fgPrimary)"}
 :null),
-iconStyle:{position:"relative",color:col,transition:"color 280ms "+HC,animation:on?"iconPop 420ms cubic-bezier(.34,1.4,.64,1) both":"iconSettle 280ms "+HC+" both"},
+iconStyle:{position:"relative",color:col,transition:"color 280ms "+HC,animation:on?"iconPop 420ms cubic-bezier(.34,1.4,.64,1) backwards":"iconSettle 280ms "+HC+" backwards"},
 labelStyle:{position:"relative",fontSize:10,fontWeight:600,lineHeight:"100%",textAlign:"center",color:col},
 };
 };
@@ -3098,8 +3132,8 @@ padding:0,boxSizing:"border-box",borderRadius:slotR,cursor:"pointer",touchAction
 },
 selShown:on,
 selStyle:s.selection==="dot"
-?{position:"absolute",left:"50%",bottom:2,width:4,height:4,marginLeft:-2,borderRadius:4,background:"#f4f4f5"}
-:{position:"absolute",inset:0,borderRadius:slotR,background:"rgba(255,255,255,"+s.selOp+")",boxShadow:"inset 0 0.5px 0 rgba(255,255,255,"+(s.selOp*1.6).toFixed(3)+")",animation:"selIn 380ms cubic-bezier(.34,1.4,.64,1) both"},
+?{position:"absolute",left:"50%",bottom:2,width:4,height:4,marginLeft:-2,borderRadius:4,background:"var(--fgPrimary)"}
+:{position:"absolute",inset:0,borderRadius:slotR,background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) "+Math.round(s.selOp*120)+"%, transparent)",animation:"selIn 380ms cubic-bezier(.34,1.4,.64,1) backwards"},
 labelShown:!!s.labels,
 iconStyle:{
 width:28,height:28,position:"relative",
@@ -3107,10 +3141,10 @@ display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,
 },
 iconHref:a.icon,
 isFav:false,
-svgStyle:{width:28,height:28,color:on?"#f4f4f5":"#999999",display:"block",transition:"color 280ms "+HC},
+svgStyle:{width:28,height:28,color:on?"var(--fgPrimary)":"var(--fgSecondary)",display:"block",transition:"color 280ms "+HC},
 labelStyle:{
 fontSize:11,fontWeight:600,lineHeight:"100%",textAlign:"center",whiteSpace:"nowrap",
-color:on?"#f4f4f5":"#999999",position:"relative",
+color:on?"var(--fgPrimary)":"var(--fgSecondary)",position:"relative",
 },
 };
 });
@@ -3120,8 +3154,8 @@ style:{
 minHeight:48,padding:"0 16px",cursor:"pointer",
 display:"flex",alignItems:"center",
 fontSize:16,fontWeight:400,lineHeight:"22px",letterSpacing:"-0.01em",
-color:danger?"#ff6961":"#f4f4f5",
-borderTop:"0.5px solid #ffffff1a",
+color:danger?"#ff6961":"var(--fgPrimary)",
+borderTop:"0.5px solid var(--strokePrimary)",
 },
 });
 const mId=s.menuFor;
@@ -3167,13 +3201,13 @@ onTogglePanel:()=>this.ss({panelOpen:!s.panelOpen}),
 shellStyle:{
 display:"flex",alignItems:"center",justifyContent:"center",
 width:"100vw",height:"100dvh",overflow:"hidden",
-background:"#141416",color:"#f4f4f5",
+background:"var(--bgSurfaceContainer)",color:"var(--fgPrimary)",
 },
 stageStyle:{
 flex:"1 1 auto",minWidth:0,height:"100dvh",
 display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
 gap:0,padding:0,boxSizing:"border-box",
-background:"radial-gradient(120% 90% at 50% 0%, #1c1c20 0%, #101012 70%)",
+background:"radial-gradient(120% 90% at 50% 0%, var(--bgSurfaceContainer) 0%, var(--bgSurfaceMain) 70%)",
 },
 headerStyle:{display:"none",alignItems:"center",gap:12,alignSelf:"stretch",maxWidth:402,margin:"0 auto",width:"100%"},
 panelStyle:{
@@ -3181,10 +3215,10 @@ position:"absolute",left:8,right:8,top:106,bottom:s.bottom+s.barHeight+12,zIndex
 display:"flex",flexDirection:"column",gap:10,
 overflow:"hidden",boxSizing:"border-box",
 padding:"12px 12px 0",
-background:"#0d0e11ed",
+background:"color-mix(in srgb, var(--bgSurfaceMain) 93%, transparent)",
 backdropFilter:"blur(40px) saturate(140%)",WebkitBackdropFilter:"blur(40px) saturate(140%)",
 borderRadius:30,
-boxShadow:"0 24px 60px #0000008c, inset 0 0 0 0.5px #ffffff26",
+boxShadow:"0 24px 60px #0000008c, inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 15%, transparent)",
 animation:s.screen==="controls"
 ?"curtainDown 420ms "+HC+" both"
 :"curtainUp 360ms "+HC+" both",
@@ -3194,27 +3228,27 @@ fabStyle:{
 display:"none",
 position:"fixed",right:14,top:12,zIndex:25,
 alignItems:"center",gap:6,padding:"7px 12px",borderRadius:999,
-background:"#ffffff1a",border:"1px solid #ffffff1f",
+background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 10%, transparent)",border:"1px solid color-mix(in srgb, var(--bgSurfaceContainerInverted) 12%, transparent)",
 backdropFilter:"blur(14px)",WebkitBackdropFilter:"blur(14px)",
-fontSize:12,fontWeight:500,color:"#f4f4f5",cursor:"pointer",
+fontSize:12,fontWeight:500,color:"var(--fgPrimary)",cursor:"pointer",
 },
 fsBtnStyle:{
 position:"fixed",right:14,bottom:14,zIndex:25,
 display:"none",alignItems:"center",gap:6,padding:"8px 13px",borderRadius:999,
-background:"#ffffff1a",border:"1px solid #ffffff1f",
+background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 10%, transparent)",border:"1px solid color-mix(in srgb, var(--bgSurfaceContainerInverted) 12%, transparent)",
 backdropFilter:"blur(14px)",WebkitBackdropFilter:"blur(14px)",
-fontSize:12,fontWeight:500,color:"#f4f4f5",cursor:"pointer",
+fontSize:12,fontWeight:500,color:"var(--fgPrimary)",cursor:"pointer",
 },
 fsLabel:s.immersive?"Exit full screen":"Full screen",
 controlsScreen:s.screen==="controls"||!!s.tweakFade,
 shapeLabel:s.shape==="organic"?"Organic dock":"Rounded dock",
 saveBtnStyle:{
-padding:"13px 14px",borderRadius:999,cursor:"pointer",background:"#ffffff14",color:"#f4f4f5",
+padding:"13px 14px",borderRadius:999,cursor:"pointer",background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)",color:"var(--fgPrimary)",
 fontSize:13,fontWeight:600,lineHeight:"16px",whiteSpace:"nowrap",
 },
 resetBtnStyle:{
 padding:"13px 10px",borderRadius:999,cursor:"pointer",
-background:"transparent",color:"#a1a1a6",
+background:"transparent",color:"var(--fgSecondary)",
 fontSize:13,fontWeight:500,lineHeight:"16px",whiteSpace:"nowrap",
 },
 chatsScreen:true,
@@ -3225,8 +3259,8 @@ screenTitle:s.screen==="controls"?"Tweak":s.active===1?"Pocket":(s.active===2&&!
 screenBtnLabel:s.screen==="controls"?"Done":"Tweak Docklet"+(s.testerMode&&s.testerMode!=="off"?" \u00b7 "+s.testerMode.toUpperCase():""),
 screenBtnStyle:{
 padding:"13px 16px",borderRadius:999,cursor:"pointer",
-background:s.screen==="controls"?"#f4f4f5":"#ffffff14",
-color:s.screen==="controls"?"#111111":"#dadbe0",
+background:s.screen==="controls"?"var(--bgActionPrimary)":"color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)",
+color:s.screen==="controls"?"var(--fgPrimaryInverted)":"var(--fgPrimary)",
 fontSize:13,fontWeight:600,lineHeight:"16px",letterSpacing:"0.02em",
 },
 onSwitchScreen:()=>{
@@ -3308,7 +3342,7 @@ transition:dragging?"none":"translate "+ez+", rotate "+ez+", opacity "+(s.tipFly
 };
 })(),
 dockTipPillStyle:{
-minHeight:62,borderRadius:9999,background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",
+minHeight:62,borderRadius:9999,background:"var(--fgPrimary)",display:"flex",alignItems:"center",justifyContent:"center",
 padding:"12px 24px",boxSizing:"border-box",
 boxShadow:"0 10px 30px #00000073",
 transformOrigin:"50% 100%",
@@ -3318,29 +3352,30 @@ launchTipOpen:appsMode&&!s.launchTipSeen&&!this._tease&&!s.menuFor&&s.screen!=="
 onLaunchTipClose:(e)=>{if(e)e.stopPropagation();this.ss({launchTipSeen:true});},
 launchTipStyle:{
 position:"absolute",left:12,bottom:bottomOffset+shellH+13,width:212.578,minHeight:56,zIndex:6,
-borderRadius:9999,background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",
+borderRadius:9999,background:"var(--fgPrimary)",display:"flex",alignItems:"center",justifyContent:"center",
 padding:"12px 24px",boxSizing:"border-box",cursor:"pointer",
 boxShadow:"0 10px 30px #00000073",
 animation:"dockFade 360ms "+HC+" 460ms both",
 },
+themeId:s.themeId||"berlinNight",glassMode:s.glassMode||"liquid",
 hsTipOpen:!!s.hsTipOpen&&!s.hidden&&s.gate==="none"&&s.barRetract==="none"&&(!s.appsOpen||!!this._tease)&&!s.expanded&&!s.inputMode&&!s.lqOpen&&!s.menuFor&&s.screen!=="controls",
 onHsTipClose:()=>this.ss({hsTipOpen:false,hsTipSeen:true}),
-hsTipStyle:{position:"absolute",left:100.5,bottom:s.bottom+s.barHeight+20,width:201,zIndex:75,borderRadius:9999,background:"#ffffff",display:"flex",alignItems:"center",gap:8,
-padding:"10px 18px 10px 14px",boxSizing:"border-box",cursor:"pointer",boxShadow:"0 10px 30px #00000073",transformOrigin:"50% 100%",animation:"tipIn 900ms cubic-bezier(.22,1,.36,1) 300ms both"},
+hsTipStyle:{position:"absolute",right:12,bottom:s.bottom+s.barHeight+13,width:201,zIndex:75,borderRadius:9999,background:"var(--fgPrimary)",display:"flex",alignItems:"center",gap:8,
+padding:"10px 18px 10px 14px",boxSizing:"border-box",cursor:"pointer",boxShadow:"0 10px 30px #00000073",transformOrigin:"78% 100%",animation:"tipIn 900ms cubic-bezier(.22,1,.36,1) 300ms both"},
 slotTipStyle:{
 position:"absolute",right:12.643,bottom:s.bottom+s.barHeight+13,width:212.578,height:72,zIndex:4,
-borderRadius:9999,background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",
+borderRadius:9999,background:"var(--fgPrimary)",display:"flex",alignItems:"center",justifyContent:"center",
 padding:"12px 24px",boxSizing:"border-box",cursor:"pointer",
 boxShadow:"0 10px 30px #00000073",
 transformOrigin:"80% 100%",
 animation:"tipIn 900ms cubic-bezier(.22,1,.36,1) 700ms both",
 },
-setViewStyle:{position:"absolute",left:0,right:0,top:98,bottom:0,zIndex:2,background:"#0b0c0f",padding:"0 16px 210px",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:24,overflowY:"auto",scrollbarWidth:"none",fontFamily:"Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"},
-setTheme:s.setTheme||"Jam",
-onSetTheme:()=>{const T=["Jam","Night","Mono"];this.haptic("select");this.ss({setTheme:T[(T.indexOf(s.setTheme||"Jam")+1)% T.length]});},
+setViewStyle:{position:"absolute",left:0,right:0,top:98,bottom:0,zIndex:2,background:"var(--bgSurfaceMain)",padding:"0 16px 210px",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:24,overflowY:"auto",scrollbarWidth:"none",fontFamily:"Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"},
+setTheme:({berlinNight:"Berlin Night",berlinDay:"Berlin Day",tokyo:"Tokyo",malta:"Malta",lisbon:"Lisbon"})[s.themeId||"berlinNight"],
+onSetTheme:()=>{const T=["berlinNight","berlinDay","tokyo","malta","lisbon"];this.haptic("select");this.ss({themeId:T[(T.indexOf(s.themeId||"berlinNight")+1)% T.length]});},
 onSetLabels:(e)=>{if(e)e.stopPropagation();this.haptic("select");this.ss({labels:!s.labels});},
 setSwitchStyle:{width:64,height:28,borderRadius:100,flexShrink:0,position:"relative",cursor:"pointer",background:s.labels?"#34c759":"#3a3c42",transition:"background 260ms "+HC},
-setKnobStyle:{position:"absolute",top:2,left:s.labels?23:2,width:39,height:24,borderRadius:100,background:"#fff",boxShadow:"0 2px 6px #00000040",transition:"left 300ms "+HC},
+setKnobStyle:{position:"absolute",top:2,left:s.labels?23:2,width:39,height:24,borderRadius:100,background:"var(--bgSurfaceContainerInverted)",boxShadow:"0 2px 6px #00000040",transition:"left 300ms "+HC},
 privTitle:priv.title,
 privDesc:priv.desc,
 onPrivFast:()=>setPriv("fast"),
@@ -3366,7 +3401,7 @@ const p=PRIV[s.privDragX!=null?near:(s.privacy||"balanced")];
 return{
 position:"absolute",left:privX,top:-10.423,width:62,height:62,borderRadius:24,boxSizing:"border-box",
 border:"2px solid transparent",
-background:"linear-gradient("+p.fill+", "+p.fill+") padding-box, linear-gradient(#14151b, #14151b) padding-box, linear-gradient(180deg, "+p.ring[0]+" 0%, "+p.ring[1]+" 100%) border-box",
+background:"linear-gradient("+p.fill+", "+p.fill+") padding-box, linear-gradient(var(--bgSurfaceContainer), var(--bgSurfaceContainer)) padding-box, linear-gradient(180deg, "+p.ring[0]+" 0%, "+p.ring[1]+" 100%) border-box",
 boxShadow:"0px 4px 4px 0px #000000b3",
 transition:privEase==="none"?"background 200ms":privEase+", background 300ms",
 cursor:"grab",touchAction:"none",zIndex:1,
@@ -3392,7 +3427,7 @@ pointerEvents:s.privDragX!=null?"none":undefined,
 };
 const gs=k==="balanced"?0.66+0.34*t:1+0.25*t;
 out["privGlyph_"+k]={
-width:p.w*gs,height:p.h*gs,background:"#f4f4f5",flexShrink:0,
+width:p.w*gs,height:p.h*gs,background:"var(--bgSurfaceNestedInverted)",flexShrink:0,
 WebkitMask:"url(./assets/settings/"+p.icon+".svg) center / contain no-repeat",
 mask:"url(./assets/settings/"+p.icon+".svg) center / contain no-repeat",
 transition:ez==="none"?"none":"width "+ez+", height "+ez,
@@ -3400,21 +3435,21 @@ transition:ez==="none"?"none":"width "+ez+", height "+ez,
 });
 return out;
 })(),
-privIconStyle:{position:"absolute",left:31 - priv.w / 2,top:31 - priv.h / 2,width:priv.w,height:priv.h,background:"#f4f4f5",WebkitMask:"url(./assets/settings/"+priv.icon+".svg) center / contain no-repeat",mask:"url(./assets/settings/"+priv.icon+".svg) center / contain no-repeat",pointerEvents:"none"},
+privIconStyle:{position:"absolute",left:31 - priv.w / 2,top:31 - priv.h / 2,width:priv.w,height:priv.h,background:"var(--bgSurfaceNestedInverted)",WebkitMask:"url(./assets/settings/"+priv.icon+".svg) center / contain no-repeat",mask:"url(./assets/settings/"+priv.icon+".svg) center / contain no-repeat",pointerEvents:"none"},
 appTitle:miniDef?miniDef.name:"",
 appInitial:miniDef?miniDef.initial:"",
 appIconStyle:miniDef?{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}:null,
 appIconHref:miniDef?miniDef.icon:"",
-appIconSvgStyle:miniDef?{width:28,height:28,color:"#f4f4f5",display:"block"}:null,
-appViewStyle:{position:"absolute",left:0,right:0,top:0,bottom:0,zIndex:2,background:"radial-gradient(130% 60% at 50% 0%, "+(AT.glow||"#ffffff0a")+" 0%, #0b0c0f00 70%), #0b0c0f",transition:"background 400ms",padding:"104px 16px 210px",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:14,overflowY:"auto"},
+appIconSvgStyle:miniDef?{width:28,height:28,color:"var(--fgPrimary)",display:"block"}:null,
+appViewStyle:{position:"absolute",left:0,right:0,top:0,bottom:0,zIndex:2,background:"radial-gradient(130% 60% at 50% 0%, "+(AT.glow||"color-mix(in srgb, var(--bgSurfaceContainerInverted) 4%, transparent)")+" 0%, color-mix(in srgb, var(--bgSurfaceMain) 0%, transparent) 70%), var(--bgSurfaceMain)",transition:"background 400ms",padding:"104px 16px 210px",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:14,overflowY:"auto"},
 appHeadStyle:{display:"flex",alignItems:"center",gap:10,flexShrink:0},
-appNameStyle:{fontSize:17,fontWeight:600,lineHeight:"22px",color:"#f4f4f5"},
-appCloseStyle:{padding:"9px 14px",borderRadius:999,background:"#ffffff14",color:"#dadbe0",fontSize:13,fontWeight:600,cursor:"pointer"},
+appNameStyle:{fontSize:17,fontWeight:600,lineHeight:"22px",color:"var(--fgPrimary)"},
+appCloseStyle:{padding:"9px 14px",borderRadius:999,background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)",color:"var(--fgPrimary)",fontSize:13,fontWeight:600,cursor:"pointer"},
 onAppClose:()=>this.closeApp(),
 appBig:mini?mini.big:"",
-appBigStyle:{fontSize:mini&&mini.bigSize?mini.bigSize:(AT.big||44),fontWeight:AT.w||600,fontFamily:AT.font||undefined,fontStyle:AT.italic?"italic":undefined,lineHeight:"1.05",letterSpacing:AT.font===MONO?"-0.04em":(AT.font===SERIF?"-0.01em":"-0.03em"),color:AT.font===SERIF&&AT.accent?"color-mix(in oklab, "+AT.accent+" 55%, #fff)":"#f4f4f5",textAlign:AT.align||"center",alignSelf:"stretch",padding:AT.panel?"18px 20px":0,borderRadius:AT.panel?24:0,background:AT.panel?"#00000061":"none",boxShadow:AT.panel?"inset 0 1px 0 #ffffff0d, inset 0 0 0 1px "+(AT.accent?"color-mix(in oklab, "+AT.accent+" 16%, transparent)":"#ffffff0f"):"none",boxSizing:"border-box",fontVariantNumeric:"tabular-nums",minHeight:52,display:"flex",alignItems:"center",flexShrink:0,textWrap:"pretty"},
+appBigStyle:{fontSize:mini&&mini.bigSize?mini.bigSize:(AT.big||44),fontWeight:AT.w||600,fontFamily:AT.font||undefined,fontStyle:AT.italic?"italic":undefined,lineHeight:"1.05",letterSpacing:AT.font===MONO?"-0.04em":(AT.font===SERIF?"-0.01em":"-0.03em"),color:AT.font===SERIF&&AT.accent?"color-mix(in oklab, "+AT.accent+" 55%, #fff)":"var(--fgPrimary)",textAlign:AT.align||"center",alignSelf:"stretch",padding:AT.panel?"18px 20px":0,borderRadius:AT.panel?24:0,background:AT.panel?"#00000061":"none",boxShadow:AT.panel?"inset 0 1px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 5%, transparent), inset 0 0 0 1px "+(AT.accent?"color-mix(in oklab, "+AT.accent+" 16%, transparent)":"color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent)"):"none",boxSizing:"border-box",fontVariantNumeric:"tabular-nums",minHeight:52,display:"flex",alignItems:"center",flexShrink:0,textWrap:"pretty"},
 appSub:mini?mini.sub:"",
-appSubStyle:{fontSize:13,lineHeight:"18px",color:AT.accent?"color-mix(in oklab, "+AT.accent+" 45%, #8c8f98)":"#8c8f98",flexShrink:0,marginTop:-8,textAlign:AT.align||"center",alignSelf:"stretch",fontFamily:AT.font===MONO?MONO:undefined,letterSpacing:AT.font===MONO?"0.02em":undefined},
+appSubStyle:{fontSize:13,lineHeight:"18px",color:AT.accent?"color-mix(in oklab, "+AT.accent+" 45%, var(--fgSecondary))":"var(--fgSecondary)",flexShrink:0,marginTop:-8,textAlign:AT.align||"center",alignSelf:"stretch",fontFamily:AT.font===MONO?MONO:undefined,letterSpacing:AT.font===MONO?"0.02em":undefined},
 appGridStyle:mini?{display:"grid",gridTemplateColumns:"repeat("+mini.cols+", minmax(0,1fr))",gap:AT.r===999?10:8,flexShrink:0}:null,
 appCells:mini?mini.cells:[],
 shellApps:appsMode||!!s.appsFade||(!!s.warm&&!shellExpanded),
@@ -3441,10 +3476,10 @@ favGroupStyle:{
 display:favRowChunks.length?"flex":"none",flexDirection:"column",gap:4,flexShrink:0,touchAction:"none",
 borderRadius:favGroupR,padding:s.pad,boxSizing:"border-box",
 background:"#0808089e",
-boxShadow:"inset 0 0 0 1px #23252a",
+boxShadow:"inset 0 0 0 1px var(--strokePrimary)",
 },
 favRows:favRowChunks.map((c,i)=>({apps:mkApps(c),rowStyle:depthRow(i)})),
-appRows:appRowChunks.map((c,i)=>({apps:mkApps(c),rowStyle:depthRow(favRowChunks.length+i),sepBefore:i===sepAt,sepStyle:{height:1,margin:"0 "+(s.pad+14)+"px",flexShrink:0,background:"#ffffff1f",marginBottom:4,animation:depthRow(favRowChunks.length+i).animation}})),
+appRows:appRowChunks.map((c,i)=>({apps:mkApps(c),rowStyle:depthRow(favRowChunks.length+i),sepBefore:i===sepAt,sepStyle:{height:1,margin:"0 "+(s.pad+14)+"px",flexShrink:0,background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 12%, transparent)",marginBottom:4,animation:depthRow(favRowChunks.length+i).animation}})),
 menuShown:!!s.menuFor,
 menuTitle:({"@chats":"Chats","@pocket":"Pocket","@pin":"Pin"})[s.menuFor]||(APPS.find((a)=>a.id===s.menuFor)||{}).name||"",
 onCloseMenu:()=>{if(this.held&&this._retarget){this.held=this._retarget=false;return;}this.held=this._retarget=false;this.ss({menuFor:null});},
@@ -3462,9 +3497,9 @@ position:"absolute",zIndex:76,left,width:MW,
 bottom:Math.round(SCREEN_H - a.top+12),
 boxSizing:"border-box",padding:0,overflow:"hidden",
 borderRadius:16,
-background:"#1e1e20bd",
+background:"color-mix(in srgb, var(--bgSurfaceContainer) 74%, transparent)",
 backdropFilter:"blur(34px) saturate(180%)",WebkitBackdropFilter:"blur(34px) saturate(180%)",
-boxShadow:"0 24px 60px #0000008c, inset 0 0.5px 0 #ffffff24, 0 0 0 0.5px #ffffff14",
+boxShadow:"0 24px 60px #0000008c, inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 14%, transparent), 0 0 0 0.5px var(--strokePrimary)",
 display:"flex",flexDirection:"column",
 transformOrigin:originX+"px 100%",
 animation:"menuPop 240ms cubic-bezier(.2,.9,.24,1) both",
@@ -3477,7 +3512,7 @@ toastStyle:Object.assign(this.glass(22),{position:"absolute",zIndex:97,left:16,r
 dockMenuOpen:!!s.dockMenu,
 onDockMenuClose:()=>{this.held=false;this.ss({dockMenu:false});},
 nudgeTipOpen:!!s.nudgeTip&&s.gate==="none"&&s.barRetract==="none",
-nudgeTipStyle:{position:"absolute",zIndex:63,left:dockLeft+W / 2 - 110,width:220,bottom:bottomOffset+s.barHeight+12,padding:"8px 12px",boxSizing:"border-box",borderRadius:999,background:"#ffffff",color:"#0b0c0f",fontSize:12,lineHeight:"16px",fontWeight:600,textAlign:"center",pointerEvents:"none",boxShadow:"0 8px 24px #00000059",animation:"softIn 260ms "+HC+" both"},
+nudgeTipStyle:{position:"absolute",zIndex:63,left:dockLeft+W / 2 - 110,width:220,bottom:bottomOffset+s.barHeight+12,padding:"8px 12px",boxSizing:"border-box",borderRadius:999,background:"var(--bgSurfaceContainerInverted)",color:"var(--fgPrimaryInverted)",fontSize:12,lineHeight:"16px",fontWeight:600,textAlign:"center",pointerEvents:"none",boxShadow:"0 8px 24px #00000059",animation:"softIn 260ms "+HC+" both"},
 onHideLeft:()=>{this.held=false;this.ss({dockMenu:false,lastGate:"left"});this.hideSettle(s.mode,"left",0,0,1);},
 onHideRight:()=>{this.held=false;this.ss({dockMenu:false,lastGate:"right"});this.hideSettle(s.mode,"right",0,0,1);},
 dockMenuStyle:Object.assign(this.glass(22),{position:"absolute",zIndex:91,width:190,left:dockLeft+W / 2 - 95,bottom:bottomOffset+s.barHeight+12,padding:"4px 0",overflow:"hidden",animation:"softIn 180ms "+HC+" both"}),
@@ -3494,7 +3529,7 @@ left:pivotSide==="right"?"auto":Math.max(0,dockLeft - 42),right:pivotSide==="rig
 display:"flex",alignItems:"center",justifyContent:"center",
 cursor:"grab",touchAction:"none",
 },
-gateChipStyle:true?{display:"none"}:Object.assign({opacity:0},{position:"absolute",top:"50%",marginTop:-20,width:5,height:40,borderRadius:3,pointerEvents:"none",background:"#f4f4f5e6",boxShadow:"0 0 0 0.5px #00000059, 0 0 16px 3px #ffffff4d",animation:"softIn 200ms cubic-bezier(.2,.8,.2,1) 40ms both"},{position:"relative",top:"auto",marginTop:0,alignSelf:"center"},pivotSide==="right"?{marginLeft:"auto",marginRight:Math.max(0,6 - Math.max(0,SCREEN_W - dockLeft - W - 42))}:{marginRight:"auto",marginLeft:Math.max(0,6 - Math.max(0,dockLeft - 42))}),
+gateChipStyle:true?{display:"none"}:Object.assign({opacity:0},{position:"absolute",top:"50%",marginTop:-20,width:5,height:40,borderRadius:3,pointerEvents:"none",background:"color-mix(in srgb, var(--bgSurfaceNestedInverted) 90%, transparent)",boxShadow:"0 0 0 0.5px #00000059, 0 0 16px 3px color-mix(in srgb, var(--bgSurfaceContainerInverted) 30%, transparent)",animation:"softIn 200ms cubic-bezier(.2,.8,.2,1) 40ms both"},{position:"relative",top:"auto",marginTop:0,alignSelf:"center"},pivotSide==="right"?{marginLeft:"auto",marginRight:Math.max(0,6 - Math.max(0,SCREEN_W - dockLeft - W - 42))}:{marginRight:"auto",marginLeft:Math.max(0,6 - Math.max(0,dockLeft - 42))}),
 edgeIndRef:this.edgeIndRef,
 edgeIndStyle:(()=>{const gm=s.mode!=="slide";const on=gm?!s.gatePeek:s.slidePeek===false;return{display:on?"block":"none",position:"absolute",zIndex:90,pointerEvents:(gm?s.gate!=="none":s.barRetract!=="none")&&(s.hiddenMark==="bar"||s.hiddenMark==="soft")?"auto":"none",touchAction:"none",cursor:"pointer",padding:"24px 22px",boxSizing:"content-box",width:5,height:40,top:SCREEN_H - bottomOffset - s.barHeight / 2 - 44,left:s.leftHanded?-18:SCREEN_W - 31,willChange:"opacity",opacity:0};})(),
 // the grab zone: the glow is 24 px wide at the edge, and a touch beside it only brightened it; take ~47 px from the edge
@@ -3516,14 +3551,14 @@ background:s.hiddenMark==="none"?"transparent":"linear-gradient("+dir+", "+GLOW_
 filter:"blur(2.4px)",
 WebkitMaskImage:GLOW_MASK,maskImage:GLOW_MASK,
 };})()
-:{width:5,height:40,borderRadius:2.5,background:"#f4f4f5e6",boxShadow:"0 0 0 0.5px #00000059, 0 0 14px 2px #ffffff4d",pointerEvents:"none"},
+:{width:5,height:40,borderRadius:2.5,background:"color-mix(in srgb, var(--bgSurfaceNestedInverted) 90%, transparent)",boxShadow:"0 0 0 0.5px #00000059, 0 0 14px 2px color-mix(in srgb, var(--bgSurfaceContainerInverted) 30%, transparent)",pointerEvents:"none"},
 edgeMarkStyle:(()=>{
 return{display:"none"};
 const right=s.barRetract==="right";
 if(s.slidePeek!==false)return{display:"none"};
 const zoneL=s.anchored===false||s.slidePeek===false?Math.max(0,dockLeft - 20):(right?SCREEN_W -(s.peek+44):0);
 const x=right?SCREEN_W - 8:8;
-return Object.assign({position:"absolute",top:"50%",marginTop:-20,width:5,height:40,borderRadius:3,pointerEvents:"none",background:"#f4f4f5e6",boxShadow:"0 0 0 0.5px #00000059, 0 0 16px 3px #ffffff4d",animation:"softIn 200ms cubic-bezier(.2,.8,.2,1) 40ms both"},{left:x - zoneL - 2.5});
+return Object.assign({position:"absolute",top:"50%",marginTop:-20,width:5,height:40,borderRadius:3,pointerEvents:"none",background:"color-mix(in srgb, var(--bgSurfaceNestedInverted) 90%, transparent)",boxShadow:"0 0 0 0.5px #00000059, 0 0 16px 3px color-mix(in srgb, var(--bgSurfaceContainerInverted) 30%, transparent)",animation:"softIn 200ms cubic-bezier(.2,.8,.2,1) 40ms both"},{left:x - zoneL - 2.5});
 })(),
 rows:this.allRows().map((r,i)=>{
 const th=this.thread(i);
@@ -3563,7 +3598,7 @@ kbH:KB_H,
 scrimStyle:{
 position:"absolute",left:0,right:0,bottom:0,
 height:SCREEN_H,transform:"translateY("+SCREEN_H+"px)",
-background:"linear-gradient(180deg, #08090b00 0px, #08090b4d 90px, #08090b73 170px, #08090b8c 280px)",
+background:"linear-gradient(180deg, color-mix(in srgb, var(--bgSurfaceMain) 0%, transparent) 0px, color-mix(in srgb, var(--bgSurfaceMain) 30%, transparent) 90px, color-mix(in srgb, var(--bgSurfaceMain) 45%, transparent) 170px, color-mix(in srgb, var(--bgSurfaceMain) 55%, transparent) 280px)",
 maskImage:"linear-gradient(180deg, #00000000 0px, #000000ff 70px)",
 WebkitMaskImage:"linear-gradient(180deg, #00000000 0px, #000000ff 70px)",
 pointerEvents:"none",zIndex:3,willChange:"transform, opacity",
@@ -3574,7 +3609,7 @@ scrimRef:this.scrimRef,
 expandedScrim:shellExpanded&&s.screen!=="controls",
 collapseCatcher:shellExpanded&&!s.inputMode&&s.screen!=="controls",
 collapseCatcherStyle:{position:"absolute",left:0,right:0,top:0,height:SCREEN_H - bottomOffset - shellH,zIndex:3},
-camStyle:{position:"relative",zIndex:2,filter:s.camFreeze&&!s.inputMode?"blur(10px) brightness(0.75)":undefined,scale:s.camFreeze&&!s.inputMode?"0.97":undefined,boxShadow:s.inputMode?"0 -10px 24px #0000008c, 0 0 0 1px #ffffff14":undefined,willChange:"transform, opacity, filter",backfaceVisibility:"hidden",animation:s.inputMode?"camPopB 220ms "+HC+" both":(quick||expFading?lidFx(40,0):(this._camWasInput?"camPopA 220ms "+HC+" both":lidFx(40,0))),transformOrigin:"50% 100%",touchAction:"none",width:(s.inputMode?48:110),height:(s.inputMode?48:110),borderRadius:s.inputMode?9999:24,alignSelf:"center",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",background:s.inputMode?"#ffffff1a":'#16171b url("'+(this._camStill||"assets/camera-preview.jpg")+'") center / cover no-repeat',boxShadow:s.inputMode?"inset 0 0.5px 0 #ffffff59, inset 0 0 0 0.5px #ffffff1f":"inset 0 0 0 1px #000000",backdropFilter:s.inputMode?"blur(12px)":undefined,WebkitBackdropFilter:s.inputMode?"blur(12px)":undefined,flexShrink:0,cursor:"pointer"},
+camStyle:{position:"relative",zIndex:2,filter:s.camFreeze&&!s.inputMode?"blur(10px) brightness(0.75)":undefined,scale:s.camFreeze&&!s.inputMode?"0.97":undefined,boxShadow:s.inputMode?"0 -10px 24px #0000008c, 0 0 0 1px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)":undefined,willChange:"transform, opacity, filter",backfaceVisibility:"hidden",animation:s.inputMode?"camPopB 220ms "+HC+" both":(quick||expFading?lidFx(40,0):(this._camWasInput?"camPopA 220ms "+HC+" both":lidFx(40,0))),transformOrigin:"50% 100%",touchAction:"none",width:(s.inputMode?48:110),height:(s.inputMode?48:110),borderRadius:s.inputMode?9999:24,alignSelf:"center",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",background:s.inputMode?"color-mix(in srgb, var(--bgSurfaceContainerInverted) 10%, transparent)":'#16171b url("'+(this._camStill||"assets/camera-preview.jpg")+'") center / cover no-repeat',boxShadow:s.inputMode?"inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 35%, transparent), inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 12%, transparent)":"inset 0 0 0 1px #000000",backdropFilter:s.inputMode?"blur(12px)":undefined,WebkitBackdropFilter:s.inputMode?"blur(12px)":undefined,flexShrink:0,cursor:"pointer"},
 camRef:this.camRef,
 camFreezeStyle:null,
 camVideoStyle:{width:"100%",height:"100%",objectFit:"cover",display:"block",opacity:s.camLive?1:0,filter:s.camLive?"blur(0px)":"blur(14px)",transform:s.camLive?"scale(1)":"scale(1.06)",transition:"opacity 420ms "+HC+", filter 520ms "+HC+", transform 520ms "+HC,pointerEvents:"none"},
@@ -3586,7 +3621,7 @@ onCamTap:()=>{if(s.inputMode)this.ss({inputMode:false,query:""});},
 searchBarStyle:{
 height:48,flexShrink:0,willChange:"transform, opacity, filter",backfaceVisibility:"hidden",animation:lidFx(70,1),transformOrigin:"50% 100%",touchAction:"none",borderRadius:296,boxSizing:"border-box",padding:"0 16px",
 display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"space-between",
-background:s.searchPressed?"#ffffff29":"#ffffff14",
+background:s.searchPressed?"color-mix(in srgb, var(--bgSurfaceContainerInverted) 16%, transparent)":"color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)",
 boxShadow:"inset 0 0.5px 0 rgba(255,255,255,"+(s.borderOp*1.2).toFixed(3)+")",
 cursor:"text",
 },
@@ -3625,17 +3660,17 @@ willChange:"transform, opacity, filter",backfaceVisibility:"hidden",animation:li
 fieldStyle:{
 flex:1,minWidth:0,height:48,borderRadius:296,boxSizing:"border-box",padding:"0 13px 0 14px",
 display:"flex",flexDirection:"row",gap:8,alignItems:"center",
-background:s.query?"#ffffff24":"#ffffff1a",
-boxShadow:"inset 0 0.5px 0 rgba(255,255,255,"+(s.borderOp*1.2).toFixed(3)+")"+(s.query?", inset 0 0 0 1px #ffffff14":""),
+background:s.query?"color-mix(in srgb, var(--bgSurfaceContainerInverted) 14%, transparent)":"color-mix(in srgb, var(--bgSurfaceContainerInverted) 10%, transparent)",
+boxShadow:"inset 0 0.5px 0 rgba(255,255,255,"+(s.borderOp*1.2).toFixed(3)+")"+(s.query?", inset 0 0 0 1px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)":""),
 transition:"background 200ms ease-out, box-shadow 200ms ease-out",
 },
-fieldGlassStyle:{color:s.query?"#f4f4f5":"#8c8f98",flexShrink:0,transition:"color 200ms ease-out"},
+fieldGlassStyle:{color:s.query?"var(--fgPrimary)":"var(--fgSecondary)",flexShrink:0,transition:"color 200ms ease-out"},
 queryFilled:!!s.query,
 onClearQuery:(e)=>{if(e)e.stopPropagation();this.haptic("light");this.ss({query:""});},
 fieldDismissStyle:{
 width:48,height:48,borderRadius:9999,flexShrink:0,cursor:"pointer",
-display:"flex",alignItems:"center",justifyContent:"center",color:"#999999",
-background:"#ffffff1a",
+display:"flex",alignItems:"center",justifyContent:"center",color:"var(--fgSecondary)",
+background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 10%, transparent)",
 boxShadow:"inset 0 0.5px 0 rgba(255,255,255,"+(s.borderOp*1.2).toFixed(3)+")",
 animation:(s.openFx==="calm"?"calmIn":"softIn")+" 260ms "+HC+" 120ms both",
 },
@@ -3678,7 +3713,7 @@ row3Style:{position:"relative",height:45,display:"flex",flexDirection:"row",gap:
 row3InnerStyle:{position:"relative",height:45,display:"flex",flexDirection:"row",gap:6,alignItems:"center",flexGrow:1},
 row4Style:{position:"relative",height:45,display:"flex",flexDirection:"row",gap:6,justifyContent:"center",alignItems:"center",flexShrink:0,alignSelf:"stretch"},
 suggestStyle:{position:"relative",width:300,height:27,boxSizing:"border-box",padding:"0 22px",display:"flex",flexDirection:"row",gap:20,alignItems:"center",flexShrink:0},
-suggestTextStyle:{flexGrow:1,fontFamily:'"SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',fontWeight:400,fontSize:17,lineHeight:"22px",letterSpacing:"-0.43px",textAlign:"center",whiteSpace:"nowrap",color:"#ececec"},
+suggestTextStyle:{flexGrow:1,fontFamily:'"SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',fontWeight:400,fontSize:17,lineHeight:"22px",letterSpacing:"-0.43px",textAlign:"center",whiteSpace:"nowrap",color:"var(--fgPrimary)"},
 suggestSepStyle:{width:1,alignSelf:"stretch",opacity:0.1,background:"#cccccc",flexShrink:0},
 emojiRowStyle:{position:"relative",height:70,boxSizing:"border-box",padding:"27px 39px 15px 36px",display:"flex",flexDirection:"row",justifyContent:"space-between",alignItems:"flex-start",flexShrink:0,alignSelf:"stretch"},
 keyboardStyle:{
@@ -3686,7 +3721,7 @@ transform:(s.inputMode||(s.lqOpen&&s.lqView===2&&!s.lqKbHold)||(s.chatKb&&this.c
 pointerEvents:(s.inputMode||(s.lqOpen&&s.lqView===2&&!s.lqKbHold)||(s.chatKb&&this.chatVis()))?"auto":"none",
 transition:"transform 320ms "+HC,willChange:"transform",
 position:"absolute",left:0,right:0,bottom:0,width:SCREEN_W,height:KB_H,
-boxSizing:"border-box",zIndex:s.chatKb||(s.inputMode&&this.chatVis())?70:7,background:"#1b1b1b",
+boxSizing:"border-box",zIndex:s.chatKb||(s.inputMode&&this.chatVis())?70:7,background:"var(--kbBg)",
 boxShadow:s.inputMode?"0 -10px 22px #0000008c, 0 -2px 6px #00000059":"none",
 borderRadius:"27px 27px 62px 62px",padding:"12px 0 10px",
 display:"flex",flexDirection:"column",alignItems:"center",
@@ -3747,7 +3782,7 @@ overflow:"hidden",cursor:"pointer",zIndex:2,
 background:"linear-gradient(180deg, "+glowHsl(0.22)+", "+glowHsl(0.1)+")",
 filter:"brightness(0.9)",
 }:{}),
-grabberStyle:{position:"absolute",top:5,left:"50%",width:36,height:5,marginLeft:-18,borderRadius:3,background:"#ffffff52",zIndex:6,pointerEvents:"none",opacity:this._grab?1:0,transition:"opacity 240ms"},
+grabberStyle:{position:"absolute",top:5,left:"50%",width:36,height:5,marginLeft:-18,borderRadius:3,background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 32%, transparent)",zIndex:6,pointerEvents:"none",opacity:this._grab?1:0,transition:"opacity 240ms"},
 organicFrameStyle:{position:"relative",color:pillIconCol,opacity:organic?1:0.45,transition:"color 280ms "+HC},
 organicPlusStyle:{position:"absolute",left:0,top:0,color:pillIconCol,transition:"color 280ms "+HC},
 pillFrameStyle:{position:"absolute",left:0,top:0,color:pillIconCol,transition:"opacity 200ms ease-out, transform 360ms cubic-bezier(.3,1.35,.5,1), color 280ms "+HC,opacity:(s.expanded||s.inputMode)?0:1,transform:(s.expanded||s.inputMode)?"scale(0.6)":"none"},
@@ -3806,8 +3841,8 @@ onDelete:()=>this.persistPresets((this.state.presets||[]).filter((q)=>q.id!==p.i
 swatchStyle:{width:12,height:12,borderRadius:999,background:p.swatch,flexShrink:0},
 chipStyle:{
 display:"flex",alignItems:"center",gap:10,padding:"9px 12px 9px 11px",minHeight:30,
-borderRadius:999,background:"#ffffff0f",border:"1px solid #ffffff17",
-fontSize:13.5,color:"#dadbe0",cursor:"pointer",
+borderRadius:999,background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 6%, transparent)",border:"1px solid color-mix(in srgb, var(--bgSurfaceContainerInverted) 9%, transparent)",
+fontSize:13.5,color:"var(--fgPrimary)",cursor:"pointer",
 },
 })),
 hasPresets:(s.presets||[]).length>0,
@@ -3973,6 +4008,8 @@ display:(s.iconSatOffset>0?"+":"")+Math.round(s.iconSatOffset)+"% \u00b7 "+Math.
 {slider:this.slider("Brightness","iconLum",28,92,1,"%","linear-gradient(90deg, hsl("+iconHue+" "+iconSat+"% 28%), hsl("+iconHue+" "+iconSat+"% 92%))")},
 ]},
 {title:"Glass",items:[
+{seg:this.seg("Theme","themeId",[["Night","berlinNight"],["Day","berlinDay"],["Tokyo","tokyo"],["Malta","malta"],["Lisbon","lisbon"]])},
+{seg:this.seg("Glass","glassMode",[["Liquid","liquid"],["Tokens","tokens"]])},
 {slider:this.slider("Blur","blur",0,60,1,"px")},
 {slider:this.slider("Saturation","sat",100,320,5,"%")},
 {slider:this.slider("Tint opacity","tintOp",0,1,0.02,"x")},
@@ -4037,8 +4074,8 @@ if(rail.scrollTo)rail.scrollTo({left:Math.max(0,left),behavior:"smooth"});
 style:{
 flexShrink:0,padding:"8px 14px",borderRadius:999,cursor:"pointer",
 fontSize:13.5,fontWeight:n===active?600:500,lineHeight:"18px",whiteSpace:"nowrap",
-background:n===active?"#f4f4f5":"transparent",
-color:n===active?"#111111":"#a1a1a6",
+background:n===active?"var(--bgSurfaceNestedInverted)":"transparent",
+color:n===active?"#111111":"var(--fgSecondary)",
 boxShadow:n===active?"0 1px 3px #00000059":"none",
 transition:"background 240ms "+HC+", color 240ms "+HC,
 },
@@ -4046,10 +4083,10 @@ transition:"background 240ms "+HC+", color 240ms "+HC,
 // Tweak layout: the category rail and a line saying what the category is for stay at the top; only the settings
 // below scroll, fading out under the rail and above the dock
 out.railStyle={flexShrink:0,display:"flex",alignItems:"center",gap:2,overflowX:"auto",overflowY:"hidden",padding:"3px 24px 3px 10px",
-background:"#ffffff0b",borderRadius:999,scrollbarWidth:"none",WebkitOverflowScrolling:"touch",
+background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 4%, transparent)",borderRadius:999,scrollbarWidth:"none",WebkitOverflowScrolling:"touch",
 WebkitMaskImage:"linear-gradient(90deg,transparent,#000 10px,#000 calc(100% - 22px),transparent)",maskImage:"linear-gradient(90deg,transparent,#000 10px,#000 calc(100% - 22px),transparent)"};
 out.twSub=({"Hide gesture":"How the dock tucks away and how it comes back","Motion":"The curve and speed of every animation","Dock":"Size and shape of the dock and its search card","Tabs":"Labels, the right slot and the selection","Centre button":"The Pill in the middle of the dock","Button colour":"The colour of the Pill","Material":"The glass: blur, tint and light","Haptics":"What you feel on taps and swipes","Pressed glow":"The glow behind the Pill icon when pressed","Help":"Tester mode and the first-run tips"})[active]||"";
-out.twSubStyle={flexShrink:0,fontSize:13,lineHeight:"18px",color:"#8c8f98",padding:"2px 8px 0"};
+out.twSubStyle={flexShrink:0,fontSize:13,lineHeight:"18px",color:"var(--fgSecondary)",padding:"2px 8px 0"};
 out.twScrollStyle={flex:"1 1 auto",minHeight:0,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",
 display:"flex",flexDirection:"column",gap:22,margin:"0 -12px",padding:"8px 12px 28px",boxSizing:"border-box",
 WebkitMaskImage:"linear-gradient(180deg,transparent,#000 10px,#000 calc(100% - 28px),transparent)",maskImage:"linear-gradient(180deg,transparent,#000 10px,#000 calc(100% - 28px),transparent)"};
@@ -4057,9 +4094,9 @@ out.sections=[];(byTitle[active]||[]).forEach((it)=>{if(it.head||!out.sections.l
 out.sections=out.sections.filter((sc)=>sc.items.length).map((sc)=>{
 const rows=sc.items.filter((it)=>!it.note),foot=sc.items.filter((it)=>it.note).map((it)=>it.note).join(" ");
 return{head:sc.head,foot,
-cardStyle:{display:rows.length?"flex":"none",flexDirection:"column",background:"#ffffff0b",borderRadius:20,padding:"0 16px",boxSizing:"border-box",flexShrink:0,animation:"dockFade 260ms "+HC+" both"},
+cardStyle:{display:rows.length?"flex":"none",flexDirection:"column",background:"color-mix(in srgb, var(--bgSurfaceContainerInverted) 4%, transparent)",borderRadius:20,padding:"0 16px",boxSizing:"border-box",flexShrink:0,animation:"dockFade 260ms "+HC+" both"},
 items:rows.map((it,idx,arr)=>Object.assign({},it,{
-rowStyle:{padding:it.illus?"8px 0":it.toggle?"3px 0":it.btn?"12px 0":it.slider?"11px 0 3px":"12px 0",borderBottom:idx===arr.length - 1?"none":"0.5px solid #ffffff12"},
+rowStyle:{padding:it.illus?"8px 0":it.toggle?"3px 0":it.btn?"12px 0":it.slider?"11px 0 3px":"12px 0",borderBottom:idx===arr.length - 1?"none":"0.5px solid color-mix(in srgb, var(--bgSurfaceContainerInverted) 7%, transparent)"},
 }))};});
 return this.motion(out);
 }
