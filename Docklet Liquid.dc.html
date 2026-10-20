@@ -618,7 +618,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <span style="padding:8px 4px 2px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;color:var(--fgSecondary)">{{ lqHead }}</span>
 <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column">
 <sc-for list="{{ lqRecents }}" as="r" hint-placeholder-count="5">
-<div onClick="{{ r.tap }}" style="{{ r.row }}"><div style="{{ r.av }}">{{ r.i }}</div><span style="font-size:16px;line-height:24px;font-weight:500;color:var(--fgPrimary)">{{ r.n }}</span></div>
+<div onClick="{{ r.tap }}" style="{{ r.row }}"><div style="{{ r.av }}">{{ r.i }}</div><span style="font-family:Manrope,Inter,sans-serif;font-size:16px;line-height:24px;font-weight:600;color:var(--fgPrimary)">{{ r.n }}</span></div>
 </sc-for>
 </div>
 <div style="height:48px;flex-shrink:0;display:flex;gap:10px;align-items:center">
