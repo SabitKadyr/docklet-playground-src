@@ -19,6 +19,8 @@ The Docklet is a floating bar at the bottom of the screen. It holds the app's tw
 
 A highlight always sits on where you are. A tap on the highlighted icon opens its menu.
 
+> **Planned for R3: the slots move into the app launcher.** The Docklet's right side keeps Settings and connection status, as in R2. The pin slot and the right slot leave the Docklet and become their own part of the app launcher (the expanded view), separate from the Docklet's tabs. The prototype still shows them on the Docklet, so read "pin slot" and "right slot" below as those parts of the launcher.
+
 ## Gestures at a glance
 
 | Where | Gesture | Result |
@@ -154,7 +156,8 @@ As in R2: a product's bottom controls ride just above the Docklet while it is sh
 
 - **Products or apps in the interface.** This page says products, but the Docklet still says **Apps** (the right slot's button) and "see all your apps" (the tip). Which word ships is still to be decided.
 - **The pin slot and the right slot when the expanded view opens.** One proposal is that their icons move into their regular places in the grid instead of staying in the slots. Not taken on yet: the purpose and a logical way to do it are still being worked out.
-- **Settings and Connection status.** R2 puts them on the right side of the Docklet (still to be decided); how they sit next to the pin slot and the right slot in R3 is open.
+- **Settings and Connection status** on the Docklet's right side: what each shows and does (as in R2).
+- **The pin slot and the right slot inside the app launcher.** Where they sit in the launcher and how they read as their own part, apart from the grid of every product.
 
 ## For testers: the prototype's Tweak panel
 
