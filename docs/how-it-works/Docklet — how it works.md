@@ -12,8 +12,8 @@ The Docklet is a floating dock at the bottom of the screen. It holds the app's m
 | --- | --- | --- |
 | **Chats**, **Pocket** | The two main places of the app | Goes there |
 | **Pill** (centre) | Search and scan | Opens search |
-| **Pin slot** | One app you choose to keep here | Opens that app; empty, it offers to pin one |
-| **Right slot (hotseat)** | The app you are in, or the last one you used | Goes back to it; empty, it is an **Apps** button |
+| **Pin slot** | One product you choose to keep here | Opens that product; empty, it offers to pin one |
+| **Right slot (hotseat)** | The product you are in, or the last one you used | Goes back to it; empty, it is an **Apps** button |
 
 The highlight always sits on the place you are in. A tap on the already highlighted icon opens that place's menu.
 
@@ -23,10 +23,10 @@ The highlight always sits on the place you are in. A tap on the already highligh
 | --- | --- | --- |
 | Pill | Tap | Search opens (scan + search field) |
 | Pill | Swipe up | Search opens straight to typing, keyboard up |
-| Docklet | Swipe up | Expanded view: all apps |
+| Docklet | Swipe up | Expanded view: all products |
 | Docklet | Swipe right | The Docklet hides into the right edge (Drawbridge) |
 | Highlighted icon | Tap | That place's menu |
-| An app in the expanded view | Press and hold | That app's menu |
+| A product in the expanded view | Press and hold | That product's menu |
 | Right edge, Docklet hidden | Drag in, tap the glow, or Back | The Docklet comes back |
 | Anywhere outside the Docklet | Tap | The Docklet hides on its own (auto-hide) |
 
@@ -38,8 +38,8 @@ flowchart LR
   S1 -- tap field --> S2["Search<br/>typing"]
   Rest -- swipe up on Pill --> S2
   S1 & S2 -- "Pill icon, swipe down,<br/>tap outside, Back" --> Rest
-  Rest -- swipe up on Docklet --> X["Expanded view<br/>all apps"]
-  X -- "swipe down, tap outside,<br/>open an app" --> Rest
+  Rest -- swipe up on Docklet --> X["Expanded view<br/>all products"]
+  X -- "swipe down, tap outside,<br/>open a product" --> Rest
   Rest -- "swipe right,<br/>or auto-hide" --> H["Hidden<br/>glow at the edge"]
   H -- "drag in, tap glow,<br/>Back" --> Rest
 ```
@@ -58,29 +58,29 @@ flowchart LR
 - **Closing:** the icon in the bump, a swipe down on the card, a tap outside it, or Back.
 - **Text in the card uses the design system's type tokens:** the "Search" placeholder is bodyMedium, the typed query bodyLarge, RECENTS / RESULTS captionMedium, contact names titleMedium (as in the app's own contact row) and the avatar letter headlineSmall.
 
-## The expanded view: every app
+## The expanded view: every product
 
 <table><tr>
 <td><img src="img/04-expanded.png" width="220"><br><sub>Swipe up on the Docklet</sub></td>
-<td><img src="img/08-expanded-app-open.png" width="220"><br><sub>With an app open: it stays in the right slot</sub></td>
+<td><img src="img/08-expanded-app-open.png" width="220"><br><sub>With a product open: it stays in the right slot</sub></td>
 </tr></table>
 
-- **Swipe up** anywhere on the Docklet (except the Pill) and it grows into a grid of every app. Swipe down, tap outside or open an app to close it.
-- **Favourites first.** The apps you marked as favourites sit at the top left; a thin line separates them from the rest. There are no hearts: the position says it.
-- **Nothing shows twice.** The pinned app and the app in the right slot stay in their slots and are left out of the grid.
-- **Press and hold an app** for its menu: pin it to the Docklet, add it to or remove it from favourites, refresh it, or close it.
+- **Swipe up** anywhere on the Docklet (except the Pill) and it grows into a grid of every product. Swipe down, tap outside or open a product to close it.
+- **Favourites first.** The products you marked as favourites sit at the top left; a thin line separates them from the rest. There are no hearts: the position says it.
+- **Nothing shows twice.** The pinned product and the product in the right slot stay in their slots and are left out of the grid.
+- **Press and hold a product** for its menu: pin it to the Docklet, add it to or remove it from favourites, refresh it, or close it.
 
 ## The right slot: the hotseat
 
 <table><tr>
-<td><img src="img/05-app-hotseat.png" width="220"><br><sub>The open app sits in the right slot</sub></td>
+<td><img src="img/05-app-hotseat.png" width="220"><br><sub>The open product sits in the right slot</sub></td>
 <td><img src="img/06-hotseat-tip.png" width="220"><br><sub>First time: a tip about the swipe up</sub></td>
 <td><img src="img/07-context-menu.png" width="220"><br><sub>Tap the highlighted icon: its menu</sub></td>
 </tr></table>
 
-- The right slot holds the app you are in, or the last one you used (unless it is pinned). A tap takes you back to it; when it is the highlighted one, a tap opens its menu.
-- With no app there (first start, or after you pin that app) it is an **Apps** button that opens the expanded view. Nothing is filled in on its own.
-- **A one-time tip.** The first time the Apps button gives way to an app, the only way left to all apps is the swipe up. So at that moment a tip says "Swipe up on the dock to see all your apps", and the expanded view peeks up a little and springs back to show the gesture. The Docklet doesn't auto-hide while the tip is up.
+- The right slot holds the product you are in, or the last one you used (unless it is pinned). A tap takes you back to it; when it is the highlighted one, a tap opens its menu.
+- With no product there (first start, or after you pin that product) it is an **Apps** button that opens the expanded view. Nothing is filled in on its own.
+- **A one-time tip.** The first time the Apps button gives way to a product, the only way left to all products is the swipe up. So at that moment a tip says "Swipe up on the dock to see all your apps", and the expanded view peeks up a little and springs back to show the gesture. The Docklet doesn't auto-hide while the tip is up.
 
 ## Hiding the Docklet: Drawbridge
 
