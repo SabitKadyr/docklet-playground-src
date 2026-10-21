@@ -48,6 +48,8 @@ flowchart LR
 
 ## Products
 
+> **The products in the prototype are placeholders.** Calc, Coin, Dice, Timer and the rest are only there to test how the Docklet works with products. Ignore what they do and how they look.
+
 ### Opening a product
 
 <table><tr>
