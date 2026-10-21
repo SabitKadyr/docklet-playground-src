@@ -99,7 +99,7 @@ A product can also be pinned from the empty pin slot: tap it, choose **Choose an
 
 ### Products with their own bottom bar
 
-Being explored in a separate Collectibles prototype. A product with its own bar at the bottom docks just above the Docklet while the Docklet is shown, moves down to its own place when the Docklet hides, and goes back up when it returns. Touches on the Docklet count as activity in the product, so the product's own idle hints don't pop up while you use the Docklet.
+As in R2: a product's bottom controls ride just above the Docklet while it is shown and come down when it hides. The details are in the R2 brief.
 
 ## Search from the Pill
 
@@ -154,8 +154,7 @@ Being explored in a separate Collectibles prototype. A product with its own bar 
 
 - **Products or apps in the interface.** This page says products, but the Docklet still says **Apps** (the right slot's button) and "see all your apps" (the tip). Which word ships is still to be decided.
 - **The pin slot and the right slot when the expanded view opens.** One proposal is that their icons move into their regular places in the grid instead of staying in the slots. Not taken on yet: the purpose and a logical way to do it are still being worked out.
-- **Products with their own bottom bar.** How the two bars share the bottom of the screen is being explored in the Collectibles prototype; spacing and motion are not settled.
-- **Settings and Connection status tabs.** Which Docklet slots they take, and what they show, will come in a separate brief.
+- **Settings and Connection status.** R2 puts them on the right side of the Docklet (still to be decided); how they sit next to the pin slot and the right slot in R3 is open.
 
 ## For testers: the prototype's Tweak panel
 

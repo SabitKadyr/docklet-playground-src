@@ -82,7 +82,7 @@ New in R2.
 - **It can't be dragged all over the screen.** The bottom of the screen is a floor; lifting it, or pulling it away from the edge, meets a resistance that grows the further you go.
 - **Let go** past halfway, or with a quick flick, and it hides; otherwise it settles back.
 - **Hidden**, a soft glow marks the edge. It brightens and shimmers when you touch it.
-- **Bringing it back:** drag it in from the glow, tap the glow, swipe Back from that edge below the glow, or press Back. A Back swipe from the other edge is a plain Back and leaves it hidden.
+- **Bringing it back:** drag it in from the glow, tap the glow, or swipe Back from that edge below the glow. On a tab, the Back key brings it back too; inside a product, Back belongs to the product (see Open questions). A Back swipe from the other edge is a plain Back and leaves it hidden.
 - On Android, the system Back gesture is off where the Docklet is (and over the glow while it is hidden), so these swipes reach the Docklet.
 
 ### Auto-hide
@@ -130,4 +130,5 @@ As in R1.
 - **The right side of the Docklet.** Settings, a connection status indicator, or both; what each shows and does.
 - **How a product learns where the Docklet is.** The fork reaches into the product's page directly, which only works for a same-origin prototype. A real product needs a contract from the app: the Docklet's height and whether it is shown, live during the hide motion, and which of its elements to lift.
 - **Which tab is highlighted while a product is open**, when the product was opened from a chat.
+- **Back inside a product.** In the prototype, Back in a product leaves the product rather than bringing the hidden Docklet back. With real products that have their own back navigation, the order needs deciding: product first, Docklet first, or the Docklet only when the product has nothing left to go back to. Related: while the Docklet is shown, Android's Back gesture is off across the bottom 200 dp, so a product cannot use edge swipes there.
 - **Auto-hide inside a product.** Whether the Docklet should hide on its own as soon as a product opens, to give it the whole screen.
