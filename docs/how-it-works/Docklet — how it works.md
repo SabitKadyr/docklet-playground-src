@@ -84,6 +84,8 @@ The right slot starts as an **Apps** button that opens the expanded view; nothin
 
 Tap the highlighted product on the Docklet, or press and hold a product in the expanded view.
 
+The menu changes with what each product can do: a product can add its own items or leave some out. The items below are the basic set the prototype starts from; treat them as placeholders too.
+
 | Item | Shown | What it does |
 | --- | --- | --- |
 | **Pin to the dock** / **Unpin from the dock** | always | Pin moves it to the pin slot and out of the right slot and favourites. Unpin empties the pin slot; if the product is on screen, it moves to the right slot |
