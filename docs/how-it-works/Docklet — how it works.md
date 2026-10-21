@@ -1,5 +1,7 @@
 # The Docklet: how it works
 
+> **A living document.** The Docklet goes through periodic reviews, and this page is updated and extended after each of them.
+
 The Docklet is a floating dock at the bottom of the screen. It holds the app's main places, opens search, gives a way to every app, and gets out of the way when you don't need it. This page describes how it behaves in the prototype as of **Docklet Liquid v0.2.23** ([APK](https://github.com/SabitKadyr/docklet-playground-src/releases)).
 
 ## What's on it
