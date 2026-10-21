@@ -1,6 +1,8 @@
-# The Docklet: how it works
+# Docklet R3 brief
 
 > **A living document.** The Docklet goes through periodic reviews, and this page is updated and extended after each of them.
+
+> **R3: the fuller Docklet, after R2.** It adds the expanded view with every product, the pin slot, the right slot as an app switcher and the product menu. What ships in R2 (the R1 Docklet, hiding, and products' bottom controls riding above it) is in the [R2 brief](https://github.com/SabitKadyr/docklet-playground-src/blob/main/docs/docklet-r2/Docklet%20R2%20brief.md).
 
 The Docklet is a floating bar at the bottom of the screen. It holds the app's two main tabs, opens search, gives a way to every product, and gets out of the way when you don't need it. This page describes how it behaves in the prototype as of **Docklet Liquid v0.2.23** ([APK](https://github.com/SabitKadyr/docklet-playground-src/releases)). Sizes, colours, fonts and motion for developers are in the R1 brief.
 
