@@ -419,8 +419,13 @@ public class MainActivity extends Activity {
         }
 
         private void page(String type, float x) {
+            page(type, x, -1);
+        }
+
+        /** y is the finger's height in CSS px (-1 when unknown), so the page can aim the dock at the finger. */
+        private void page(String type, float x, float y) {
             if (webView != null) {
-                webView.evaluateJavascript("window.__dockletBack&&window.__dockletBack('" + type + "'," + x + ")", null);
+                webView.evaluateJavascript("window.__dockletBack&&window.__dockletBack('" + type + "'," + x + "," + y + ")", null);
             }
         }
 
@@ -433,14 +438,15 @@ public class MainActivity extends Activity {
             claimed = edge.equals(side) && y >= top - 24 && y <= bottom + 24;
             otherEdge = !edge.isEmpty() && !edge.equals(side);
             if (claimed) {
-                page("start", e.getTouchX() / d);
+                page("start", e.getTouchX() / d, y);
             }
         }
 
         @Override
         public void onBackProgressed(BackEvent e) {
             if (claimed) {
-                page("move", e.getTouchX() / getResources().getDisplayMetrics().density);
+                float d = getResources().getDisplayMetrics().density;
+                page("move", e.getTouchX() / d, e.getTouchY() / d);
             }
         }
 

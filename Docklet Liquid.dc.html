@@ -884,7 +884,7 @@ t1:{holdLockMs:400,holdLockPx:36,flickRestore:0.8,flickHide:0.8,eitherSide:true,
 const SCREEN_W=402,SCREEN_H=874,PILL_W=72;
 // Drawbridge in the hand turns only this share of its angle (it turns about the finger, so a full turn swings the far end
 // below the screen); the release spring completes the turn
-const GATE_HAND_TURN=0.5,GATE_LIFT=200,GATE_BACK=40,GATE_PULL=56,GATE_PIVOT_HOLD=0.15,GATE_PIVOT_AT=270 / 382;
+const GATE_HAND_TURN=0.5,GATE_LIFT=200,GATE_LIFT_OVER=40,GATE_BACK=40,GATE_PULL=56,GATE_PIVOT_HOLD=0.15,GATE_PIVOT_AT=270 / 382;
 const PRESET_KEY="tabbar-playground-presets";
 const RECENTS=["mostwanted","oceanWave.77","web3 summit","remyxolog","polkadot wiki","alex.99","coin flip","staking","fred.11","hackathon","grunge","dice"];
 const KB_H=342;
@@ -1316,20 +1316,23 @@ window.__dockletState=()=>this.state;
 // Predictive Back from the app wrapper (see DockletNative.setBackPull): while the dock is hidden, a Back swipe that starts
 // at the glow's edge and height pulls the dock out with the finger. The system's commit restores it, a cancel tucks it
 // back. Above the bottom 200 dp the system owns edge swipes, so this is how the upper part of the glow can be pulled.
-window.__dockletBack=(type,x)=>{const st=this.state;
+window.__dockletBack=(type,x,y)=>{const st=this.state;
 if(type==="plain"){this._plainBackAt=Date.now();return;}
 // also while the dock is still flying to or from the edge: catch it where it is
 if(type==="start"){if(st.gate==="none"&&st.barRetract==="none"&&!this._settle)return;
 // the touch at the very edge lands outside the dock, so auto-hide took it for a tap elsewhere and hid the dock again
 (clearTimeout(this._ahT),this._ahT=0);this._lastAct=Date.now();
 if(this._settle){this._caught=this._settle;CAF(this._settle.raf);this._settle=null;}
-this._bp={x0:x};this._glowOn=true;this._glowBoost(true);
+// the finger's spot in design px (y comes from the system's Back event; -1 on an older app build), for aiming the dock
+{const hs=document.querySelector("[data-screen]"),hr=hs&&hs.getBoundingClientRect(),k=hr?hr.width / 402||1:1;this._bp={x0:x,y0:y==null||y<0?null:y,F0:hr&&y!=null&&y>=0?{x:(x - hr.left)/ k,y:(y - hr.top)/ k}:null};}
+this._glowOn=true;this._glowBoost(true);
 // the finger may already have moved the dock before the system took the swipe: carry on from there
 if(this._hg){const H=this._hg;H.p0=H.p;H.rx0=0;H.smp=[];}else this.hideMove(st.mode,0,0);return;}
 const B=this._bp;if(!B)return;
-if(type==="move"){this.hideMove(st.mode,(x - B.x0)/(st.scale||1),0);return;}
+if(type==="move"){this.hideMove(st.mode,(x - B.x0)/(st.scale||1),B.y0!=null&&y!=null&&y>=0?(y - B.y0)/(st.scale||1):0);return;}
 this._bp=null;this._glowOn=false;this._glowBoost(false);(clearTimeout(this._ahT),this._ahT=0);this._lastAct=Date.now();const H=this._hg;this._hg=null;CAF(this._hgRaf);this._hgRaf=0;
-if(H)this.hideSettle(H.kind,H.side,H.p,0,type==="commit"?0:1);};
+// an aimed pull lands where it looks closer to (the system's commit only says the swipe went far enough sideways)
+if(H)this.hideSettle(H.kind,H.side,H.p,0,H.aim?(H.p<0.5?0:1):(type==="commit"?0:1));};
 {let tm="off";try{tm=window.localStorage.getItem("docklet.tester")||"off";}catch(e){}if(!TUNING[tm])tm="off";this.state.testerMode=tm;}
 this.armNudge();
 this._idleRe=()=>{if(this._nudgeArmed){clearTimeout(this._idleT);this._idleT=setTimeout(()=>this.hideNudge(),8000);}};
@@ -1459,7 +1462,8 @@ clearTimeout(this._barHoldT);clearTimeout(lockT);
 {const ang=Math.atan2(-ry,Math.abs(rx))*180 / Math.PI,away=this.state.barRetract!=="none"||this.state.gate!=="none"||this._caught||this._settle;
 // on the dock: up and steeper than 30 deg opens the launcher (either side), down and steeper than 45 deg is vertical;
 // only a near-horizontal swipe hides the dock
-axis=away?(Math.abs(ang)>T.axisDeg?"y":"h"):(ang>30||ang< -45?"y":"h");}
+// a hidden Drawbridge dock is pulled out in any direction: the finger aims it (see hideMove), so a steep start counts too
+axis=away?((this.state.mode==="gate"||this.state.mode==="drawbridge")&&this.state.gate!=="none"&&!this._caught&&!this._settle?"h":(Math.abs(ang)>T.axisDeg?"y":"h")):(ang>30||ang< -45?"y":"h");}
 }
 this.dragged=true;
 const ce=ev.getCoalescedEvents?ev.getCoalescedEvents():[];
@@ -1647,12 +1651,19 @@ const rk=!c?GATE_HAND_TURN:(this._hgRot!=null?this._hgRot:(Math.abs(p0)<0.02?GAT
 const a=sgn*p0*rk*Math.PI / 2+(c&&this._hgAng?this._hgAng*Math.PI / 180:0),cs=Math.cos(a),sn=Math.sin(a),wx=this._p0.x - O.x - P.x - off*Math.pow(Math.max(0,p0),3),wy=this._p0.y - O.y - P.y;
 const v={x:cs*wx+sn*wy,y:-sn*wx+cs*wy},L=g.pxL+14 - P.x,R=g.pxR - 14 - P.x,hb=this.state.barHeight / 2+16;
 if(v.x>L - 16&&v.x<R+16&&Math.abs(v.y)<hb){H.trk={F0:{x:this._p0.x,y:this._p0.y},P,v,off,rk,box:{L,R,h:this.state.barHeight / 2}};this._hgRot=rk;H.th=a;}}
+// pulling a hidden Drawbridge dock out: it turns about its pivot to point at the finger, so the angle is the finger's
+// direction from the pivot, atan(height above the pivot / distance from the edge): low and far out is fully shown, high
+// at the edge fully hidden. Both directions count, so a swipe a third of the way in and then down brings it out fully.
+// The first stretch blends from the hidden pose, so nothing jumps when the finger lands off the dock at the glow
+if(kind==="gate"&&!c&&p0>=0.5&&(this._bp?this._bp.F0:this._p0)){const g=this._gateGeom,F0=this._bp?this._bp.F0:this._p0;H.aim={F0:{x:F0.x,y:F0.y},P:{x:side==="right"?g.pxR:g.pxL,y:g.py},off:side==="right"?g.offR:g.offL,b0:null};this._hgRot=1;this._hgAng=0;this._hgOff=null;}
 const el=this.dockRef.current;if(el)el.style.transition="none";
 }
 const sg=H.side==="right"?1:-1;
 let p;
 const T=H.trk,F=T?{x:T.F0.x+rx,y:T.F0.y+ry}:null;
-p=H.p0+sg*(rx - H.rx0)/ H.unit;
+if(H.aim){const A=H.aim,F2={x:A.F0.x+rx,y:A.F0.y+ry},raw=(pp)=>{const px=A.P.x+A.off*Math.pow(Math.max(0,pp),3),xl=Math.max(1,sg>0?px - F2.x:F2.x - px),yu=Math.max(0,A.P.y - F2.y);return Math.atan2(yu,xl)/(Math.PI / 2);};
+let pr=raw(H.p);pr=raw(pr);if(A.b0==null)A.b0=H.p0 - pr;const w=Math.max(0,1 - Math.hypot(rx,ry)/ 80);p=Math.max(0,Math.min(1,pr+A.b0*w));}
+else p=H.p0+sg*(rx - H.rx0)/ H.unit;
 const rb=(x)=>0.25*(1 - 1 /(1+x*0.55 / 0.25));
 p=p>1?1+rb(p - 1):(p<0?-rb(-p):p);
 H.p=p;
@@ -1671,10 +1682,13 @@ const o=this.gatePt(T,T.v,p,sg,r);let oy=F.y - o.y,ox=F.x - o.x;
 if(cue==="pull"){const q=Math.max(0,Math.min(1,p)),e=q*q*(3 - 2*q),room=Math.max(0,(sg>0?T.v.x - B.L:B.R - T.v.x)- 14);ox+=sg*Math.min(GATE_PULL*e,room);}
 // the rest of the screen is not the dock's to roam: lifted above its row, or pulled the wrong way (away from the edge
 // it hides to), it meets a force from the first pixel that grows with the distance, so it never stops dead and never
-// gets further than GATE_LIFT up or GATE_BACK back; towards the hiding edge it is free
+// gets much past the top of the edge glow up, or further than GATE_BACK back; towards the hiding edge it is free
 {const pts=C.map(([cx,cy])=>this.gatePt(T,{x:cx,y:cy},p,sg,r)),give=(d,K)=>d - K*(1 - 1 /(1+d / K));
 // (Edge cue "free" is the hold as it was before these bounds: up and back the dock follows the finger 1:1)
-if(cue!=="free"){const mid=this.gatePt(T,{x:(B.L+B.R)/ 2,y:0},p,sg,r),lift=T.P.y -(mid.y+oy);if(lift>0)oy+=give(lift,GATE_LIFT);
+if(cue!=="free"){// the ceiling is the top of the edge glow (the hidden dock's length above its row): up to there the dock follows the
+// finger 1:1, so it can be carried up into the glow; past it a soft resistance grows with the distance. It counts the
+// finger's own rise: the turn itself lifts the dock's middle, and counting that pressed a turned dock down
+const gg=this._gateGeom,glowTop=gg.py -(gg.pxR - gg.pxL - 14),lift=T.F0.y - F.y,cap=Math.max(0,T.F0.y - glowTop);if(lift>cap)oy+=give(lift - cap,GATE_LIFT_OVER);
 if(sg>0){const back=T.P.x+B.L -(Math.min(...pts.map((q)=>q.x))+ox);if(back>0)ox+=give(back,GATE_BACK);}
 else{const back=Math.max(...pts.map((q)=>q.x))+ox -(T.P.x+B.R);if(back>0)ox -=give(back,GATE_BACK);}}
 // the floor last, so nothing above pushes the dock through it
