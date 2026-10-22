@@ -4,7 +4,7 @@
 
 R2 is the Docklet of R1, the bar with search from the Pill, plus two things: **the Docklet can be hidden**, and **a product's own controls at the bottom of the screen ride above the Docklet**. The expanded view with every product, the pin slot, the app switcher and the Browse tab are not in R2; they are in the [R3 brief](https://github.com/SabitKadyr/docklet-playground-src/blob/main/docs/docklet-r3/Docklet%20R3%20brief.md). Sizes, colours, fonts and motion for developers are in the R1 brief.
 
-The screenshots come from the prototype (Docklet Liquid v0.2.23, [APK](https://github.com/SabitKadyr/docklet-playground-src/releases)) and its Collectibles fork. The prototype's dock still shows R3 slots on the right; in R2 that side is still to be decided.
+The screenshots come from the prototype (Docklet Liquid v0.2.24, [APK](https://github.com/SabitKadyr/docklet-playground-src/releases)) and its Collectibles fork. The prototype's dock still shows R3 slots on the right; in R2 that side is still to be decided.
 
 ## Scope
 
@@ -79,10 +79,10 @@ New in R2.
 
 - **Swipe right** anywhere on the Docklet and it swings up and out into the right edge, like a drawbridge. The closer to the edge you start, the shorter the swipe needed.
 - **It stays under your finger**, also if you swipe right and then down, and runs a little ahead towards the edge so you feel where it is going.
-- **It can't be dragged all over the screen.** The bottom of the screen is a floor; lifting it, or pulling it away from the edge, meets a resistance that grows the further you go.
+- **It can't be dragged all over the screen.** The bottom of the screen is a floor. Lifted, it follows the finger up to the top of the edge glow, and only past that meets a resistance that grows the further you go; pulled away from the edge, it resists from the start. Letting go up there settles it back: only the swipe to the right hides it.
 - **Let go** past halfway, or with a quick flick, and it hides; otherwise it settles back.
 - **Hidden**, a soft glow marks the edge. It brightens and shimmers when you touch it.
-- **Bringing it back:** drag it in from the glow, tap the glow, or swipe Back from that edge below the glow. On a tab, the Back key brings it back too; inside a product, Back belongs to the product (see Open questions). A Back swipe from the other edge is a plain Back and leaves it hidden.
+- **Bringing it back:** drag it in from the glow, tap the glow, or swipe Back from that edge below the glow. Dragged out, it turns about its pivot at the edge to point at your finger: low and far from the edge it is fully out, high at the edge fully in, so a swipe a third of the way in and then down brings it out fully. On a tab, the Back key brings it back too; inside a product, Back belongs to the product (see Open questions). A Back swipe from the other edge is a plain Back and leaves it hidden.
 - On Android, the system Back gesture is off where the Docklet is (and over the glow while it is hidden), so these swipes reach the Docklet.
 
 ### Auto-hide
