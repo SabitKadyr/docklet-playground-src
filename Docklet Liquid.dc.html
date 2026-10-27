@@ -147,7 +147,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="{{ scaleStyle }}">
 <div data-screen="1" data-theme="{{ themeId }}" data-glass="{{ glassMode }}" style="position:relative; width:402px; height:874px; border-radius:{{ screenRadius }}px; overflow:hidden; background:var(--bgSurfaceMain); box-shadow:0 40px 120px #00000099, 0 0 0 1px #ffffff0f; flex-shrink:0">
 <sc-if value="{{ chatsScreen }}" hint-placeholder-val="{{ true }}">
-<div onScroll="{{ onScroll }}" style="position:absolute;left:0;right:0;top:0;bottom:0;overflow-y:auto;overflow-x:hidden">
+<div data-idscroll="1" onScroll="{{ onScroll }}" style="position:absolute;left:0;right:0;top:0;bottom:0;overflow-y:auto;overflow-x:hidden">
 <div style="height:80px"></div>
 <sc-for list="{{ rows }}" as="row" hint-placeholder-count="6">
 <div onClick="{{ row.onOpen }}" style="display:flex;flex-direction:column;cursor:pointer">
@@ -203,7 +203,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 </sc-if>
 <sc-if value="{{ appOpen }}">
-<div data-spa="1" style="{{ appViewStyle }}">
+<div data-idscroll="1" style="{{ appViewStyle }}">
 <div style="{{ appBigStyle }}">{{ appBig }}</div>
 <sc-if value="{{ appSub }}" hint-placeholder-val="{{ true }}">
 <span style="{{ appSubStyle }}">{{ appSub }}</span>
@@ -321,7 +321,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 </sc-if>
 <sc-if value="{{ pocketOpen }}">
-<div onPointerDown="{{ onPocketDown }}" style="position:absolute;left:0;right:0;top:0;bottom:0;z-index:2;background:var(--bgSurfaceMain);overflow-y:{{ pocketScroll }};scrollbar-width:none;padding:96px 15.115px 210px;box-sizing:border-box">
+<div data-idscroll="1" onPointerDown="{{ onPocketDown }}" style="position:absolute;left:0;right:0;top:0;bottom:0;z-index:2;background:var(--bgSurfaceMain);overflow-y:{{ pocketScroll }};scrollbar-width:none;padding:96px 15.115px 210px;box-sizing:border-box">
 <div style="position:relative;display:flex;flex-direction:column;gap:0">
 <div onClick="{{ onOpenCash }}" style="position:relative;height:232px;flex-shrink:0;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;padding:16px 24px;box-sizing:border-box;cursor:pointer">
 <wallet-card src="./assets/wallet/" style="position:absolute;inset:0;display:block"></wallet-card>
@@ -350,7 +350,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 
 
 <sc-if value="{{ settingsOpen }}">
-<div style="{{ setViewStyle }}">
+<div data-idscroll="1" style="{{ setViewStyle }}">
 <span style="font-size:34px;line-height:41px;font-weight:700;letter-spacing:0.4px;color:var(--fgPrimary);padding:0 1px">Settings</span>
 <div style="display:flex;flex-direction:column;gap:12px"><span style="padding:0 4px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--fgTertiary)">Appearance</span><div style="background:var(--bgSurfaceContainer);border-radius:16px;overflow:hidden;display:flex;flex-direction:column"><div onClick="{{ onSetTheme }}" style="cursor:pointer"><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-theme"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Theme</span></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span style="font-size:16px;line-height:24px;color:var(--fgSecondary)">{{ setTheme }}</span><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block;color:var(--fgSecondary);flex-shrink:0"><use href="#si-chev"></use></svg></div></div></div><div style="height:1px;background:var(--bgSurfaceNested);margin-left:58px"></div><div style="min-height:52px;display:flex;flex-direction:row;align-items:center;padding:8px 16px;box-sizing:border-box;gap:0"><div style="width:42px;flex-shrink:0;align-self:stretch;display:flex;align-items:center;padding-right:10px;box-sizing:border-box"><div style="width:32px;height:32px;border-radius:10px;background:var(--bgSurfaceNested);display:flex;align-items:center;justify-content:center;color:var(--fgPrimary)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;display:block"><use href="#si-labels"></use></svg></div></div><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;color:var(--fgPrimary)">Tab bar labels</span></div><div onClick="{{ onSetLabels }}" style="{{ setSwitchStyle }}"><div style="{{ setKnobStyle }}"></div></div></div></div></div>
 <div style="display:flex;flex-direction:column;gap:12px">
@@ -1027,8 +1027,9 @@ const idle=()=>{clearTimeout(this._idleT);this._idleT=setTimeout(()=>this.autoHi
 this._actOn=(e)=>{this._lastAct=Date.now();idle();if(e.target&&e.target.closest&&e.target.closest("[data-hstip]"))return;if(this.state.hsTipOpen)this.ss({hsTipOpen:false,hsTipSeen:true});if(inDock(e.target)||this.edgeGutter(e)){(clearTimeout(this._ahT),this._ahT=0);return;}arm((this.state.ahTap??0)*1000);};
 window.addEventListener("pointerdown",this._actOn,true);
 window.addEventListener("scroll",(e)=>{const t=e.target;if(!t||!t.closest||!t.closest("[data-screen]")||t.closest("[data-tweak]"))return;const on=t.scrollTop>2;if(on!==!!this.state.idScrolled)this.ss({idScrolled:on});
-// in an SPA the ID bar slides away up as you scroll down and comes back after a short scroll up (or at the top)
-if(t.hasAttribute&&t.hasAttribute("data-spa")){const y=t.scrollTop,S=this._idS&&this._idS.t===t?this._idS:(this._idS={t,y,acc:0});const dy=y - S.y;S.y=y;
+// on every screen (Chats, Pocket, Settings, an SPA) the ID bar slides away up as you scroll down and comes back after
+// a short scroll up (or at the top)
+if(t.hasAttribute&&t.hasAttribute("data-idscroll")){const y=t.scrollTop,S=this._idS&&this._idS.t===t?this._idS:(this._idS={t,y,acc:0});const dy=y - S.y;S.y=y;
 if(dy&&Math.sign(dy)!==Math.sign(S.acc))S.acc=0;S.acc+=dy;const hid=!!this.state.idHidden;
 if(y<=8){if(hid)this.ss({idHidden:false});}else if(!hid&&S.acc>16&&y>40)this.ss({idHidden:true,idMenu:false,idPop:false});else if(hid&&S.acc< -10)this.ss({idHidden:false});}},true);
 window.addEventListener("keydown",()=>{this._lastAct=Date.now();idle();(clearTimeout(this._ahT),this._ahT=0);},true);
@@ -1549,7 +1550,7 @@ background:"linear-gradient(180deg,color-mix(in srgb, var(--bgSurfaceMain) 55%, 
 backdropFilter:"blur(4px)",WebkitBackdropFilter:"blur(4px)",
 WebkitMaskImage:"linear-gradient(180deg,#000 45%,transparent)",maskImage:"linear-gradient(180deg,#000 45%,transparent)"},
 idBarStyle:{position:"absolute",left:0,right:0,top:57,height:20,zIndex:4,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,padding:"0 16px",boxSizing:"border-box",
-transform:spa&&s.idHidden?"translateY(-40px)":"none",opacity:spa&&s.idHidden?0:1,pointerEvents:spa&&s.idHidden?"none":"auto",transition:"transform 300ms cubic-bezier(.2,.9,.24,1), opacity 220ms ease"},
+transform:s.idHidden&&!tweak?"translateY(-40px)":"none",opacity:s.idHidden&&!tweak?0:1,pointerEvents:s.idHidden&&!tweak?"none":"auto",transition:"transform 300ms cubic-bezier(.2,.9,.24,1), opacity 220ms ease"},
 idLeftStyle:{display:"flex",alignItems:"center",minWidth:0,cursor:"pointer",padding:"12px 12px 12px 0",margin:"-12px -12px -12px -2px"},
 // a barely visible plate under the logo and the title, the height of the bar plus 2 pt each side: about a quarter
 // tone darker with a soft blur, and only while something has scrolled up under the bar
