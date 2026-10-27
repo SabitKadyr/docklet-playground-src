@@ -16,6 +16,7 @@ import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
@@ -278,6 +279,27 @@ public class MainActivity extends Activity {
          * is the only way to pull the upper part of the glow. Needs android:enableOnBackInvokedCallback, which
          * make_apk.sh sets when PREDICTIVE_BACK=1; without it Android ignores the callback.
          */
+        /** Dark status and navigation bar icons for the page's light themes, light ones for its dark theme. */
+        @JavascriptInterface
+        public void setLightBars(final boolean light) {
+            runOnUiThread(() -> {
+                Window w = getWindow();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    WindowInsetsController c = w.getInsetsController();
+                    if (c != null) {
+                        int mask = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                                | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+                        c.setSystemBarsAppearance(light ? mask : 0, mask);
+                    }
+                } else {
+                    View d = w.getDecorView();
+                    int f = d.getSystemUiVisibility();
+                    d.setSystemUiVisibility(light ? f | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                            : f & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
+            });
+        }
+
         @JavascriptInterface
         public void setBackPull(String json) {
             if (Build.VERSION.SDK_INT < 34) {
