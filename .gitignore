@@ -19,3 +19,6 @@ android/build-recorder/
 # Docklet Liquid build output (build_liquid.py)
 liquid-app/
 android/build-liquid/
+
+# Docklet Collectibles build output (build_collectibles.py)
+collectibles-app/

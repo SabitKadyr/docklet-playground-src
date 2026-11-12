@@ -38,7 +38,8 @@ def main():
         print("helper      : " + name)
     for name in ICONS:
         shutil.copy(os.path.join(ROOT, "dist-app", name), STAGE)
-    for folder in build.SHIPPED_DIRS:
+    # the Collectibles SPA loads in a same-origin iframe from beside index.html (not inlined)
+    for folder in build.SHIPPED_DIRS + ["assets/collectibles"]:
         shutil.copytree(os.path.join(ROOT, folder), os.path.join(STAGE, folder))
     print("page        : %s  %.1f KB (%d assets inlined)" % (os.path.basename(src_path), len(html.encode()) / 1024, inlined))
 

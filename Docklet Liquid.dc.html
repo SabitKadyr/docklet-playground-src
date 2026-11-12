@@ -19,6 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Instrument+Serif:ital@0;1&amp;family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&amp;display=swap" rel="stylesheet">
 <style>
 .lq-cam-sim { background: url(./assets/camera-sim.jpg) center / cover no-repeat; }
 html, body { margin: 0; padding: 0; background: var(--bgSurfaceContainer); overscroll-behavior: none; }
@@ -94,6 +95,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 100% { opacity: 1; filter: blur(0); transform: none; }
 }
 @keyframes idPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes bookShimmer { from { transform: translateX(-230px); } to { transform: translateX(330px); } }
 @keyframes idReloadA { 0% { opacity: 0.2; filter: blur(6px); } 100% { opacity: 1; filter: none; } }
 @keyframes idReloadB { 0% { opacity: 0.2; filter: blur(6px); } 100% { opacity: 1; filter: none; } }
 @keyframes menuPop {
@@ -134,6 +136,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </style>
 </helmet>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ai-collect" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 4h9.6l3.7 4.6L12 20 3.5 8.6z"></path><path d="M3.5 8.6h17M9.4 8.6 12 20l2.6-11.4M9.4 8.6 12 4l2.6 4.6"></path></g></symbol></svg>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ai-news" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4.5" width="16" height="15" rx="2.5"></rect><path d="M8 9h8M8 12.5h8M8 16h5"></path></g></symbol><symbol id="ai-gallery" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4.5" width="16" height="15" rx="2.5"></rect><path d="M4.5 16.5l4.5-4.5 4 4 2.5-2.5 4 4"></path></g><circle cx="15.5" cy="9" r="1.6" fill="currentColor"></circle></symbol></svg>
 <div style="{{ shellStyle }}">
 <div onClick="{{ onTogglePanel }}" style="{{ fabStyle }}">{{ panelLabel }}</div>
@@ -202,6 +205,28 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="height:150px"></div>
 </div>
 </sc-if>
+<sc-if value="{{ bookFlying }}">
+<div ref="{{ bookDimRef }}" style="{{ bookDimStyle }}"></div>
+</sc-if>
+<sc-if value="{{ collectMounted }}">
+<div ref="{{ collectViewRef }}" style="{{ collectViewStyle }}"><div ref="{{ collectInnerRef }}" style="{{ collectInnerStyle }}"><iframe ref="{{ collectRefCb }}" title="Collectibles" style="position:absolute;left:0;top:62px;width:100%;height:calc(100% - 62px);border:0;display:block;background:transparent"></iframe>
+<sc-if value="{{ bookSkelOn }}">
+<div ref="{{ bookSkelRef }}" style="{{ bookSkelStyle }}">
+<div style="{{ skHeadA }}"></div><div style="{{ skHeadB }}"></div><div style="{{ skCircleTop }}"></div>
+<div style="{{ skCard1 }}"><div style="{{ skLabel1 }}"></div><div style="{{ skDots1 }}"></div></div>
+<div style="{{ skCard2 }}"><div style="{{ skLabel2 }}"></div><div style="{{ skDots2 }}"></div></div>
+<div style="{{ skCircleA }}"></div><div style="{{ skCircleB }}"></div><div style="{{ skBar }}"></div>
+<div ref="{{ bookShimRef }}" style="{{ skShimmer }}"></div>
+<sc-if value="{{ bookErr }}">
+<div style="{{ skErrStyle }}"><span style="{{ skErrTitle }}">Collectibles didn't load</span><span style="{{ skErrLine }}">Check your connection and try again.</span><div onClick="{{ onBookRetry }}" style="{{ skErrBtn }}">Try again</div></div>
+</sc-if>
+</div>
+</sc-if>
+</div></div>
+</sc-if>
+<sc-if value="{{ bookFlying }}">
+<div ref="{{ bookCoverRef }}" style="{{ bookFlyStyle }}"><div style="{{ bookCoverBg }}"></div><sc-for list="{{ bookStickersA }}" as="k" hint-placeholder-count="1"><div style="{{ k }}"></div></sc-for><div style="{{ bookTitleStyle }}">Collectibles</div><div style="{{ bookRimStyle }}"></div><sc-for list="{{ bookStickersB }}" as="k" hint-placeholder-count="10"><div style="{{ k }}"></div></sc-for><div ref="{{ bookColorRef }}" style="{{ bookColorStyle }}"></div></div>
+</sc-if>
 <sc-if value="{{ appOpen }}">
 <div data-idscroll="1" style="{{ appViewStyle }}">
 <div style="{{ appBigStyle }}">{{ appBig }}</div>
@@ -256,21 +281,9 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 </sc-for>
 </div>
-<div style="position:absolute;left:0;right:0;top:0;height:78px;background:linear-gradient(180deg,color-mix(in srgb, var(--bgSurfaceMain) 95%, transparent) 40%,color-mix(in srgb, var(--bgSurfaceMain) 0%, transparent));pointer-events:none"></div>
-<div style="position:absolute;left:0;right:0;top:8px;height:60px;display:flex;flex-direction:row;gap:10px;padding:8px 16px;box-sizing:border-box;align-items:center">
-<div style="width:98px;align-self:stretch;display:flex;gap:10px;align-items:center;flex-shrink:0">
-<div onClick="{{ onChatBack }}" style="width:44px;height:44px;border-radius:296px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;color:var(--fgPrimary);background:var(--bgSurfaceNested);box-shadow:inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent),inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)">
-<svg viewBox="0 0 24 24" style="width:28px;height:28px;display:block"><use href="#ci-back"></use></svg>
-</div>
-<div style="{{ chatAvatarStyle }}">{{ chatInitial }}</div>
-</div>
-<div style="flex:1;min-width:0;height:38px;display:flex;flex-direction:column;justify-content:center;padding:1px 2px;box-sizing:border-box">
-<span style="font-weight:700;font-size:18px;line-height:24px;color:var(--fgPrimary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ chatName }}</span>
-</div>
-<div style="width:112px;height:44px;flex-shrink:0;border-radius:296px;display:flex;gap:24px;padding:0 16px;box-sizing:border-box;align-items:center;color:var(--fgPrimary);background:var(--bgSurfaceNested);box-shadow:inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent),inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)">
+<div style="position:absolute;right:16px;top:87px;width:112px;height:44px;flex-shrink:0;border-radius:296px;display:flex;gap:24px;padding:0 16px;box-sizing:border-box;align-items:center;color:var(--fgPrimary);background:var(--bgSurfaceNested);box-shadow:inset 0 0.5px 0 color-mix(in srgb, var(--bgSurfaceContainerInverted) 18%, transparent),inset 0 0 0 0.5px color-mix(in srgb, var(--bgSurfaceContainerInverted) 8%, transparent)">
 <svg viewBox="0 0 24 24" style="width:28px;height:28px;display:block"><use href="#ci-video"></use></svg>
 <svg viewBox="0 0 24 24" style="width:28px;height:28px;display:block"><use href="#ci-phone"></use></svg>
-</div>
 </div>
 <div style="position:absolute;left:0;right:0;bottom:0;height:98px;background:linear-gradient(180deg,color-mix(in srgb, var(--bgSurfaceMain) 0%, transparent) 0%,color-mix(in srgb, var(--bgSurfaceMain) 85%, transparent) 45%,var(--bgSurfaceMain) 100%);pointer-events:none"></div>
 <div style="{{ chatBarStyle }}">
@@ -349,6 +362,10 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </sc-if>
 
 
+<sc-if value="{{ bookPeekOpen }}">
+<div ref="{{ bookPeekRef }}" data-book="1" onPointerDown="{{ onBookDown }}" onClick="{{ onBookTap }}" style="{{ bookPeekStyle }}"><div style="{{ bookCoverBg }}"></div><sc-for list="{{ bookStickersA }}" as="k" hint-placeholder-count="1"><div style="{{ k }}"></div></sc-for><div style="{{ bookTitleStyle }}">Collectibles</div><div style="{{ bookRimStyle }}"></div><sc-for list="{{ bookStickersB }}" as="k" hint-placeholder-count="10"><div style="{{ k }}"></div></sc-for></div>
+<div style="{{ bookFadeStyle }}"></div>
+</sc-if>
 <sc-if value="{{ settingsOpen }}">
 <div data-idscroll="1" style="{{ setViewStyle }}">
 <span style="font-size:34px;line-height:41px;font-weight:700;letter-spacing:0.4px;color:var(--fgPrimary);padding:0 1px">Settings</span>
@@ -475,7 +492,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </sc-if>
 <div style="{{ topFadeStyle }}"></div>
 <sc-if value="{{ iosBarShown }}">
-<div style="position:absolute;left:0;right:0;top:0;height:54px;z-index:4;pointer-events:none;display:flex;align-items:center;justify-content:space-between;padding:4px 26px 0 50px;box-sizing:border-box;color:var(--fgPrimary)">
+<div style="{{ iosBarStyle }}">
 <span style="font-size:17px;font-weight:600;line-height:22px;letter-spacing:-0.4px">9:41</span>
 <div style="display:flex;align-items:center;gap:6px">
 <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor" style="display:block"><rect x="0" y="7.5" width="3.2" height="4.5" rx="1"></rect><rect x="5.2" y="5" width="3.2" height="7" rx="1"></rect><rect x="10.4" y="2.5" width="3.2" height="9.5" rx="1"></rect><rect x="15.6" y="0" width="3.2" height="12" rx="1"></rect></svg>
@@ -485,12 +502,18 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </div>
 </sc-if>
 <div style="{{ idBarStyle }}">
-<div data-idlogo="1" onClick="{{ onIdLogo }}" style="{{ idLeftStyle }}">
+<sc-if value="{{ idBackShown }}">
+<div data-idback="1" onClick="{{ onIdBack }}" style="{{ idBackHitStyle }}"><div style="{{ idBackPillStyle }}"><div style="{{ idPillBgStyle }}"></div><div style="{{ idBackGlyphStyle }}"></div><sc-if value="{{ idBackTitle }}"><span style="{{ idBackTitleStyle }}">{{ idBackTitle }}</span></sc-if></div></div>
+</sc-if>
+<sc-if value="{{ idLeftShown }}">
+<div data-idlogo="1" onPointerDown="{{ onIdDown }}" onClick="{{ onIdLogo }}" style="{{ idLeftStyle }}">
 <div style="{{ idPlateStyle }}">
-<div style="width:29px;height:20px;border-radius:47px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="{{ idLogoStyle }}"></div></div>
-<span style="font-size:14px;font-weight:600;line-height:20px;color:var(--fgPrimary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ idTitle }}</span>
+<div style="{{ idPlateBgStyle }}"></div>
+<sc-if value="{{ idLogoShown }}"><div style="{{ idLogoSlotStyle }}"><div style="{{ idLogoStyle }}"></div></div></sc-if>
+<span style="{{ idTitleStyle }}">{{ idTitle }}</span>
 </div>
 </div>
+</sc-if>
 <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
 <sc-if value="{{ showActions }}">
 <div onClick="{{ onSavePreset }}" style="{{ saveBtnStyle }}">Save</div>
@@ -510,8 +533,34 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <sc-if value="{{ indPill }}">
 <div style="{{ pillBoxStyle }}"><div style="{{ indDotStyle }}"></div><div style="display:flex;gap:2px"><sc-for list="{{ pillSegs }}" as="g" hint-placeholder-count="4"><div style="{{ g.style }}"></div></sc-for></div></div>
 </sc-if>
+<sc-if value="{{ indTwo }}">
+<div style="{{ ind2DotStyle }}"></div>
+<div style="{{ gpTrackStyle }}"><div style="{{ gpMedStyle }}"></div><div style="{{ gpMinStyle }}"></div></div>
+</sc-if>
+<sc-if value="{{ indBattery }}">
+<div style="{{ ind2DotStyle }}"></div>
+<div style="{{ batBoxStyle }}"><div style="{{ batBodyStyle }}"></div><div style="{{ batTermStyle }}"></div><div style="{{ batMedStyle }}"></div><div style="{{ batMinStyle }}"></div></div>
+</sc-if>
+<sc-if value="{{ indEq }}">
+<div style="{{ eqBoxStyle }}"><sc-for list="{{ eqBars }}" as="b" hint-placeholder-count="4"><div style="{{ b.track }}"><div style="{{ b.fill }}"></div></div></sc-for><div style="{{ eqLineStyle }}"></div></div>
+</sc-if>
+<sc-if value="{{ indChain }}">
+<sc-if value="{{ chainOk }}"><div style="{{ ind2DotStyle }}"></div></sc-if>
+<div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ chainIcons }}" as="c" hint-placeholder-count="2"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="{{ gpTrackStyle }}"><div style="{{ gpMedStyle }}"></div><div style="{{ gpMinStyle }}"></div></div>
+</sc-if>
+<sc-if value="{{ indX }}">
+<svg width="13" height="13" viewBox="0 0 52 52" style="display:block;overflow:visible;flex-shrink:0"><circle style="{{ xD0 }}"></circle><circle style="{{ xD1 }}"></circle><circle style="{{ xD2 }}"></circle><circle style="{{ xD3 }}"></circle><path d="M39 2.88889C44.5842 2.88889 49.1111 7.41579 49.1111 13C49.1111 18.5842 44.5842 23.1111 39 23.1111C38.2429 23.1111 37.5055 23.027 36.796 22.8692C36.5716 22.8255 36.3397 22.8015 36.1026 22.8015C34.2483 22.8016 32.7214 24.1998 32.5162 25.9993C32.7208 27.7994 34.2478 29.1984 36.1026 29.1985C36.3506 29.1985 36.5924 29.1708 36.8263 29.123C37.5265 28.9697 38.2538 28.8889 39 28.8889C44.5842 28.8889 49.1111 33.4158 49.1111 39C49.1111 44.5842 44.5842 49.1111 39 49.1111C33.4158 49.1111 28.8889 44.5842 28.8889 39C28.8889 38.243 28.9724 37.5055 29.1301 36.796C29.1738 36.5715 29.1985 36.3398 29.1985 36.1026C29.1984 34.2478 27.7994 32.7208 25.9993 32.5162C24.1998 32.7214 22.8016 34.2483 22.8015 36.1026C22.8015 36.3397 22.8255 36.5716 22.8692 36.796C23.027 37.5055 23.1111 38.2429 23.1111 39C23.1111 44.5842 18.5842 49.1111 13 49.1111C7.41579 49.1111 2.88889 44.5842 2.88889 39C2.88889 33.4158 7.41579 28.8889 13 28.8889C13.7475 28.8889 14.476 28.9705 15.1772 29.1245C15.41 29.1717 15.6506 29.1985 15.8974 29.1985C17.7518 29.1985 19.2772 27.8002 19.4824 26.0007C19.2778 24.2005 17.7523 22.8015 15.8974 22.8015C15.6614 22.8015 15.4309 22.8252 15.2076 22.8685C14.4969 23.0268 13.7583 23.1111 13 23.1111C7.41579 23.1111 2.88889 18.5842 2.88889 13C2.88889 7.41579 7.41579 2.88889 13 2.88889C18.5842 2.88889 23.1111 7.41579 23.1111 13C23.1111 13.7583 23.0268 14.4969 22.8685 15.2076C22.8252 15.4309 22.8015 15.6614 22.8015 15.8974C22.8015 17.7523 24.2005 19.2778 26.0007 19.4824C27.8002 19.2772 29.1985 17.7518 29.1985 15.8974C29.1985 15.6584 29.1737 15.4251 29.1294 15.1991C28.9724 14.4911 28.8889 13.7553 28.8889 13C28.8889 7.41579 33.4158 2.88889 39 2.88889Z" style="{{ xJoinStyle }}"></path></svg>
+<div style="{{ gpTrackStyle }}"><div style="{{ gpMedStyle }}"></div><div style="{{ gpMinStyle }}"></div></div>
+</sc-if>
+<sc-if value="{{ indTicker }}">
+<canvas ref="{{ tickRef }}" style="display:block;width:88.8px;height:9px;flex-shrink:0"></canvas>
+</sc-if>
 </div>
 </div>
+<sc-if value="{{ idPersonShown }}">
+<div data-idperson="1" style="{{ idPersonStyle }}"><div style="{{ idPillBgStyle }}"></div><div style="{{ idPersonAvatarStyle }}">{{ idPersonInitial }}</div><span style="{{ idPersonNameStyle }}">{{ idPersonName }}</span></div>
+</sc-if>
 </div>
 <sc-if value="{{ newChatShown }}">
 <div data-newchat="1" ref="{{ newChatRef }}" onClick="{{ onNewChat }}" style="{{ newChatStyle }}">
@@ -546,6 +595,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </sc-for>
 <div style="padding:6px 8px"><div style="height:1px;background:color-mix(in srgb, var(--fgTertiary) 50%, transparent)"></div></div>
 <span style="font-size:12px;line-height:16px;color:var(--fgSecondary);padding:6px 8px 2px">Vouchers</span>
+<sc-if value="{{ vSingle }}">
 <div style="display:flex;flex-direction:column;gap:8px;padding:4px 8px 8px">
 <div style="display:flex;align-items:baseline;justify-content:space-between">
 <span style="{{ vValueStyle }}">{{ vValue }}</span>
@@ -554,6 +604,16 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 <div style="{{ vTrackStyle }}"><div style="{{ vFillStyle }}"></div></div>
 <span style="font-size:12px;line-height:16px;color:var(--fgSecondary)">{{ vNote }}</span>
 </div>
+</sc-if>
+<sc-if value="{{ vMulti }}">
+<div style="display:flex;flex-direction:column;gap:4px;padding:4px 8px 8px">
+<sc-for list="{{ vRows }}" as="v" hint-placeholder-count="4">
+<div style="display:flex;align-items:baseline;gap:8px;padding-top:4px"><span style="{{ v.labelStyle }}">{{ v.label }}</span><span style="font-size:12px;line-height:16px;color:var(--fgSecondary)">{{ v.pct }}</span></div>
+<div style="{{ v.trackStyle }}"><div style="{{ v.fillStyle }}"></div></div>
+</sc-for>
+<span style="font-size:12px;line-height:16px;color:var(--fgSecondary);padding-top:6px">{{ vMultiNote }}</span>
+</div>
+</sc-if>
 </div>
 </sc-if>
 <sc-if value="{{ dockMenuOpen }}">
@@ -935,7 +995,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22p
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:980},&quot;pillMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;left&quot;,&quot;center&quot;,&quot;right&quot;,&quot;off&quot;],&quot;default&quot;:&quot;center&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showLabels&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;selection&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pill&quot;,&quot;dot&quot;,&quot;none&quot;],&quot;default&quot;:&quot;pill&quot;,&quot;tsType&quot;:&quot;string&quot;}}">let PEOPLE,APPS,ROWS,APP_THEME,CHAT_SEED;const loadData=()=>{const D=window.DockletData;if(D&&!APPS){({PEOPLE,APPS,ROWS,APP_THEME,CHAT_SEED}=D);
 // two long SPAs that scroll under the ID bar: a light news feed and a colourful gallery (Liquid only)
-const k=APPS.findIndex((a)=>a.id==="settings");APPS=APPS.slice(0,k).concat([{id:"news",name:"News",initial:"N",icon:"#ai-news",bg:"#2f6fea",fg:"#ffffff"},{id:"gallery",name:"Gallery",initial:"G",icon:"#ai-gallery",bg:"#db2777",fg:"#fce7f3"}],APPS.slice(k));
+const k=APPS.findIndex((a)=>a.id==="settings");APPS=APPS.slice(0,k).concat([{id:"news",name:"News",initial:"N",icon:"#ai-news",bg:"#2f6fea",fg:"#ffffff"},{id:"gallery",name:"Gallery",initial:"G",icon:"#ai-gallery",bg:"#db2777",fg:"#fce7f3"},{id:"collect",name:"Collectibles",initial:"C",icon:"#ai-collect",bg:"#23252a",fg:"#f4f4f5"}],APPS.slice(k));
 APP_THEME=Object.assign({},APP_THEME,{news:{glow:"#2f6fea24",accent:"#2f6fea",onAccent:"#ffffff",w:700,big:34,align:"left",r:16},gallery:{glow:"#ec48994d",accent:"#f472b6",onAccent:"#2b0716",font:BRIC,w:800,big:44,align:"left",r:14}});}return!!APPS;};
 const HC="cubic-bezier(.24,.68,.22,1)";
 // flickRestore 0.35 px/ms: a short quick flick off the edge glow (~70 px in 80 ms) projected short of half and was ignored
@@ -990,13 +1050,62 @@ barWidth:382,barHeight:62,radius:32,itemGap:-8,pad:4,bottom:27,pillGap:8,
 pillMode:"center",barAlign:"center",labels:true,selection:"pill",selOp:0.14,
 shape:"rounded",pillSide:"right",iconOffset:12,splitGap:8,expanded:false,complement:true,pillHue:38,pillSat:0,pillLum:46,iconHue:50,iconSat:0,iconLum:92,iconLink:false,iconSatOffset:0,
 barRetract:"none",pillRetract:"none",hidden:false,autoHide:true,peek:10,gate:"none",lastGate:"left",mode:"gate",anchored:true,leftHanded:false,gatePeek:false,slidePeek:true,hiddenMark:"glow",
-netPeople:"ok",netHub:"ok",netBulletin:"ok",netStore:"ok",netScene:"healthy",netLive:false,vouchers:50,idInd:"bar",
+netPeople:"ok",netHub:"ok",netBulletin:"ok",netStore:"ok",netScene:"healthy",netLive:false,vouchers:50,vFiles:18,vTx:9,vScene:null,idInd:"bar",
 };
+// the three allowances behind the newer indicators: state key, name, the ticker's short name, allowance. Messages is
+// the old single allowance, so the first three indicators keep reading it alone
+const VT=[["vouchers","Messages","MSG",50],["vFiles","Files","FIL",40],["vTx","Transactions","TX",10]];
+const V_SCENES={full:{vouchers:50,vFiles:40,vTx:10},mixed:{vouchers:42,vFiles:18,vTx:9},low:{vouchers:6,vFiles:30,vTx:8},
+alllow:{vouchers:7,vFiles:6,vTx:2},out:{vouchers:0,vFiles:24,vTx:8}};
+// the newer indicators use the Figma colours: white = OK, red = slow, grey = offline or connecting (pulsing)
+const NET_FG2={ok:"var(--fgPrimary)",slow:"var(--fgError)",offline:"var(--fgTertiary)",connecting:"var(--fgTertiary)"};
+const IND_NEW={two:1,battery:1,eq:1,chain:1,x:1,ticker:1};
+const CHAIN_ICON={netPeople:"./assets/idbar/chain-people.svg",netHub:"./assets/idbar/chain-hub.svg",netBulletin:"./assets/idbar/chain-bulletin.svg",netStore:"./assets/idbar/chain-store.svg"};
+const NET_SHORT={netPeople:"PPL",netHub:"HUB",netBulletin:"BUL",netStore:"STO"};
+// the ticker's 3 × 5 dot font: the letters in the Figma frames copied from them (M, N and W are wider; I, the dot and
+// the space are one column), the rest of A-Z, digits and a little punctuation drawn to match; "·" separates problems
+const TF={A:["###","#.#","###","#.#","#.#"],B:["##.","#.#","##.","#.#","##."],C:["###","#..","#..","#..","###"],D:["##.","#.#","#.#","#.#","##."],
+E:["###","#..","##.","#..","###"],F:["###","#..","##.","#..","#.."],G:["###","#..","#.#","#.#","###"],H:["#.#","#.#","###","#.#","#.#"],I:["#","#","#","#","#"],
+J:["..#","..#","..#","#.#","###"],K:["#.#","#.#","##.","#.#","#.#"],L:["#..","#..","#..","#..","###"],M:["#...#","##.##","#.#.#","#...#","#...#"],
+N:["#..#","##.#","#.##","#..#","#..#"],O:["###","#.#","#.#","#.#","###"],P:["###","#.#","###","#..","#.."],Q:["###","#.#","#.#","###","..#"],
+R:["##.","#.#","##.","#.#","#.#"],S:["###","#..","###","..#","###"],T:["###",".#.",".#.",".#.",".#."],U:["#.#","#.#","#.#","#.#","###"],
+V:["#.#","#.#","#.#","#.#",".#."],W:["#...#","#...#","#.#.#","#.#.#",".#.#."],X:["#.#","#.#",".#.","#.#","#.#"],Y:["#.#","#.#",".#.",".#.",".#."],
+Z:["###","..#",".#.","#..","###"],"0":["###","#.#","#.#","#.#","###"],"1":[".#.","##.",".#.",".#.","###"],"2":["###","..#","###","#..","###"],
+"3":["###","..#","###","..#","###"],"4":["#.#","#.#","###","..#","..#"],"5":["###","#..","###","..#","###"],"6":["###","#..","###","#.#","###"],
+"7":["###","..#","..#","..#","..#"],"8":["###","#.#","###","#.#","###"],"9":["###","#.#","###","..#","###"],"%":["#.#","..#",".#.","#..","#.#"],
+".":[".",".",".",".","#"],",":[".",".",".","#","#"],":":[".","#",".","#","."],"!":["#","#","#",".","#"],"?":["###","..#",".#.","...",".#."],
+"'":["#","#",".",".","."],"-":["...","...","###","...","..."],"+":["...",".#.","###",".#.","..."],"/":["..#","..#",".#.","#..","#.."],
+"(":[".#","#.","#.","#.",".#"],")":["#.",".#",".#",".#","#."],">":["#..",".#.","..#",".#.","#.."]," ":[".",".",".",".","."],"\u00b7":[".",".","#",".","."]};
+// ticker text: upper case, accents and curly quotes flattened, "…" as three dots; anything without a glyph is a space
+const tkText=(t)=>String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[\u2018\u2019]/g,"'").replace(/\u2026/g,"...").replace(/[\u2013\u2014]/g,"-").toUpperCase();
+// a tape of columns from coloured segments [text, colour, dots]: one empty column between glyphs, " · " in grey between
+// segments; with dots, the segment's "." columns are numbered so the ellipsis can fill in one dot at a time
+const tickTape=(segs)=>{const cols=[];const put=(txt,c,dots)=>{let d=0;[...tkText(txt)].forEach((ch)=>{const g=TF[ch]||TF[" "];if(cols.length)cols.push(null);
+const di=dots&&ch==="."?d++:-1;for(let x=0;x<g[0].length;x++)cols.push({bits:g.map((r)=>r[x]==="#"),c,dot:di});});};
+segs.forEach((s,i)=>{if(i)put(" \u00b7 ","t",false);put(s[0],s[1],s[2]);});return cols;};
+const TICK_W=47,TICK_P=1.9;
+// how many columns the ticker may take: from the right end of the bar up to 16 pt short of the open window's name (or
+// the back lockup, or a chat's centred avatar and name),
+// measured at the name's full width (logo, name and the plate's padding), so the matrix never pushes into an app's ID
+// or squeezes it into an ellipsis; whatever else sits beside the indicator (Tweak's Save, Reset, Done) is left its
+// room too. Never fewer than Figma's 47
+const tickRoom=(el)=>{const st=el.closest("[data-idstat]"),bar=st&&st.parentElement&&st.parentElement.parentElement;if(!bar||!el.offsetWidth)return TICK_W;
+const er=el.getBoundingClientRect(),k=er.width / el.offsetWidth||1;let edge=null;
+bar.querySelectorAll("[data-idlogo] > div, [data-idback] > div, [data-idperson]").forEach((pl)=>{const sp=pl.querySelectorAll("span"),nm=sp[sp.length - 1],r=pl.getBoundingClientRect();
+const e=r.right / k+(nm?nm.scrollWidth - nm.clientWidth:0);edge=edge==null?e:Math.max(edge,e);});
+if(edge==null)return TICK_W;let side=0;for(const ch of st.parentElement.children)if(ch!==st)side+=ch.getBoundingClientRect().width / k+6;
+const px=er.right / k - edge - side - 16;return Math.max(TICK_W,Math.floor((px - 1.4) / TICK_P)+1);};
 // the ID bar's indicator: the worst of four networks (offline, then connecting, then slow) and the voucher allowance
 const NETS=[["netPeople","People Chain"],["netHub","Hub Chain"],["netBulletin","Bulletin Chain"],["netStore","Statement Store"]],V_MAX=50;
 const NET_RANK={ok:0,slow:1,connecting:2,offline:3};
 const NET_FG={ok:"var(--fgPrimary)",slow:"var(--fgWarning)",offline:"var(--fgError)",connecting:"var(--fgTertiary)"};
 const NET_SCENES={healthy:{netPeople:"ok",netHub:"ok",netBulletin:"ok",netStore:"ok"},slow:{netPeople:"ok",netHub:"slow",netBulletin:"ok",netStore:"ok"},offline:{netPeople:"ok",netHub:"ok",netBulletin:"offline",netStore:"ok"},syncing:{netPeople:"connecting",netHub:"connecting",netBulletin:"connecting",netStore:"connecting"}};
+// the book's open: it lands under the ID bar at BOOK_LAND ms, its cover is open at BOOK_OPEN ms
+const BOOK_LAND=440,BOOK_OPEN=860;
+// how far the first-hide peek pulls the parked dock out, in hide progress. The glass trails p a little and the peek
+// is only 400 ms out and back, so 0.14 lands near what a held p of 0.91 shows: the top end about 15-20 pt past the
+// edge (0.09 showed 2 pt after a swipe; the turn is steep near the parked pose)
+const NUDGE_P=0.14;
 const NEWCHAT_TR="transform 420ms cubic-bezier(.2,.9,.24,1), opacity 220ms ease";
 const TABS=[
 {label:"Chats",icon:"#ic-chats",viewBox:"0 0 24 24",iconSize:28},
@@ -1017,9 +1126,37 @@ tune(){return TUNING[this.state.testerMode]||TUNING.off;}
 constructor(props){
 super(props);loadData();
 this.camRef=React.createRef();this.appsRevealRef=React.createRef();
-this.edgeIndRef=React.createRef();this.newChatRef=React.createRef();
+// the ticker's dot matrix (Figma 12B, 5 rows): each event plays as text (see tickSync), then the matrix shows one
+// 3 × 3 dot per problem in its colour, or a single white one when all is fine. Figma's matrix is 47 columns; here it
+// widens to the text being played, up to the room the ID bar has (a longer text scrolls once). Nothing blinks; a
+// connecting network's "..." fills in one dot at a time
+this.tickRefCb=(el)=>{clearInterval(this._tickI);this._tickI=0;if(!el)return;
+const dpr=Math.max(2,window.devicePixelRatio||1),ctx=el.getContext("2d"),P=1.9;let W0=0;
+const room=()=>tickRoom(el);
+const dot=(c,pl)=>({bits:[false,true,true,true,false],c,dot:-1,pl});
+const draw=()=>{const pnow=performance.now(),cs=getComputedStyle(el),col={p:cs.getPropertyValue("--fgPrimary"),e:cs.getPropertyValue("--fgError"),w:cs.getPropertyValue("--fgWarning"),t:cs.getPropertyValue("--fgTertiary")};
+let E=this._tkE;if(!E&&this._tkQ&&this._tkQ.length){E=this._tkE=this._tkQ.shift();E.t0=pnow;}
+const shown=this._tkShown||{},list=(this._tkProbs||[]).filter((p)=>shown[p.id]===p.st).map((p)=>({c:p.c,pl:p.st==="conn"}));
+const R=room(),W=Math.max(TICK_W,Math.min(Math.max(E?E.cols.length+1:0,(list.length||1)*4+1),R)),dots=Math.floor(pnow / 350) % 4;
+if(W!==W0){W0=W;const wpx=(W - 1)*P+1.4;el.style.width=wpx+"px";el.width=Math.round(wpx*dpr);el.height=Math.round(9*dpr);}
+let win=null;
+// the event: static at the right for 2.4 s when it fits; a longer one holds its start 0.8 s, scrolls 1 column per
+// 80 ms to its end and holds that 0.7 s. Then it folds into its dot
+if(E){const m=E.cols.length,t=pnow - E.t0;
+if(m<W){if(t<2400)win=Array.from({length:W},(_,i)=>E.cols[i - (W - 1 - m)]||null);}
+else{const run=m - W+1;if(t<800+run*80+700){const o=t<800?0:Math.min(run,Math.floor((t - 800) / 80));win=Array.from({length:W},(_,i)=>E.cols[o+i]||null);}}
+if(!win){if(E.id)shown[E.id]=E.st;this._tkShown=shown;this._tkE=null;}}
+// the dots: one 3 × 3 per problem in its colour, right-aligned, a column apart; a single white one when all is fine
+// a connecting network's dot pulses softly (100% → 40% → 100%, 1.2 s), like the dot in the other indicators
+if(!win){const ds=list.length?list:[{c:"p",pl:false}];win=Array(W).fill(null);ds.forEach((d,j)=>{const x0=W - 4 - (ds.length - 1 - j)*4;for(let x=0;x<3;x++)if(x0+x>=0)win[x0+x]=dot(d.c,d.pl);});}
+const pa=0.7+0.3*Math.cos(pnow / 1200*Math.PI*2);
+ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W*P,9);
+for(let i=0;i<W;i++)for(let r=0;r<5;r++){const c=win[i],on=!!(c&&c.bits[r]&&!(c.dot>=0&&c.dot>=dots));
+ctx.globalAlpha=on&&c.pl?pa:1;ctx.fillStyle=on?col[c.c]:col.t;ctx.beginPath();ctx.arc(0.7+i*P,0.7+r*P,on?0.7:0.28,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;};
+draw();this._tickI=setInterval(draw,80);};
+this.edgeIndRef=React.createRef();this.newChatRef=React.createRef();this.bookCoverRef=React.createRef();this.bookDimRef=React.createRef();this.bookPeekRef=React.createRef();this.collectViewRef=React.createRef();this.bookSkelRef=React.createRef();this.bookColorRef=React.createRef();this.collectInnerRef=React.createRef();this.bookShimRef=React.createRef();
 if(typeof window!=="undefined"){
-const inDock=(t)=>{if(!t||!t.closest)return false;const d=this.dockRef.current;return!!((d&&d.contains(t))||t.closest("[data-lqpill],[data-opill],[data-app-id],[data-newchat]")||(this.lqGlassRef.current&&this.lqGlassRef.current.contains(t))||(this.lqContentRef.current&&this.lqContentRef.current.contains(t))||(this.lqXRef.current&&this.lqXRef.current.contains(t))||(this.edgeIndRef.current&&this.edgeIndRef.current.contains(t)));};
+const inDock=(t)=>{if(!t||!t.closest)return false;const d=this.dockRef.current;return!!((d&&d.contains(t))||t.closest("[data-lqpill],[data-opill],[data-app-id],[data-newchat],[data-book]")||(this.lqGlassRef.current&&this.lqGlassRef.current.contains(t))||(this.lqContentRef.current&&this.lqContentRef.current.contains(t))||(this.lqXRef.current&&this.lqXRef.current.contains(t))||(this.edgeIndRef.current&&this.edgeIndRef.current.contains(t)));};
 // counts from the first tap outside the Docklet: more taps elsewhere don't push it back (they did, so tapping away
 // kept the dock up); a touch on the Docklet still cancels it
 const arm=(ms)=>{if(this._ahT)return;this._ahT=setTimeout(()=>{this._ahT=0;this.autoHide(true);},ms);};
@@ -1354,14 +1491,23 @@ this._selEl=sel;this._selR=r;}else{this._selEl=null;}}
 const hidNow=st.barRetract!=="none"||st.gate!=="none",hidPrev=ps.barRetract&&(ps.barRetract!=="none"||ps.gate!=="none");
 if(hidNow&&ps.barRetract!==undefined&&!hidPrev&&!this._nudged){
 this._nudged=true;
-const dir=(st.barRetract!=="none"?st.barRetract:st.gate)==="right"?-1:1;
-setTimeout(()=>{const d=this.dockRef.current;if(d&&d.animate&&!this._hg&&!this._settle)d.animate([{translate:"0px 0px"},{translate:dir*8+"px 0px"},{translate:"0px 0px"}],{duration:400,easing:"ease-in-out"});},700);
+// 700 ms after the first hide lands, the dock peeks out from the edge and back to show where it went: the same
+// motion as a pull (p 1 -> 1 - NUDGE_P -> 1, 400 ms, out and back on a cosine). Moving the parked dock itself by
+// 8 pt did nothing visible: it stands well past the edge. A touch or any other motion stops the peek where it is
+// The hide counts from the moment the dock leaves, so wait for it to land (the settle after a swipe takes a while),
+// then 700 ms more; a hand on the dock in the meantime cancels the peek. Which side and kind is read when the peek
+// starts: in the middle of a swipe the state can still show the other one
+{const cur=()=>{const st=this.state,slide=st.barRetract!=="none";return{kind:slide?"slide":st.mode,side:slide?st.barRetract:st.gate};};
+let tries=0;const landed=()=>{if(cur().side==="none"||this._hg||++tries>60)return;if(this._settle){setTimeout(landed,50);return;}setTimeout(peek,700);};
+const peek=()=>{const c=cur();if(c.side==="none"||this._hg||this._settle)return;const t0=performance.now();
+const step=(now)=>{const n=cur();if(n.side!==c.side||n.kind!==c.kind||this._hg||this._settle)return;const k=Math.min(1,(now - t0)/ 400);this.hideApply(c.kind,c.side,1 - NUDGE_P*(1 - Math.cos(2*Math.PI*k))/ 2);if(k<1)RAF(step);};RAF(step);};
+setTimeout(landed,0);}
 }
 {const hid=st.gate!=="none"||st.barRetract!=="none",was=ps.gate!=="none"||ps.barRetract!=="none";
 if(hid&&!was)this._hidOnce=true;
 if(st.testerMode!==ps.testerMode){try{window.localStorage.setItem("docklet.tester",st.testerMode||"off");}catch(e){}this.armNudge();}
 // the first time the dock hides on its own (2 s after a tap elsewhere, or 10 s idle) it says so, once
-if(hid&&!was){const auto=this._autoHid;this._autoHid=false;
+if(hid&&!was&&this._bookHid){this._bookHid=false;}else if(hid&&!was){const auto=this._autoHid;this._autoHid=false;
 if(auto&&!this.seenGet().autoTip&&!st.dockTipOpen&&!st.tipFly){this.seenSet("autoTip",1);this.ss({dockTipOpen:true,dockTipAuto:true});}
 else if(!st.dockTipSeen&&!st.dockTipOpen&&!st.tipFly)this.ss({dockTipOpen:true,dockTipAuto:false});}}
 if(st.dockTipOpen&&!st.tipFly&&st.gate==="none"&&st.barRetract==="none")this.tipAway(ps.barRetract!=="none"?ps.barRetract:ps.gate);
@@ -1490,6 +1636,8 @@ this.ss({immersive:next,panelOpen:false},()=>{this.fit();this.forceUpdate();});
 }
 set(k,v){if(k==="labelSeg"){this.ss({labels:v!=="off",labelWhere:v==="off"?this.state.labelWhere:v});return;}
 if(k==="netScene"){this.ss(Object.assign({netScene:v},NET_SCENES[v]));return;}
+if(k==="vScene"){this.ss(Object.assign({vScene:v},V_SCENES[v]));return;}
+if(VT.some((t)=>t[0]===k)){this.ss({[k]:v,vScene:null});return;}
 if(NETS.some((n)=>n[0]===k)){this.ss({[k]:v,netScene:null});return;}
 if(k==="netLive")this.netLive(v);
 this.ss({[k]:v});}
@@ -1506,6 +1654,19 @@ if(rail&&el)rail.scrollLeft=Math.max(0,el.offsetLeft -(rail.clientWidth - el.off
 }
 // the ID bar under the status bar: the Polkadot logo with the open window's name, and the network and voucher
 // indicator; the logo opens the window's menu, the indicator the networks and vouchers popover
+// the ticker plays each new problem (or a problem changing state) once as text, then keeps it as a 3 × 3 dot in its
+// colour, one dot per problem; a problem that clears plays "… OK" in white and its dot goes. Switching to the ticker
+// with problems already there shows their dots straight away. A voucher only replays when it goes from low to used
+// up (or back), not on every percent
+tickSync(tp){const seen=this._tkSeen,next={},q=this._tkQ||(this._tkQ=[]),shown=this._tkShown||(this._tkShown={});
+const drop=(id)=>{for(let i=q.length - 1;i>=0;i--)if(q[i].id===id)q.splice(i,1);};
+tp.forEach((p)=>{next[p.id]=p.st;});
+if(!seen){Object.keys(shown).forEach((id)=>{delete shown[id];});tp.forEach((p)=>{shown[p.id]=p.st;});}
+else{tp.forEach((p)=>{if(seen[p.id]!==p.st){drop(p.id);q.push({id:p.id,st:p.st,cols:tickTape([p.seg])});}});
+Object.keys(seen).forEach((id)=>{if(next[id])return;drop(id);if(!shown[id])return;delete shown[id];
+if(id==="net"&&tp.some((p)=>NET_SHORT[p.id]))return;
+q.push({id:null,cols:tickTape([[id==="net"?"ONLINE":(NET_SHORT[id]||(VT.find((t)=>t[0]===id)||[])[2])+" OK","p",false]])});});}
+this._tkSeen=next;this._tkProbs=tp.map((p)=>({id:p.id,st:p.st,c:p.seg[1]}));}
 idBarVals(miniDef,isSettings,bottomOffset){
 const s=this.state,spa=!!miniDef&&!isSettings,tweak=s.screen==="controls";
 const worst=NETS.reduce((w,n)=>NET_RANK[s[n[0]]]>NET_RANK[w]?s[n[0]]:w,"ok"),pulse=(st)=>st==="connecting"?"idPulse 1.2s ease-in-out infinite":"none";
@@ -1525,41 +1686,134 @@ const items=spa?[
 {label:"About app",iconStyle:icon("./assets/idbar/info.svg"),onTap:close(()=>this.toast(name+" · placeholder product"))},
 {sep:true},
 {label:"Close app",iconStyle:icon("./assets/idbar/x.svg"),onTap:close(()=>this.closeApp())},
-]:[
-// tabs have no product menu in the design; the prototype keeps its own tools here
-{label:tweak?"Close Tweak":"Tweak Docklet"+(s.testerMode&&s.testerMode!=="off"?" · "+s.testerMode.toUpperCase():""),iconStyle:icon("./assets/idbar/tweak.svg"),onTap:close(()=>this.switchScreen())},
-{label:"Network simulator",iconStyle:icon("./assets/idbar/network.svg"),onTap:close(()=>this.switchScreen("Networks"))},
-];
+]:[];
 const away=s.lqOpen||s.expanded||s.inputMode||s.appsOpen||s.chatOpen!=null,down=s.gate!=="none"||s.barRetract!=="none";
 const lift=this._ncLift=bottomOffset+s.barHeight+15 - 34;
 const dot=(d)=>({width:d,height:d,borderRadius:"50%",flexShrink:0,background:NET_FG[worst],animation:pulse(worst)});
 const nfill=empty?0:Math.max(1,Math.ceil(vf*4));
+// the newer indicators (Figma "ID Bar · Network × vouchers indicator", blocks 1, 1b, 8, 9, 10, 12B): every voucher
+// type as a fraction left, the smallest and the median of them, and the Figma network colours
+const ind=s.idInd,isNew=!!IND_NEW[ind],netFg=isNew?NET_FG2:NET_FG;
+const vt=VT.map(([k,n,sh,mx])=>{const q=Math.max(0,Math.min(mx,Math.round(s[k]??mx)));return{k,n,sh,mx,q,f:q / mx};});
+const fs=vt.map((t)=>t.f).sort((a,b)=>a - b),vMin=fs[0],vMed=fs.length % 2?fs[fs.length>>1]:(fs[fs.length / 2 - 1]+fs[fs.length / 2]) / 2;
+const vcol=(f)=>f<=0?"var(--fgError)":f<=0.2?"var(--fgWarning)":"var(--fgPrimary)";
+const grey=(k)=>s[k]==="offline"||s[k]==="connecting";
+// problem networks in the bar's order: offline and connecting first, then slow; People → Hub → Bulletin → Store within
+const probs=NETS.filter(([k])=>grey(k)).concat(NETS.filter(([k])=>s[k]==="slow"));
+const lit=(k)=>({background:NET_FG2[s[k]],animation:pulse(s[k])});
+// the two-grade pill: track, the median type as a 50% ghost, the type with the least left solid (a circle at least)
+const GP_W=42,GP_H=7;
+const gpTrack={position:"relative",flexShrink:0,width:GP_W,height:GP_H,borderRadius:GP_H / 2,overflow:"hidden",background:vMin<=0?"color-mix(in srgb, var(--fgError) 40%, transparent)":"var(--fgTertiary)"};
+const gpMed={position:"absolute",left:0,top:0,bottom:0,width:vMed>0?Math.max(GP_H,vMed*GP_W):0,borderRadius:GP_H / 2,background:"var(--fgPrimary)",opacity:0.5,transition:"width 400ms ease"};
+const gpMin={position:"absolute",left:0,top:0,bottom:0,width:vMin>0?Math.max(GP_H,vMin*GP_W):0,borderRadius:GP_H / 2,background:vcol(vMin),transition:"width 400ms ease, background 300ms"};
+const allOk=probs.length===0;
+// the joined X: four circles (People top-left, Hub top-right, Bulletin bottom-left, Store bottom-right) melted into one
+// white shape while all four are fine; any problem snaps every link and the circles drift 3 pt apart (in the 52 box)
+const xd=(k,i)=>{const c=allOk?[13,39]:[10.8333,41.1667];return{cx:c[i % 2],cy:c[i<2?0:1],r:allOk?10.111:9.389,fill:NET_FG2[s[k]],animation:allOk?"none":pulse(s[k]),
+transition:allOk?"cx 250ms cubic-bezier(.3,1.5,.5,1), cy 250ms cubic-bezier(.3,1.5,.5,1), r 250ms ease, fill 200ms":"cx 150ms ease-out, cy 150ms ease-out, r 150ms ease-out, fill 200ms"};};
+// the ticker's problems, each with an id and the state it is in: networks first (offline, slow, connecting), then
+// the allowances running low, the least left first
+const tp=[],tpush=(id,st,seg)=>tp.push({id,st,seg});
+if(NETS.every(([k])=>s[k]==="offline"))tpush("net","off",["OFFLINE","t",false]);
+else{NETS.filter(([k])=>s[k]==="offline").forEach(([k])=>tpush(k,"off",[NET_SHORT[k]+" OFF","t",false]));
+NETS.filter(([k])=>s[k]==="slow").forEach(([k])=>tpush(k,"slow",[NET_SHORT[k]+" SLO","e",false]));
+NETS.filter(([k])=>s[k]==="connecting").forEach(([k])=>tpush(k,"conn",[NET_SHORT[k]+" ...","t",true]));}
+vt.filter((t)=>t.f<=0.2).sort((a,b)=>a.f - b.f).forEach((t)=>tpush(t.k,t.q<=0?"out":"low",t.q<=0?["NO "+t.sh,"e",false]:[t.sh+" "+Math.round(t.f*100)+"%","w",false]));
+if(ind==="ticker")this.tickSync(tp);else{this._tkSeen=null;this._tkQ=[];this._tkE=null;}
+const vLeast=vt.slice().sort((a,b)=>a.f - b.f)[0];
+// a pushed screen puts its back chevron in the ID bar (Figma "ID Bar / Lockup · Back"): a 1:1 chat with the person's
+// 20 pt avatar and name centred ("ID Bar / Person"), the open Cash card in Pocket with the card's name. The bar stays
+// put on these (it doesn't slide away on scroll: it holds the way back) and sits over the chat, which now runs under it
+const chatRow=!tweak&&s.chatOpen!=null&&s.active===0&&!s.appFg?this.allRows()[s.chatOpen]:null;
+const cashOpen=!tweak&&!chatRow&&s.active===1&&s.cardOpen==="cash"&&(!miniDef||!!s.book);
+const pushed=!!chatRow||cashOpen,zTop=chatRow?60:(s.book?10:4);
+const idAway=!!s.idHidden&&!tweak&&!pushed,plateOn=!!s.idScrolled&&!idAway;
 return{
 idTitle:tweak?"Tweak":spa?miniDef.name:isSettings?"Settings":s.active===1?"Pocket":(s.active===2&&!s.hotApp?"Pinned":"Chats"),
 tweakDone:tweak,
 // an iPhone status bar for the browser; in the Android app the system draws its own there
 iosBarShown:typeof window==="undefined"||!window.DockletNative,
+iosBarStyle:{position:"absolute",left:0,right:0,top:0,height:54,zIndex:zTop,pointerEvents:"none",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"4px 26px 0 50px",boxSizing:"border-box",color:"var(--fgPrimary)"},
 // masks live here, not in the template: the build inlines them as data URIs, whose ";" the template's style parser splits on
-idLogoStyle:{width:16,height:16,background:"var(--fgPrimary)",WebkitMask:"url(./assets/idbar/polkadot-logo.svg) center / 12px 13.33px no-repeat",mask:"url(./assets/idbar/polkadot-logo.svg) center / 12px 13.33px no-repeat"},
+// an open app shows a vertical ellipsis where the Polkadot logo was (Figma "ID Bar / Lockup", Type=SPA): it reads as
+// "this opens a menu", which the whole lockup does
+idLogoStyle:{width:20,height:20,background:"var(--fgPrimary)",WebkitMask:"url(./assets/idbar/ellipsis-vertical.svg) center / 20px 20px no-repeat",mask:"url(./assets/idbar/ellipsis-vertical.svg) center / 20px 20px no-repeat"},
 newChatIconStyle:Object.assign(icon("./assets/idbar/plus.svg"),{width:28,height:28}),
 // a light scrim, only so the status bar and the ID bar stay readable over whatever scrolls under them: the screen
 // colour at 55% at the very top, gone by 80 pt where the first row starts, with a soft blur fading along with it.
 // The design system's navigation-overlay token (80% black / white) read as a dark band, worst over a bright SPA
-topFadeStyle:{position:"absolute",left:0,right:0,top:0,height:80,zIndex:4,pointerEvents:"none",
+topFadeStyle:{position:"absolute",left:0,right:0,top:0,height:80,zIndex:zTop,pointerEvents:"none",
 background:"linear-gradient(180deg,color-mix(in srgb, var(--bgSurfaceMain) 55%, transparent) 0%,color-mix(in srgb, var(--bgSurfaceMain) 25%, transparent) 60%,color-mix(in srgb, var(--bgSurfaceMain) 0%, transparent) 100%)",
 backdropFilter:"blur(4px)",WebkitBackdropFilter:"blur(4px)",
 WebkitMaskImage:"linear-gradient(180deg,#000 45%,transparent)",maskImage:"linear-gradient(180deg,#000 45%,transparent)"},
-idBarStyle:{position:"absolute",left:0,right:0,top:57,height:20,zIndex:4,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,padding:"0 16px",boxSizing:"border-box",
-transform:s.idHidden&&!tweak?"translateY(-40px)":"none",opacity:s.idHidden&&!tweak?0:1,pointerEvents:s.idHidden&&!tweak?"none":"auto",transition:"transform 300ms cubic-bezier(.2,.9,.24,1), opacity 220ms ease"},
-idLeftStyle:{display:"flex",alignItems:"center",minWidth:0,cursor:"pointer",padding:"12px 12px 12px 0",margin:"-12px -12px -12px -2px"},
+idBarStyle:{position:"absolute",left:0,right:0,top:57,height:20,zIndex:zTop,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,padding:"0 16px",boxSizing:"border-box",
+// the bar only moves: opacity on it would also take the plate's blur away for the whole fade (a backdrop-filter
+// under a translucent ancestor draws nothing), and the blur then popped in at the end of each return
+transform:idAway?"translateY(-40px)":"none",pointerEvents:idAway?"none":"auto",transition:"transform 300ms cubic-bezier(.2,.9,.24,1)"},
+idLeftShown:!pushed,idBackShown:pushed,idPersonShown:!!chatRow,
+onIdBack:()=>{if(chatRow){if(this._chatBack)this._chatBack();return;}this.haptic("light");clearTimeout(this.cardT);this.ss({cardOpen:null,cardClosing:null});},
+// the chevron is a 20 pt glyph in a 24 pt pill at x 6 with a 44 pt hit area; the plate under it (and under the person)
+// comes in only once something has scrolled under the bar, like the tab name's
+idBackHitStyle:{display:"flex",alignItems:"center",flexShrink:0,padding:10,margin:"-10px 0 -10px -20px",cursor:"pointer",WebkitTapHighlightColor:"transparent"},
+idBackPillStyle:{position:"relative",zIndex:0,display:"flex",alignItems:"center",gap:4,padding:cashOpen?"2px 10px 2px 2px":2,borderRadius:12},
+idPillBgStyle:{position:"absolute",inset:0,zIndex:-1,borderRadius:12,pointerEvents:"none",background:"#0000000D",backdropFilter:"blur(6px)",WebkitBackdropFilter:"blur(6px)",
+opacity:plateOn?1:0,visibility:plateOn?"visible":"hidden",transition:plateOn?"opacity 240ms ease":"opacity 240ms ease, visibility 0s linear 240ms"},
+idBackGlyphStyle:{width:20,height:20,flexShrink:0,background:"var(--fgPrimary)",WebkitMask:"url(./assets/idbar/back.svg) center / 20px 20px no-repeat",mask:"url(./assets/idbar/back.svg) center / 20px 20px no-repeat"},
+idBackTitle:cashOpen?"CASH":"",
+idBackTitleStyle:{fontFamily:"'Funnel Display', Inter, -apple-system, sans-serif",fontWeight:300,fontSize:16,lineHeight:"24px",letterSpacing:"0.02em",color:"var(--fgPrimary)",whiteSpace:"nowrap",maxWidth:200,overflow:"hidden",textOverflow:"ellipsis"},
+idPersonStyle:{position:"absolute",left:"calc(50% + 0.5px)",top:-2,transform:"translateX(-50%)",zIndex:0,display:"flex",alignItems:"center",gap:4,padding:"2px 10px 2px 2px",borderRadius:12,pointerEvents:"none"},
+idPersonInitial:chatRow?chatRow.initial:"",idPersonName:chatRow?chatRow.name:"",
+idPersonAvatarStyle:Object.assign({width:20,height:20,borderRadius:9999,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:600,lineHeight:"16px"},chatRow?{background:chatRow.bg,color:chatRow.fg}:{}),
+idPersonNameStyle:{fontSize:14,fontWeight:600,lineHeight:"20px",color:"var(--fgPrimary)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:200},
+// on the tabs the ID bar is just the window's name: no logo, no menu
+idLogoShown:spa,
+idLeftStyle:{display:"flex",alignItems:"center",minWidth:0,cursor:spa?"pointer":"default",padding:"12px 12px 12px 0",margin:spa?"-12px -12px -12px -2px":"-12px -12px -12px -10px",WebkitUserSelect:"none",userSelect:"none",WebkitTouchCallout:"none"},
 // a barely visible plate under the logo and the title, the height of the bar plus 2 pt each side: about a quarter
 // tone darker with a soft blur, and only while something has scrolled up under the bar
-idPlateStyle:{display:"flex",alignItems:"center",gap:4,minWidth:0,height:24,padding:"0 10px 0 2px",boxSizing:"border-box",borderRadius:12,
-background:s.idScrolled?"#0000000D":"#00000000",backdropFilter:s.idScrolled?"blur(12px)":"none",WebkitBackdropFilter:s.idScrolled?"blur(12px)":"none",transition:"background 200ms ease"},
-idRightStyle:{display:"flex",alignItems:"center",gap:4,height:20,cursor:"pointer",padding:"12px 16px 12px 12px",margin:"-12px -16px -12px -12px"},
-onIdLogo:()=>{this.haptic("light");this.ss({idMenu:!s.idMenu,idPop:false});},
+// an app's lockup takes the Pressed plate (fg/primary 10%) while the finger is down and keeps it as Active while its
+// menu is open; tabs aren't tappable, so they never get it
+idPlateStyle:{position:"relative",zIndex:0,display:"flex",alignItems:"center",gap:4,minWidth:0,height:24,padding:spa?"0 10px 0 2px":"0 10px",boxSizing:"border-box",borderRadius:12,
+background:spa&&(s.idPress||s.idMenu)?"color-mix(in srgb, var(--fgPrimary) 10%, transparent)":"transparent",transition:"background 120ms ease"},
+// the plate is its own layer with a fixed tint and blur, and only its opacity changes (240 ms both ways), so the tint
+// and the blur come and go together; switching the blur itself on and off made it jump. Hidden once faded out: an
+// opacity-0 layer with a backdrop-filter still costs a blur every frame
+idPlateBgStyle:{position:"absolute",inset:0,zIndex:-1,borderRadius:12,pointerEvents:"none",background:"#0000000D",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",
+opacity:plateOn?1:0,visibility:plateOn?"visible":"hidden",transition:plateOn?"opacity 240ms ease":"opacity 240ms ease, visibility 0s linear 240ms"},
+idLogoSlotStyle:{width:24,height:20,borderRadius:47,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:idAway?0:1,transition:"opacity 220ms ease"},
+idTitleStyle:{fontSize:14,fontWeight:600,lineHeight:"20px",color:"var(--fgPrimary)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",opacity:idAway?0:1,transition:"opacity 220ms ease"},
+idRightStyle:{display:"flex",alignItems:"center",gap:ind==="x"?5:4,height:20,cursor:"pointer",padding:"12px 16px 12px 12px",margin:"-12px -16px -12px -12px",opacity:idAway?0:1,transition:"opacity 220ms ease"},
+onIdLogo:spa?()=>{if(Date.now()-(this._idLongAt||0)<700)return;this.haptic("light");this.ss({idMenu:!s.idMenu,idPop:false});}:null,
+// the prototype's Tweak Docklet hides under a long press on the ID (logo and name), on every screen: 500 ms without
+// moving more than 10 px; the click that follows doesn't also open the product menu
+onIdDown:tweak?null:(e)=>{const x0=e.clientX,y0=e.clientY;clearTimeout(this._idLongT);if(spa)this.ss({idPress:true});
+const end=()=>{clearTimeout(this._idLongT);if(this.state.idPress)this.ss({idPress:false});window.removeEventListener("pointermove",mv,true);window.removeEventListener("pointerup",end,true);window.removeEventListener("pointercancel",end,true);};
+const mv=(ev)=>{if(Math.hypot(ev.clientX - x0,ev.clientY - y0)>10)end();};
+window.addEventListener("pointermove",mv,true);window.addEventListener("pointerup",end,true);window.addEventListener("pointercancel",end,true);
+this._idLongT=setTimeout(()=>{end();this._idLongAt=Date.now();this.haptic("medium");this.ss({idMenu:false,idPop:false});this.switchScreen();},500);},
 onIdStatus:()=>{this.haptic("light");this.ss({idPop:!s.idPop,idMenu:false});},
-indBar:s.idInd!=="ring"&&s.idInd!=="pill",indRing:s.idInd==="ring",indPill:s.idInd==="pill",
+indBar:!isNew&&ind!=="ring"&&ind!=="pill",indRing:ind==="ring",indPill:ind==="pill",
+indTwo:ind==="two",indBattery:ind==="battery",indEq:ind==="eq",indChain:ind==="chain",indX:ind==="x",indTicker:ind==="ticker",
+// all values below are the 4× Figma frames at 1×
+ind2DotStyle:{width:7,height:7,borderRadius:"50%",flexShrink:0,background:NET_FG2[worst],animation:pulse(worst)},
+gpTrackStyle:gpTrack,gpMedStyle:gpMed,gpMinStyle:gpMin,
+// battery: 24 × 12 body with a 1 pt outline and a terminal; the two grades fill 20 × 8 inside it
+batBoxStyle:{position:"relative",width:26,height:12,flexShrink:0},
+batBodyStyle:{position:"absolute",left:0,top:0,width:24,height:12,boxSizing:"border-box",borderRadius:3,border:"1px solid "+(vMin<=0?"var(--fgError)":"var(--fgTertiary)"),transition:"border-color 300ms"},
+batTermStyle:{position:"absolute",left:24.5,top:4,width:1.5,height:4,borderRadius:"0 1px 1px 0",background:vMin<=0?"var(--fgError)":"var(--fgTertiary)"},
+batMedStyle:{position:"absolute",left:2,top:2,height:8,width:vMed*20,borderRadius:1.5,background:"var(--fgPrimary)",opacity:0.5,transition:"width 400ms ease"},
+batMinStyle:{position:"absolute",left:2,top:2,height:8,width:vMin*20,borderRadius:1.5,background:vcol(vMin),transition:"width 400ms ease, background 300ms"},
+// equalizer: one 3 × 9 bar per allowance in a fixed order (2 pt apart), a 1.5 pt network line as wide as the bars
+eqBars:vt.map((t,i)=>({track:{position:"absolute",left:i*5,top:0,width:3,height:9,borderRadius:1.5,overflow:"hidden",background:"var(--fgTertiary)"},
+fill:{position:"absolute",left:0,right:0,bottom:0,height:t.q<=0?1.5:t.f*9,borderRadius:1.5,background:vcol(t.f),transition:"height 400ms ease, background 300ms"}})),
+eqBoxStyle:{position:"relative",width:vt.length*5 - 2,height:12,flexShrink:0},
+eqLineStyle:{position:"absolute",left:0,top:10.5,width:vt.length*5 - 2,height:1.5,borderRadius:0.75,animation:pulse(worst),
+background:worst==="ok"?"var(--fgPrimary)":worst==="slow"?"var(--fgError)":"repeating-linear-gradient(90deg, var(--fgTertiary) 0 3px, transparent 3px 5px)"},
+// chain icons: one white dot while all four are fine, else the icon of each problem network
+chainOk:allOk,
+chainIcons:probs.map(([k])=>({style:Object.assign({width:10,height:10,flexShrink:0,WebkitMask:"url("+CHAIN_ICON[k]+") center / contain no-repeat",mask:"url("+CHAIN_ICON[k]+") center / contain no-repeat",transition:"background 200ms"},lit(k))})),
+xJoinStyle:{fill:"var(--fgPrimary)",opacity:allOk?1:0,transition:allOk?"opacity 250ms ease 120ms":"opacity 150ms ease"},
+xD0:xd("netPeople",0),xD1:xd("netHub",1),xD2:xd("netBulletin",2),xD3:xd("netStore",3),
+tickRef:this.tickRefCb,
 indDotStyle:dot(s.idInd==="pill"?6:6.6),
 indTrackStyle:{position:"relative",width:42,height:6.6,borderRadius:3.3,background:track,overflow:"hidden"},
 indFillStyle:{position:"absolute",left:0,top:0,bottom:0,width:(vf*100).toFixed(1)+"%",borderRadius:3.3,background:fill,transition:"width 400ms ease, background 300ms"},
@@ -1575,9 +1829,17 @@ idMenuStyle:Object.assign({},sheet,{position:"absolute",zIndex:81,left:12,top:80
 idMenuItems:items.map((m)=>Object.assign({sep:false,label:null},m)),
 idPopOpen:!!s.idPop,
 idPopStyle:Object.assign({},sheet,{position:"absolute",zIndex:81,right:12,top:80,width:272,transformOrigin:"calc(100% - 30px) 0"}),
-netRows:NETS.map(([k,n])=>({name:n,state:{ok:"Connected",slow:"Slow",offline:"Offline",connecting:"Connecting…"}[s[k]],
-dotStyle:{width:8,height:8,borderRadius:"50%",flexShrink:0,background:NET_FG[s[k]],animation:pulse(s[k])},
-stateStyle:{fontSize:12,lineHeight:"16px",whiteSpace:"nowrap",color:{ok:"var(--fgSecondary)",slow:"var(--fgWarning)",offline:"var(--fgError)",connecting:"var(--fgTertiary)"}[s[k]]}})),
+// with the newer indicators the rows take the bar's colours, and the problem networks come first, in the bar's order
+netRows:(isNew?probs.concat(NETS.filter(([k])=>s[k]==="ok")):NETS).map(([k,n])=>({name:n,state:{ok:"Connected",slow:"Slow",offline:"Offline",connecting:"Connecting…"}[s[k]],
+dotStyle:{width:8,height:8,borderRadius:"50%",flexShrink:0,background:netFg[s[k]],animation:pulse(s[k])},
+stateStyle:{fontSize:12,lineHeight:"16px",whiteSpace:"nowrap",color:isNew?{ok:"var(--fgSecondary)",slow:"var(--fgError)",offline:"var(--fgSecondary)",connecting:"var(--fgSecondary)"}[s[k]]:{ok:"var(--fgSecondary)",slow:"var(--fgWarning)",offline:"var(--fgError)",connecting:"var(--fgTertiary)"}[s[k]]}})),
+// the newer indicators show every voucher type: the equalizer in its fixed order, the rest with the least left first
+vSingle:!isNew,vMulti:isNew,
+vRows:(ind==="eq"?vt:vt.slice().sort((a,b)=>a.f - b.f)).map((t)=>({label:t.n+" · "+t.q+" of "+t.mx,pct:Math.round(t.f*100)+"%",
+labelStyle:{flex:1,minWidth:0,fontSize:14,lineHeight:"20px",fontWeight:t.f<=0.2?600:400,color:t.f<=0.2?vcol(t.f):"var(--fgPrimary)"},
+trackStyle:{position:"relative",height:6,borderRadius:3,overflow:"hidden",background:t.q<=0?"color-mix(in srgb, var(--fgError) 40%, transparent)":"var(--fgTertiary)"},
+fillStyle:{position:"absolute",left:0,top:0,bottom:0,width:(t.f*100).toFixed(1)+"%",borderRadius:3,background:vcol(t.f)}})),
+vMultiNote:vLeast.q<=0?vLeast.n+" used up · resets in 6 h":vLeast.f<=0.2?vLeast.n+" running low · resets in 6 h":"Resets in 6 h",
 vValue:vq+" of "+V_MAX+" left",vPct:Math.round(vf*100)+"%",
 vValueStyle:{fontSize:14,fontWeight:600,lineHeight:"20px",color:empty?"var(--fgError)":low?"var(--fgWarning)":"var(--fgPrimary)"},
 vTrackStyle:{position:"relative",height:6,borderRadius:3,background:track,overflow:"hidden"},
@@ -1604,8 +1866,10 @@ if(st.gate!=="none"||st.barRetract!=="none"){this.tipRestore();this._ncT=setTime
 netLive(on){clearInterval(this._netT);this._netT=0;if(!on)return;let dry=0;
 this._netT=setInterval(()=>{const st=this.state,[k]=NETS[Math.floor(Math.random()*NETS.length)],r=Math.random(),cur=st[k];
 const nx=cur==="ok"?(r<0.12?"offline":r<0.35?"slow":"ok"):cur==="slow"?(r<0.5?"ok":r<0.6?"offline":"slow"):cur==="offline"?"connecting":(r<0.7?"ok":"connecting");
-let v=st.vouchers;if(v<=0){dry++;if(dry>3){dry=0;v=V_MAX;}}else if(Math.random()<0.45)v=Math.max(0,v - 1 - Math.floor(Math.random()*3));
-this.ss({[k]:nx,vouchers:v,netScene:null});},2000);}
+const [vk,,,vmx]=VT[Math.random()<0.5?0:1+Math.floor(Math.random()*(VT.length - 1))];let v=st[vk],fill={};
+if(VT.some((t)=>st[t[0]]<=0)){dry++;if(dry>3){dry=0;VT.forEach((t)=>{if(st[t[0]]<=0)fill[t[0]]=t[3];});}}
+if(v>0&&Math.random()<0.45)v=Math.max(0,v - 1 - Math.floor(Math.random()*Math.max(1,Math.round(vmx / 15))));
+this.ss(Object.assign({[k]:nx,[vk]:v,netScene:null,vScene:null},fill));},2000);}
 loadPresets(){
 try{
 const raw=window.localStorage.getItem(PRESET_KEY);
@@ -1689,7 +1953,7 @@ if(this.dragged&&axis==="y"&&ev.type==="pointerup"){
 if(ry<-40&&st.gate==="none"&&st.barRetract==="none"){this.haptic("medium");this.appsAt=Date.now();this.ss(Object.assign({},collapse,{appsOpen:true,openFx:"lid"}));}
 else if(ry>36&&wasOpen)this.collapseDock();
 }
-if(!this.dragged&&!myHold&&ev.type==="pointerup"&&target==="bar"&&st.gate!=="none")this.hideSettle(st.mode,st.gate,1,0,0);
+// a tap on the hidden dock's glow does nothing: only a drag brings it back (R2)
 done();
 };
 window.addEventListener("pointermove",move);
@@ -1807,7 +2071,280 @@ if(kind==="slide"){const g=this._slideGeom;return{t:"translate("+(side==="right"
 if(kind==="gate"){const g=this._gateGeom,q=Math.max(0,p),rk=this._hgRot==null?1:this._hgRot;return{t:"translate("+(side==="right"?g.offR:g.offL)*q*q*q+"px,"+g.y+"px) rotate("+(90*sg*p*rk+(this._hgAng||0))+"deg)",o:side==="right"?g.oR:g.oL};}
 return kind==="park"?this.poseFor("park",side,p*this.parkEnd(side)):this.poseFor("arc",side,p);
 }
+// Collectibles: the product dock docks onto the Docklet (see fork_collectibles.py)
+guestWire(fr){
+const w=fr.contentWindow,d=fr.contentDocument;if(!d||!d.querySelector(".dock"))return;
+this._gw={fr,w,d,els:null};this._gL=null;
+// the dock and what floats over it are hidden by opacity, so they always ride with it (inline translate). The sheets are
+// hidden below the screen edge instead: lifted while closed, their tops showed over the Docklet. They take the lift (--hl)
+// only while open, and it eases in and out with their own slide
+const E="cubic-bezier(.2,.9,.25,1)",st=d.createElement("style");st.textContent="html.bk-flat *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.dock,.stepbar,.zoomrail,.lensRead,.coach,.toast,.hintCard,.zcard{will-change:translate}"
++".psheet{transition:transform .45s "+E+",translate .45s "+E+"}.psheet.open{translate:0 calc(-1 * var(--hl,0px))}"
++".sheetFoot{transition:transform .28s cubic-bezier(.4,0,1,1),translate .28s cubic-bezier(.4,0,1,1)}.detail.open .sheetFoot{translate:0 calc(-1 * var(--hl,0px));transition:transform .55s cubic-bezier(.2,.95,.25,1),translate .55s cubic-bezier(.2,.95,.25,1)}";d.head.appendChild(st);
+// a touch in the product is a touch outside the Docklet: it counts for auto-hide like any other
+d.addEventListener("pointerdown",(e)=>{const r=fr.getBoundingClientRect(),k=r.width / (fr.clientWidth||1);this._actOn&&this._actOn({target:fr,clientX:r.left+e.clientX*k,clientY:r.top+e.clientY*k,pointerType:e.pointerType});},true);
+// no close button: inside the app the product is left through the Docklet; hidden, not removed, so the title stays centred
+const x=d.getElementById("btnClose");if(x){x.style.visibility="hidden";x.style.pointerEvents="none";x.setAttribute("aria-hidden","true");x.tabIndex=-1;}
+// a gesture that starts outside the product (the Docklet, the edge glow) keeps every move and the release: while it lasts
+// the frame takes no pointer, or a drag that crosses it would stop there and leave the Docklet halfway
+// and a touch on the Docklet is input for the product too: its idle hint ("Tap a piece...", after 4 s without input)
+// used to pop up right as the Docklet was let go. A keydown no shortcut of the product handles only marks the input
+if(!this._gwPE){this._gwPE=1;const off=()=>{const g=this._gw;if(!g)return;g.fr.style.pointerEvents="none";try{g.w.dispatchEvent(new g.w.KeyboardEvent("keydown",{key:"Unidentified"}));}catch(e){}},on=()=>{const g=this._gw;if(g)g.fr.style.pointerEvents="";};
+window.addEventListener("pointerdown",off,true);window.addEventListener("pointerup",on,true);window.addEventListener("pointercancel",on,true);}
+this._gTheme=null;this.guestSync(true);if(this._book)this.bookFlat(true);
+}
+guestEls(){const G=this._gw;if(!G)return[];if(!G.els||!G.els.length||!G.els[0].isConnected){G.els=[...G.d.querySelectorAll(".dock,.stepbar,.zoomrail,.lensRead,.coach,.toast,.hintCard,.zcard")];G.sheets=[...G.d.querySelectorAll(".psheet,.sheetFoot")];}return G.els;}
+guestLift(){
+// docked: the product dock's bottom 8 pt above the Docklet's top, measured at rest
+if(this._gL!=null)return this._gL;const G=this._gw,dk=this.dockRef.current;if(!G||!dk)return 51;
+// the bar's top is taken from the dock's bottom edge and the bar height, not from the rim path: the rim is the launcher's
+// outline while the launcher is open or still closing, and measured then (opening the product from the launcher) the
+// lift came out at 836 pt
+const pd=G.d.querySelector(".dock");if(!pd)return 51;
+const st=this.state;if(st.gate!=="none"||st.barRetract!=="none"||this._hg||this._settle)return 51;
+const fr=G.fr.getBoundingClientRect(),k=fr.width / (G.fr.clientWidth||1),dr=dk.getBoundingClientRect();
+const pdBottom=(G.fr.clientHeight - 12),barTop=(dr.bottom - fr.top)/ k -(st.barHeight||62);
+const L=Math.round(pdBottom -(barTop - 8));return L>=0&&L<=120?(this._gL=L):51;
+}
+guestSet(f){this._gF=f;const L=this.guestLift(),y=-(L*f);const v=Math.abs(y)<0.01?"":"0px "+y.toFixed(2)+"px",h=(L*f).toFixed(2)+"px";for(const e of this.guestEls())if(e.style.translate!==v)e.style.translate=v;for(const e of this._gw.sheets||[])if(e.style.getPropertyValue("--hl")!==h)e.style.setProperty("--hl",h);}
+// Drawbridge swings the Docklet up through the product dock: hiding, the product dock holds until the Docklet has
+// swung past it, then comes down; coming back it goes up first and makes room before the Docklet swings in under it
+guestLive(p){const u=Math.max(0,Math.min(1,(p - 0.4)/ 0.55)),f=1 - u*u*(3 - 2*u);CAF(this._gRaf);this._gRaf=0;this._gT=f>0.5?1:0;this.guestSet(f);}
+guestSync(force){
+const G=this._gw;if(!G)return;const st=this.state;
+const th=st.themeId==="berlinNight"||!st.themeId?"dark":"light";
+if(th!==this._gTheme){this._gTheme=th;const b=G.d.querySelector('#pTheme button[data-t="'+th+'"]');if(b)b.click();else G.d.documentElement.dataset.theme=th;}
+if(this._hg||this._settle)return;
+const to=st.gate==="none"&&st.barRetract==="none"&&!st.hidden?1:0,from=this._gF==null?to:this._gF;
+if(!force&&to===this._gT)return;this._gT=to;CAF(this._gRaf);
+if(force||Math.abs(to - from)<0.001){this.guestSet(to);return;}
+const t0=performance.now(),W=2*Math.PI / 0.36;
+const step=(now)=>{const t=(now - t0)/ 1000,e=1 -(1+W*t)*Math.exp(-W*t);if(e>0.999){this._gRaf=0;this.guestSet(to);return;}this.guestSet(from+(to - from)*e);this._gRaf=RAF(step);};
+this._gRaf=RAF(step);
+}
+// Collectibles book (Pocket). A tap lifts the book off the bottom of Pocket, its cover opens onto a native skeleton of
+// the SPA, and once the SPA is ready the page (the webview itself) scales up to full screen: Figma, Collectibles · Open
+// animation, Variant 1. Driven frame by frame like the hide motion; React only mounts the layers, and every style the
+// motion writes is cached (_bookT, _bookDim, _bookCol, _pageT, _pageI, _pageR, _pageO, _skelO) so a re-render mid-flight writes the same value
+bookPose(x,y,sc,rz,ry){
+this._bookT="translate("+x.toFixed(2)+"px,"+y.toFixed(2)+"px) rotate("+rz.toFixed(3)+"deg) perspective(1100px) rotateY("+ry.toFixed(2)+"deg) scale("+sc.toFixed(4)+")";
+const el=this.bookCoverRef.current;if(el)el.style.transform=this._bookT;}
+bookColor(o){this._bookCol=o;const el=this.bookColorRef.current;if(el)el.style.opacity=o.toFixed(3);
+const cv=this.bookCoverRef.current;if(cv){const on=o<0.999?"":"none";for(const k of cv.children)if(k!==el&&k.style.display!==on)k.style.display=on;
+// clipped only while the grey stickers, which overhang the edge, show: a rounded clip on the turning book made it a
+// masked surface every frame; the colour cover rounds itself
+const ov=on?"visible":"hidden";if(cv.style.overflow!==ov)cv.style.overflow=ov;}}
+bookDim(o){this._bookDim=o;const el=this.bookDimRef.current;if(el)el.style.opacity=o.toFixed(3);}
+// the page in the book is the full-screen SPA at 371/402 with its top 56 pt cut off (the Figma page), so the same
+// webview only has to grow: k = 0 in the book (16, 150, 371 x 535, radius 20), 1 full screen. The clip is the outer
+// box (overflow hidden) scaled to the page's rect and the inner layer scaled back, transforms only: a clip-path changed
+// every frame repainted the whole page (66-158 ms frames on the A26). The clip is square: a rounded one made the page a
+// masked surface every frame, and its corners never show, the page and the backdrop being the SPA's same background
+pagePose(k){
+const v=this.collectViewRef.current,n=this.collectInnerRef.current;
+if(k>=1){this._pageT=this._pageI=this._pageR="";}
+else{const q=1 - k,s=0.922886+0.077114*k,sx=(371+31*k)/ 402,sy=(535+339*k)/ 874;
+this._pageT="translate("+(16*q).toFixed(2)+"px,"+(150*q).toFixed(2)+"px) scale("+sx.toFixed(5)+","+sy.toFixed(5)+")";
+this._pageI="translate(0px,"+(-56.37*q / sy).toFixed(2)+"px) scale(1,"+(s / sy).toFixed(5)+")";
+this._pageR="";}
+if(v){v.style.transform=this._pageT;v.style.borderRadius=this._pageR;}if(n)n.style.transform=this._pageI;}
+pageShow(o){this._pageO=o;const v=this.collectViewRef.current;if(v)v.style.opacity=String(o);}
+// the SPA's own glass (its bar, hints, rails) is a backdrop blur; moved and clipped with the page every frame it cost
+// up to 142 ms frames on the A26 (42 ms without it), so it is off while the book moves and back once the page rests.
+// Its glass is 82 % opaque, so the difference barely shows
+bookFlat(on){const G=this._gw;if(G&&G.d&&G.d.documentElement)G.d.documentElement.classList.toggle("bk-flat",!!on);}
+bookSkel(o){this._skelO=o;const el=this.bookSkelRef.current;if(el)el.style.opacity=o.toFixed(3);}
+// "ready" is the SPA's own: its boot label fades out once the sprite and the fonts are in
+bookReady(){const G=this._gw;if(!G)return false;const b=G.d.getElementById("boot");return!b||b.style.opacity==="0";}
+bookTap(){this.bookBegin(false);}
+// the open starts from a tap, or from a drag up on the book (drag: the book follows the finger until it is let go)
+bookBegin(drag){
+const s=this.state;if(this._book||s.book)return null;
+this.haptic("light");
+this._collectSeen=true;this._bookFrom="pocket";this._pageK=0;
+const B=this._book={dir:1,t0:performance.now(),raf:0,set:false,rT:0,sim:this.bookSimLoad(),drag:!!drag,lift:{u0:0,v0:0},col0:0,smp:[]};this.bookFlat(true);
+this._bookZ=3;this.bookPose(15,689,0.98,0,0);this.bookDim(0);this.bookColor(0);this.pagePose(0);this.pageShow(0);this.bookSkel(1);
+const cv=this.bookCoverRef.current;if(cv){cv.style.visibility="visible";cv.style.zIndex="3";}
+// the SPA takes the whole screen, its own bar at the bottom: the Docklet goes, with no first-hide tip. Not animated: it
+// leaves at 300 ms under the opaque backdrop (its quiet hide running with the lift cost 90-140 ms frames on the A26)
+B.dock=s.gate==="none"&&s.barRetract==="none"&&!this._hg&&!this._settle;
+(clearTimeout(this._ahT),this._ahT=0);
+// a hide tip still up from earlier flies off: the SPA takes the screen
+if(s.dockTipOpen&&!s.tipFly)this.tipAway(s.gate!=="none"?s.gate:s.leftHanded?"left":"right");
+// the SPA starts loading right on tap: the iframe mounts with this render
+this.ss({book:"open",bookErr:false},()=>{this.pagePose(0);this.pageShow(0);if(!B.drag)B.raf=RAF((n)=>this.bookStep(n));});
+return B;
+}
+// a gentle cubic-bezier(.45,0,.15,1): it starts softly and lands softly (the ease-out it replaced snapped at the start)
+bookEase(x){if(x<=0)return 0;if(x>=1)return 1;const X=(u)=>3*u*(1 - u)*(1 - u)*0.45+3*u*u*(1 - u)*0.15+u*u*u,Y=(u)=>3*u*u*(1 - u)+u*u*u;
+let lo=0,hi=1;for(let i=0;i<22;i++){const m=(lo+hi)/ 2;if(X(m)<x)lo=m;else hi=m;}return Y((lo+hi)/ 2);}
+// a simulated load, so the open book shows its shimmering skeleton for a while as with a real SPA, counted from the moment
+// the cover is open: 1.3-1.8 s on a healthy network, longer when the Network simulator says a network is slow or
+// connecting; offline it never comes (error after 10 s). (Counted from the tap, the skeleton showed for 0.05-0.45 s)
+bookSimLoad(){const s=this.state,w=NETS.reduce((m,n)=>NET_RANK[s[n[0]]]>NET_RANK[m]?s[n[0]]:m,"ok"),r=Math.random();
+return BOOK_OPEN+(w==="offline"?Infinity:w==="slow"?2600+600*r:w==="connecting"?2000+400*r:1300+500*r);}
+// dragging the book up out of Pocket: it follows the finger 1:1 (p = 0 in Pocket, 1 under the ID bar), takes its colours
+// and dims Pocket as it rises; above the top it gives like rubber, and below its place in Pocket it barely moves
+bookDrag(dy){
+const B=this._book;if(!B||!B.drag)return;
+const q=-dy / 539,p=q>1?1+(q - 1)*0.25:q<0?q*0.15:q,pc=Math.max(0,Math.min(1,p));
+B.p=p;const now=performance.now();B.smp.push({t:now,p});while(B.smp.length>2&&now - B.smp[0].t>100)B.smp.shift();
+if(p>0.01&&this._bookZ!==9){this._bookZ=9;const el=this.bookCoverRef.current;if(el)el.style.zIndex="9";}
+this.bookPose(15+pc,689 - 539*p,0.98+0.02*pc,-16*pc*(1 - pc),0);
+this.bookColor(Math.min(1,pc*5));this.bookDim(Math.min(1,pc*pc*1.1));
+}
+// let go: past a third of the way, or flicked up, it carries on into the open with the finger's speed; otherwise it
+// settles back into Pocket
+bookDragEnd(){
+const B=this._book;if(!B||!B.drag)return;
+const S=B.smp,a=S[0],b=S[S.length - 1],v=S.length>1?(b.p - a.p)/ Math.max(1,b.t - a.t)*1000:0,p=B.p||0;
+if((p>0.33&&v>-0.6)||v>1.2){B.drag=false;B.t0=performance.now() - 80;B.lift={u0:p,v0:Math.min(6,Math.max(0,v))};B.col0=this._bookCol||0;this.haptic("light");B.raf=RAF((n)=>this.bookStep(n));return;}
+B.drag=false;B.dir=0;B.c0={p,t0:performance.now()};B.raf=RAF((n)=>this.bookSettle(n));
+}
+bookSettle(now){
+const B=this._book;if(!B||B.dir!==0)return;
+const e=Math.min(1,(now - B.c0.t0)/ 260),k=e*e*(3 - 2*e),p=B.c0.p*(1 - k),pc=Math.max(0,Math.min(1,p));
+this.bookPose(15+pc,689 - 539*p,0.98+0.02*pc,-16*pc*(1 - pc),0);this.bookColor(Math.min(1,pc*5));this.bookDim(Math.min(1,pc*pc*1.1));
+if(e>=1){this._book=null;this._bookZ=3;this.bookColor(0);this.bookFlat(false);this.ss({book:0,bookErr:false});return;}
+B.raf=RAF((n)=>this.bookSettle(n));
+}
+bookStep(now){
+const B=this._book;if(!B||B.dir!==1||B.drag)return;
+const t=now - B.t0,sw=(x)=>0.5 - 0.5*Math.cos(Math.PI*Math.max(0,Math.min(1,x)));
+// 0-80 ms the press (0.98); from 80 ms a soft spring up (stiffness 170, damping 22; the storyboard's 260 / 24 felt
+// abrupt) with a -4 deg tilt on the way; it lands at about 440 ms
+const tl=Math.max(0,t - 80)/ 1000,w0=Math.sqrt(170),z=22 /(2*w0),wd=w0*Math.sqrt(1 - z*z);
+const L=B.lift,x0=L.u0 - 1,u=tl<=0?L.u0:1+Math.exp(-z*w0*tl)*(x0*Math.cos(wd*tl)+(L.v0+z*w0*x0)/ wd*Math.sin(wd*tl)),uc=Math.max(0,Math.min(1,u));
+// 440-860 ms the cover turns on its left spine, 0 to -160 deg, easing in and out; the page under it is the skeleton
+const ry=-160*sw((t - BOOK_LAND)/ 420);
+if(t>=BOOK_LAND - 120&&!B.shim){const sh=this.bookShimRef.current;if(sh){B.shim=true;sh.style.animation="none";void sh.offsetWidth;sh.style.animation="bookShimmer 1.2s linear infinite";}}
+// pressed, the book is still under the Docklet (as in Pocket) and takes its colours there, so only the colour cover
+// flies (crossfading while it moved cost 80-116 ms frames on the A26); it comes over everything as it lifts
+{const z=t<80?3:9;if(this._bookZ!==z){this._bookZ=z;const el=this.bookCoverRef.current;if(el)el.style.zIndex=String(z);}}
+this.bookPose(15+u,689 - 539*u,0.98+0.02*uc,-16*uc*(1 - uc),ry);this.bookColor(Math.max(B.col0,Math.min(1,(t - 10)/ 90)));
+this.bookDim(t>=BOOK_LAND?1:Math.min(1,uc*uc*1.1));
+// it has landed under the ID bar: the window is Collectibles now
+if(t>=BOOK_LAND&&!B.set){B.set=true;this.pageShow(1);
+if(B.dock&&this.state.gate==="none"&&!this._hg&&!this._settle){const st=this.state,sd=st.leftHanded?"left":"right";this._quiet=1;this._bookHid=true;this.hideApply(st.mode,sd,1);this.hitLive(true);if(this._zq)this._zq();this.hideCommit(st.mode,sd,true);}
+this.ss({activeApp:"collect",appFg:true});}
+// waits open (shimmer) for the SPA and the simulated load; then the real content fades in over the skeleton (240 ms)
+// and, from 120 ms into that, the page grows to full screen (520 ms, soft start and landing)
+if(t>=BOOK_OPEN&&!B.rT&&t>=B.sim&&this.bookReady()){B.rT=now;if(this.state.bookErr)this.ss({bookErr:false});}
+if(B.rT){const e=now - B.rT;this.bookSkel(1 - sw(e / 240));const k=Math.max(0,Math.min(1,(e - 120)/ 520));this._pageK=this.bookEase(k);this.pagePose(this._pageK);
+if(k>=1){this._book=null;this._skelO=1;this.bookFlat(false);this.ss({book:0,bookErr:false});return;}}
+else if(t>10000&&!this.state.bookErr)this.ss({bookErr:true});
+B.raf=RAF((n)=>this.bookStep(n));
+}
+bookRetry(){const B=this._book;if(!B)return;const G=this._gw;this._gw=null;
+try{(G?G.fr:document.querySelector('iframe[title="Collectibles"]')).contentWindow.location.reload();}catch(e){}
+B.t0=performance.now() - BOOK_OPEN;B.sim=this.bookSimLoad();this.ss({bookErr:false});}
+// leaving Collectibles that was opened from the book: the page shrinks back into the book, the cover closes, and the
+// book drops back into Pocket (not in the storyboard; the open motion played backwards). The Docklet stays hidden
+bookCloses(){
+const s=this.state,B0=this._book;
+if(s.activeApp!=="collect"||!s.appFg||this._bookFrom!=="pocket")return false;
+if(B0&&!(B0.dir===1&&s.bookErr))return true;
+if(B0)CAF(B0.raf);
+this._bookFrom=null;
+const B=this._book={dir:-1,t0:0,raf:0,set:false,k0:this._pageK==null?1:this._pageK};this.bookFlat(true);
+this._bookZ=9;this.bookPose(16,150,1,0,-160);this.bookDim(1);this.bookColor(1);
+this.ss({book:"close",idMenu:false,idPop:false},()=>{B.t0=performance.now();B.raf=RAF((n)=>this.bookBack(n));});
+return true;
+}
+bookBack(now){
+const B=this._book;if(!B||B.dir!==-1)return;
+const t=now - B.t0,sw=(x)=>0.5 - 0.5*Math.cos(Math.PI*Math.max(0,Math.min(1,x))),sm=(x)=>x*x*(3 - 2*x);
+// 0-380 ms the page shrinks back into the book; 300-640 ms the cover closes; 640-1060 ms the book sinks into Pocket
+this._pageK=B.k0*(1 - this.bookEase(t / 380));this.pagePose(this._pageK);
+const ry=-160*(1 - sw((t - 300)/ 340));
+// the cover is shut over the page: the page goes with the book's spot, or it stayed there over Pocket (the ID card
+// showed the Collectibles grid) while the book sank
+if(t>=640&&!B.set){B.set=true;this.pageShow(0);this.ss({activeApp:null,appFg:false,appData:{}});}
+const d=Math.max(0,Math.min(1,(t - 640)/ 420)),e=sm(d);
+this.bookPose(16 - e,150+539*e,1 - 0.02*e,-16*e*(1 - e),ry);this.bookDim(1 - e);this.bookColor(1 - e);
+// the Docklet stays as it is: hidden, it is not brought back on its own
+if(d>=1){this._book=null;this._pageK=0;this.bookFlat(false);this._skelO=1;this.ss({book:0,bookErr:false},()=>{this.pagePose(1);this.pageShow(1);});return;}
+B.raf=RAF((n)=>this.bookBack(n));
+}
+bookVals(miniDef,isCollect){
+const s=this.state,dark=!s.themeId||s.themeId==="berlinNight",fly=!!s.book;
+const bg=dark?"#0B0C0F":"#F7F7F8",surf=dark?"#1A1B20":"#FFFFFF",nest=dark?"#23252A":"#F0F0F2",dot=dark?"rgba(88,91,98,0.6)":"#C6C7CD";
+const fg=dark?"#F4F4F5":"#0B0C0F",fg2=dark?"#8C8F98":"#585B62";
+const R="12.45px 49.81px 49.81px 12.45px",abs=(o)=>Object.assign({position:"absolute"},o);
+// a sticker: its Figma box (left, top, size), turned by r inside it; the art is square
+const st=(src,l,t,b,r,w,o)=>abs({left:+(l+b / 2 - w / 2).toFixed(2),top:+(t+b / 2 - w / 2).toFixed(2),width:w,height:w,transform:r?"rotate("+r+"deg)":"none",opacity:o||1,background:"url("+src+") center / cover no-repeat"});
+const card=(top,h)=>abs({left:18,top,width:370,height:h,borderRadius:28,background:surf});
+const dots=abs({left:25.25,top:61.25,width:318,height:212,background:"radial-gradient(circle at 13.25px 13.25px, "+dot+" 2.5px, transparent 3px) 0 0 / 26.5px 26.5px"});
+const circ=(left,top)=>abs({left,top,width:44,height:44,borderRadius:"50%",background:surf});
+const loading=s.book==="open"||(s.book==="close"&&!!s.bookErr);
+return{
+bookFlying:fly||(s.active===1&&!miniDef)||(isCollect&&this._bookFrom==="pocket"),
+bookDimRef:this.bookDimRef,bookCoverRef:this.bookCoverRef,bookPeekRef:this.bookPeekRef,collectViewRef:this.collectViewRef,collectInnerRef:this.collectInnerRef,bookShimRef:this.bookShimRef,bookSkelRef:this.bookSkelRef,bookColorRef:this.bookColorRef,
+bookDimStyle:abs({inset:0,zIndex:9,background:bg,opacity:fly?(this._bookDim||0):0,pointerEvents:fly?"auto":"none"}),
+bookColorStyle:abs({inset:0,borderRadius:20,background:"url(./assets/pocket/book/"+"cover.webp) center / 100% 100% no-repeat",opacity:this._bookCol||0}),
+bookFlyStyle:abs({left:0,top:0,width:370.6,height:535.46,zIndex:this._bookZ||9,borderRadius:20,boxShadow:"-6px 14px 28px #00000080",overflow:"hidden",pointerEvents:"none",transformOrigin:"0 50%",backfaceVisibility:"hidden",WebkitBackfaceVisibility:"hidden",willChange:"transform",transform:this._bookT||"none",visibility:fly?"visible":"hidden"}),
+// the book peeking out at the bottom of Pocket, under the Docklet; a tap opens Collectibles
+bookPeekOpen:(()=>{const o=s.active===1&&(!miniDef||!!s.book);if(o&&!this._coverPre&&typeof Image!=="undefined"){const im=this._coverPre=new Image();im.src="./assets/pocket/book/"+"cover.webp";if(im.decode)im.decode().catch(()=>{});}return o;})(),
+bookPeekStyle:abs({left:15,top:689,width:370.6,height:535.46,zIndex:2,borderRadius:R,overflow:"hidden",cursor:"pointer",touchAction:"none",transformOrigin:"50% 90px",transition:"transform 80ms ease-out",visibility:fly?"hidden":"visible",WebkitTapHighlightColor:"transparent"}),
+onBookDown:(e)=>{const el=e.currentTarget,sc=s.scale||1,x0=e.clientX,y0=e.clientY;let drag=false;el.style.transform="scale(0.98)";
+const end=()=>{el.style.transform="";window.removeEventListener("pointermove",mv,true);window.removeEventListener("pointerup",up,true);window.removeEventListener("pointercancel",up,true);};
+const mv=(ev)=>{const dx=(ev.clientX - x0)/ sc,dy=(ev.clientY - y0)/ sc;
+if(!drag){if(dy< -8&&-dy>Math.abs(dx)){if(!this.bookBegin(true)){end();return;}drag=true;}else{if(Math.hypot(dx,dy)>12)el.style.transform="";return;}}
+this.bookDrag(dy);};
+const up=()=>{end();if(drag)this.bookDragEnd();};
+window.addEventListener("pointermove",mv,true);window.addEventListener("pointerup",up,true);window.addEventListener("pointercancel",up,true);},
+onBookTap:()=>this.bookTap(),
+bookFadeStyle:abs({left:0,top:746,width:402,height:128,zIndex:2,pointerEvents:"none",
+background:"linear-gradient(180deg,color-mix(in srgb, var(--bgSurfaceMain) 0%, transparent),color-mix(in srgb, var(--bgSurfaceMain) 80%, transparent))",
+backdropFilter:"blur(4px)",WebkitBackdropFilter:"blur(4px)",WebkitMaskImage:"linear-gradient(180deg,transparent,#000 45%)",maskImage:"linear-gradient(180deg,transparent,#000 45%)"}),
+bookCoverBg:abs({inset:0,borderRadius:R,background:"linear-gradient(180deg,#3d3d3d,#323232)",boxShadow:"inset 11px 0 4px #cacaca40, inset 0 2px 2px #cacaca40"}),
+bookTitleStyle:abs({left:28.63,top:35.65,transform:"translateY(-50%)",fontFamily:"Marcellus, 'Instrument Serif', serif",fontSize:28.707,lineHeight:"35.086px",whiteSpace:"nowrap",
+background:"linear-gradient(180deg,#7e7e7e,#3d3d3d)",WebkitBackgroundClip:"text",backgroundClip:"text",color:"transparent",textShadow:"0 0.3px 0.2px #c8c8c8, 0 -0.3px 0.3px #1b1b1b"}),
+bookRimStyle:abs({inset:0,borderRadius:R,border:"1px solid #b9b9b9",boxSizing:"border-box",mixBlendMode:"hard-light"}),
+bookStickersA:[st("./assets/pocket/book/s1.webp",265,206.11,137.854,11.63,116.719)],
+bookStickersB:[
+st("./assets/pocket/book/s2.webp",151.43,-70.7,169.456,-14.03,139.751),
+st("./assets/pocket/book/s3.webp",188,14.03,233.26,-26.96,173.472),
+st("./assets/pocket/book/s4.webp",21.35,5.61,229.45,15.93,185.629),
+st("./assets/pocket/book/s5.webp",139.64,324.08,125.352,15.25,102.095),
+st("./assets/pocket/book/s6.webp",-94.12,112.14,208.88,-24.45,157.737,0.5),
+st("./assets/pocket/book/s7.webp",-82.46,382.14,282.842,21.72,217.723),
+st("./assets/pocket/book/s8.webp",42.71,133.81,267.835,-15.36,217.895),
+st("./assets/pocket/book/s9.webp",-68.15,240.86,235.243,28.26,173.699),
+st("./assets/pocket/book/s10.webp",246.59,309.61,174.669,0,174.669),
+st("./assets/pocket/book/s11.webp",159.39,394.13,211.209,-39.28,150.094)],
+// the SPA: mounted on the first open and kept, so it doesn't boot again every time; full screen, under the ID bar
+collectMounted:(()=>{if(!this._collectSeen&&!this._collectPre&&s.active===1&&!miniDef)this._collectPre=setTimeout(()=>{this._collectSeen=true;this.ss({collectPre:1});},1200);return!!this._collectSeen;})(),
+collectViewStyle:abs({left:0,top:0,width:402,height:874,zIndex:fly?9:3,background:bg,visibility:isCollect||fly?"visible":"hidden",
+pointerEvents:isCollect&&(!fly||s.bookErr)?"auto":"none",transformOrigin:"0 0",transform:this._pageT||"none",borderRadius:this._pageR||0,overflow:"hidden",opacity:this._pageO==null?1:this._pageO}),
+collectInnerStyle:abs({inset:0,transformOrigin:"0 0",transform:this._pageI||"none"}),
+collectRefCb:(el)=>{if(!el||el._wired)return;el._wired=1;el.addEventListener("load",()=>this.guestWire(el));el.src="./assets/collectibles/"+"app.html";},
+// the first page in the book: a native skeleton of the SPA (Figma Page · skeleton, in full-screen points)
+bookSkelOn:loading,
+bookSkelStyle:abs({inset:0,zIndex:1,background:bg,overflow:"hidden",opacity:this._skelO==null?1:this._skelO}),
+skHeadA:abs({left:126,top:92,width:150,height:18,borderRadius:6,background:nest}),
+skHeadB:abs({left:101,top:118,width:200,height:12,borderRadius:6,background:nest}),
+skCircleTop:circ(340,92),
+skCard1:card(150,290),skLabel1:abs({left:24,top:30,width:90,height:16,borderRadius:6,background:nest}),skDots1:dots,
+skCard2:card(470,300),skLabel2:abs({left:24,top:30,width:130,height:16,borderRadius:6,background:nest}),skDots2:dots,
+skCircleA:circ(345,650),skCircleB:circ(345,700),
+skBar:abs({left:23,top:790,width:356,height:56,borderRadius:28,background:surf}),
+// a soft band 300 pt wide sweeping the page, 1.2 s a pass, always somewhere on the page (the Figma band was 7 % on a
+// 563 pt layer that spent most of each pass off the page: it barely showed)
+skShimmer:abs({left:0,top:0,width:300,height:874,pointerEvents:"none",willChange:"transform",
+background:"linear-gradient(90deg,transparent 0%,"+(dark?"rgba(255,255,255,0.05) 30%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.05) 70%":"rgba(11,12,15,0.03) 30%,rgba(11,12,15,0.08) 50%,rgba(11,12,15,0.03) 70%")+",transparent 100%)",
+opacity:1}),
+// after 10 s without "ready": an error in the book
+bookErr:!!s.bookErr,
+skErrStyle:abs({left:0,right:0,top:250,zIndex:2,display:"flex",flexDirection:"column",alignItems:"center",gap:8,padding:"0 48px",textAlign:"center"}),
+skErrTitle:{fontWeight:600,fontSize:20,lineHeight:"28px",color:fg},
+skErrLine:{fontSize:15,lineHeight:"21px",color:fg2},
+skErrBtn:{marginTop:12,minHeight:48,padding:"0 26px",borderRadius:24,display:"flex",alignItems:"center",background:fg,color:bg,fontSize:16,fontWeight:600,cursor:"pointer"},
+onBookRetry:()=>this.bookRetry(),
+};
+}
 hideApply(kind,side,p,keepInd){
+if(this._gw)this.guestLive(p);
 if(this._hgFold){const F=this._hgFold,k=Math.max(0,Math.min(1,p / 0.6)),c=1 - k;this.paintGlass(F.y0+(F.y1 - F.y0)*k);
 const tr=this.trayRideRef.current,rv=this.appsRevealRef.current;
 if(tr){tr.style.transition="none";tr.style.filter="blur("+(k*10).toFixed(1)+"px)";}
@@ -2039,15 +2576,8 @@ window.addEventListener("pointermove",cancel);
 };
 }
 startRestore(){
-return(e)=>{
-const zone=e.currentTarget;
-const tapThrough=()=>{window.removeEventListener("pointerup",tapThrough);setTimeout(()=>{const st=this.state,hid=st.gate!=="none"||st.barRetract!=="none";
-// a tap only: after a drag the release has already started a settle (either way); restoring here too ran a second
-// animation from fully hidden, 20 ms after a midway release that settles back to hidden
-if(hid&&!this._settle)this.tipRestore();},0);};
-window.addEventListener("pointerup",tapThrough);
-return this.startDrag("bar")(e);
-};
+// only a drag brings the dock back from the glow (R2): a tap on it does nothing
+return(e)=>this.startDrag("bar")(e);
 }
 notchPath(w,h){
 const k=h / 61.805,cx=w / 2;
@@ -2219,6 +2749,7 @@ if(Date.now()-(this._pillTapAt||0)<500)return;
 if(this.state.lqOpen){this.lqTo(this.state.lqView===2?1:0);try{history.pushState({dock:"guard"},"");}catch(e){}return;}const B=this._bk;if(!B)return;if(B.skip>0){B.skip--;return;}
 if(B.d>0)B.d--;else try{history.pushState({dock:"guard"},"");}catch(e){}
 const s=this.state,top=this.layers()[0];
+if(this._book&&!s.bookErr)return;
 // a Back swipe from the edge opposite the hidden dock is a plain Back and leaves the dock where it is
 if(!top){if((s.gate!=="none"||s.barRetract!=="none")&&Date.now()-(this._plainBackAt||0)>800)this.restoreDock();return;}
 ({idsheet:()=>this.ss({idMenu:false,idPop:false}),menu:()=>this.ss({menuFor:null,dockMenu:false}),
@@ -2273,16 +2804,17 @@ appsFade:appsWasOpen,expFade:expWasOpen,
 clearTimeout(this._fadeT);this._fadeT=setTimeout(()=>this.ss({appsFade:false,expFade:false}),480);
 }
 leaveApp(patch){
+if(!patch&&this.bookCloses())return;
 this.ss(Object.assign({
-appFg:false,appsOpen:false,expanded:false,
-gate:"none",barRetract:"none",pillRetract:"none",
+appFg:false,appsOpen:false,expanded:false,pillRetract:"none",
 },patch||{}));
 }
 closeApp(patch){
+if(!patch&&this.bookCloses())return;
 if(this.swT){clearInterval(this.swT);this.swT=null;}
 this.ss(Object.assign({
 activeApp:null,appFg:false,appsOpen:false,appData:{},
-gate:"none",barRetract:"none",hidden:false,scrollHidden:false,
+hidden:false,scrollHidden:false,
 },patch||{}));
 }
 appPatch(patch){
@@ -2567,9 +3099,15 @@ const out={
 "Button colour":sec([null,rename(pick("Centre pill",["Hue","Saturation","Brightness","Edge light saturation","Tint with open app's accent"]),{"Edge light saturation":"Rim saturation","Tint with open app's accent":"Match open app's accent"})]),
 "Material":sec(["Theme",rename(pick("Glass",["Theme","Glass"]),{"Theme":"Theme (Berlin Night, Berlin Day, Tokyo, Malta, Lisbon)"})],[null,rename(pick("Glass",["Blur","Saturation","Tint opacity","Edge light","Shadow"]),{"Tint opacity":"Tint","Edge light":"Rim light"})],
 ["Specular",rename(pick("Glass",["Specular highlight","Specular hue","Specular saturation"]),{"Specular highlight":"Specular","Specular hue":"Hue","Specular saturation":"Saturation"})]),
-"Networks":sec([null,[{seg:this.seg("Indicator","idInd",[["Dot + bar","bar"],["Ring","ring"],["Pill","pill"]])},{seg:this.seg("Scenario","netScene",[["Healthy","healthy"],["Slow","slow"],["Offline","offline"],["Syncing","syncing"]])}]],
+"Networks":sec(["Indicator",[{seg:this.seg("One allowance","idInd",[["Dot + bar","bar"],["Ring","ring"],["Pill","pill"]])},
+{seg:this.seg("Every voucher type","idInd",[["Two-grade","two"],["Battery","battery"],["Equalizer","eq"]])},
+{seg:this.seg("Network detail","idInd",[["Chain icons","chain"],["Joined X","x"],["Ticker","ticker"]])},
+{note:"The first three show the worst network and Messages only. The rest show every voucher type (the smallest solid, the median at 50%, or one bar each) and use the Figma colours: red = slow, grey = offline or connecting."}]],
+[null,[{seg:this.seg("Scenario","netScene",[["Healthy","healthy"],["Slow","slow"],["Offline","offline"],["Syncing","syncing"]])}]],
 ["Networks",NETS.map(([k,n])=>({seg:this.seg(n,k,[["OK","ok"],["Slow","slow"],["Offline","offline"],["Syncing","connecting"]])}))],
-["Vouchers",[{seg:this.seg("Left","vouchers",[["50",50],["25",25],["6",6],["0",0]])},{slider:this.slider("Vouchers left","vouchers",0,V_MAX,1,"")},{note:"Each chat message you send uses one. At 20% and below the bar turns amber; at 0 sending is blocked and the vouchers popover opens."}]],
+["Vouchers",[{seg:this.seg("Left","vouchers",[["50",50],["25",25],["6",6],["0",0]])},{slider:this.slider("Messages left","vouchers",0,V_MAX,1,"")},
+{seg:this.seg("All types","vScene",[["Full","full"],["Mixed","mixed"],["One low","low"],["All low","alllow"],["One out","out"]])},
+{slider:this.slider("Files left","vFiles",0,40,1,"")},{slider:this.slider("Transactions left","vTx",0,10,1,"")},{note:"Each chat message you send uses one. At 20% and below the bar turns amber; at 0 sending is blocked and the vouchers popover opens."}]],
 ["Live",[{toggle:this.toggle("Simulate live networks","netLive")},{note:"Networks drop, slow down and reconnect on their own, and vouchers run down as if messages were being sent."}]]),
 "Haptics":sec([null,g["Haptics"]||[]]),
 "Pressed glow":sec([null,g["Pill icon"]||[]]),
@@ -2834,7 +3372,7 @@ const shown=card||s.cardClosing;
 const open=(k)=>()=>{this.haptic("light");clearTimeout(this.cardT);this.ss({cardOpen:k,cardClosing:null});};
 const ready=20,clearing=10;
 return{
-pocketOpen:s.active===1&&!miniDef,
+pocketOpen:s.active===1&&(!miniDef||!!s.book),
 cashTotal:String(ready+clearing),cashReady:String(ready),cashClearing:String(clearing),
 cashReadyBar:{width:(ready /(ready+clearing)*100)+"%",background:"#f4f1ec"},
 onOpenCash:card==="cash"?()=>{this.haptic("light");clearTimeout(this.cardT);this.ss({cardOpen:null,cardClosing:null});}:open("cash"),
@@ -2953,7 +3491,7 @@ return{
 chatOpen:(open&&s.active===0&&!s.appFg)||!!s.chatClosing,
 chatScrollRef:this.chatScrollRef,
 chatViewStyle:{
-position:"absolute",left:0,right:0,top:52,bottom:0,zIndex:50,background:"var(--bgSurfaceMain)",
+position:"absolute",left:0,right:0,top:0,bottom:0,zIndex:50,background:"var(--bgSurfaceMain)",
 fontFamily:"Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
 animation:open?(s.chatFresh?"bwFade 240ms ease-out both":"none"):"bwFadeOut 200ms ease-in both",
 willChange:"transform",backfaceVisibility:"hidden",contain:"layout paint style",
@@ -2972,7 +3510,7 @@ this.ss({chatKb:true},()=>{if(el)el.scrollTop+=(KB_H - 34+4);});
 },
 chatScrollStyle:{
 position:"absolute",left:0,right:0,top:0,bottom:0,overflowY:"auto",overflowX:"hidden",scrollbarWidth:"none",
-padding:(78+(s.chatKb?(KB_H - 34+4):0))+"px 16px 118px",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:8,
+padding:(139+(s.chatKb?(KB_H - 34+4):0))+"px 16px 118px",boxSizing:"border-box",display:"flex",flexDirection:"column",gap:8,
 transform:s.chatKb?"translateY("+(-(KB_H - 34+4))+"px)":"none",
 transition:"transform 320ms "+HC,willChange:"transform",
 },
@@ -2985,7 +3523,7 @@ transition:"transform 320ms "+HC,willChange:"transform",
 onChatDraft:(e)=>this.ss({chatDraft:e.target.value}),
 onChatKey:(e)=>{if(e.key==="Enter"){e.preventDefault();send();}},
 onChatSend:()=>this.sendChat(),
-onChatBack:()=>{
+onChatBack:this._chatBack=()=>{
 this.haptic("light");
 if(r){this.lastChatName=r.name;this.lastChatInitial=r.initial;this.lastChatAvatar={background:r.bg,color:r.fg};this.lastChatMsgs=msgs;}
 clearTimeout(this.chatT);
@@ -3316,7 +3854,8 @@ for(let i=0;i<4;i++){
 const miniDef=s.activeApp&&s.appFg?APPS.find((a)=>a.id===s.activeApp):null;
 const isSettings=!!miniDef&&miniDef.id==="settings";
 this._theme=miniDef?(APP_THEME[miniDef.id]||{}):{};
-const mini=miniDef&&!isSettings?this.miniApp(miniDef):null;
+const isCollect=!!miniDef&&miniDef.id==="collect";this._collectSeen=this._collectSeen||isCollect||!!s.book;if(this._gw)queueMicrotask(()=>this.guestSync());
+const mini=miniDef&&!isSettings&&!isCollect?this.miniApp(miniDef):null;
 const AT=this._theme;
 const PRIV={
 fast:{cx:19.472,off:"#7c591e",ring:["#fde082","#b45309"],fill:"#f59e0b29",x:-11.528,title:"Fast",desc:"Fastest payments, standard privacy",icon:"bolt",w:18,h:18,g:"linear-gradient(180deg, #fbbf24 0%, #b45309 100%)",glow:"#fbbf24"},
@@ -3510,7 +4049,8 @@ scaleStyle:{width:SCREEN_W,height:SCREEN_H,transform:"scale("+scale+")",transfor
 gated:s.gate!=="none",
 dockAway:gateMode&&s.gate!=="none"&&s.anchored===false,
 onRestoreDown:this.startRestore(),
-appOpen:!!miniDef&&!isSettings,
+appOpen:!!miniDef&&!isSettings&&!isCollect,
+...this.bookVals(miniDef,isCollect),
 settingsOpen:isSettings,
 onSlotOpenApps:()=>{this.haptic("medium");this.appsAt=Date.now();this.ss({appsOpen:true,expanded:false,inputMode:false,query:"",openFx:"lid"});},
 slotEmptyOpen:s.active===2&&!s.hotApp&&!miniDef,
